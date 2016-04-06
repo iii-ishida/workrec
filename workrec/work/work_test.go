@@ -132,31 +132,6 @@ func TestStartTime(t *testing.T) {
 }
 
 func TestWorkFromJSON(t *testing.T) {
-	const jsonString = `
-	{
-		"title": "TestWorkFromJSON", 
-		"actions": [
-			{
-				"state": 1,
-				"time": "2015-07-29T09:30:00+00:00"
-			},
-			{
-				"state": 2,
-				"time": "2015-07-29T12:30:00+00:00"
-			},
-			{
-				"state": 3,
-				"time": "2015-07-29T13:25:00+00:00"
-			},
-			{
-				"state": 4,
-				"time": "2015-07-29T18:30:00+00:00"
-			}
-		],
-		"goal_minutes": 500
-	}
-	`
-
 	if _, err := FromJSON(strings.NewReader(`{"title": 1}`)); err == nil {
 		t.Errorf("err = nil, want not nil")
 	}
@@ -166,7 +141,7 @@ func TestWorkFromJSON(t *testing.T) {
 		t.Errorf("err = %+v, want nil", err)
 	}
 
-	want := "TestWorkFromJSON"
+	want := "TestWorkJSON"
 	if work.Title != want {
 		t.Errorf("work.Title = %+v, want %+v", work.Title, want)
 	}
@@ -190,3 +165,51 @@ func TestWorkFromJSON(t *testing.T) {
 		t.Errorf("work.GoalMinutes = %+v, want %+v", work.GoalMinutes, wantGoalMinutes)
 	}
 }
+
+func TestWorkToJSON(t *testing.T) {
+	startTime := time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC)
+	pauseTime := time.Date(2015, 7, 29, 12, 30, 0, 0, time.UTC)
+	resumeTime := time.Date(2015, 7, 29, 13, 25, 0, 0, time.UTC)
+	finishTime := time.Date(2015, 7, 29, 18, 30, 0, 0, time.UTC)
+
+	original := New("TestWorkJSON", 500)
+	original = original.Start(startTime).Toggle(pauseTime).Toggle(resumeTime).Finish(finishTime)
+	workJSON := original.ToJSON()
+	work, _ := FromJSON(strings.NewReader(workJSON))
+
+	if work.Title != original.Title || len(work.Actions) != len(original.Actions) || work.GoalMinutes != original.GoalMinutes {
+		t.Errorf("work = %+v, want %+v", work, original)
+	}
+	for i, action := range work.Actions {
+		wantAction := original.Actions[i]
+		if action.State != wantAction.State || !action.Time.Equal(wantAction.Time) {
+			t.Errorf("work = %+v, want %+v", work, original)
+			break
+		}
+	}
+}
+
+const jsonString = `
+{
+	"title": "TestWorkJSON",
+	"actions": [
+		{
+			"state": 1,
+			"time": "2015-07-29T09:30:00+00:00"
+		},
+		{
+			"state": 2,
+			"time": "2015-07-29T12:30:00+00:00"
+		},
+		{
+			"state": 3,
+			"time": "2015-07-29T13:25:00+00:00"
+		},
+		{
+			"state": 4,
+			"time": "2015-07-29T18:30:00+00:00"
+		}
+	],
+	"goal_minutes": 500
+}
+`

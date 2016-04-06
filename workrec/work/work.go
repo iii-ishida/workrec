@@ -1,6 +1,7 @@
 package work
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"time"
@@ -58,6 +59,14 @@ func FromJSON(r io.Reader) (Work, error) {
 	err := decoder.Decode(&work)
 
 	return work, err
+}
+
+func (work *Work) ToJSON() string {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.Encode(&work)
+
+	return buffer.String()
 }
 
 func (work Work) Start(time time.Time) Work {
