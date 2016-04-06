@@ -1,6 +1,8 @@
 package work
 
 import (
+	"encoding/json"
+	"io"
 	"time"
 )
 
@@ -32,14 +34,14 @@ func (state State) String() string {
 }
 
 type action struct {
-	State State
-	Time  time.Time
+	State State     `json:"state"`
+	Time  time.Time `json:"time"`
 }
 
 type Work struct {
-	Title       string
-	Actions     []action
-	GoalMinutes int
+	Title       string   `json:"title"`
+	Actions     []action `json:"actions"`
+	GoalMinutes int      `json:"goal_minutes"`
 }
 
 func New(title string, goalMinutes int) Work {
@@ -48,6 +50,14 @@ func New(title string, goalMinutes int) Work {
 		Actions:     []action{},
 		GoalMinutes: goalMinutes,
 	}
+}
+
+func FromJSON(r io.Reader) (Work, error) {
+	var work Work
+	decoder := json.NewDecoder(r)
+	err := decoder.Decode(&work)
+
+	return work, err
 }
 
 func (work Work) Start(time time.Time) Work {
