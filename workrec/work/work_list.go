@@ -4,11 +4,11 @@ import (
 	"sort"
 )
 
-type WorkCollection []Work
+type WorkList []Work
 
-func (workCollection WorkCollection) Ordered() WorkCollection {
-	ordered := make([]Work, len(workCollection))
-	copy(ordered, workCollection)
+func (workList WorkList) Ordered() WorkList {
+	ordered := make([]Work, len(workList))
+	copy(ordered, workList)
 
 	byStartTime().Sort(ordered)
 	return ordered

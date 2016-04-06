@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestWorkCollectionOrder(t *testing.T) {
+func TestWorkListOrder(t *testing.T) {
 	wants := []string{
 		"作業03",
 		"作業01",
@@ -14,7 +14,7 @@ func TestWorkCollectionOrder(t *testing.T) {
 		"作業04",
 	}
 
-	original := testWorkCollection
+	original := testWorkList
 
 	ordered := original.Ordered()
 	for i, work := range ordered {
@@ -39,7 +39,7 @@ func TestWorkCollectionOrder(t *testing.T) {
 	}
 }
 
-var testWorkCollection = WorkCollection{
+var testWorkList = WorkList{
 	func() Work {
 		work := New("作業01", 0)
 		work = work.Start(time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC))
