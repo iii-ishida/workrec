@@ -96,3 +96,36 @@ func TestFinishWork(t *testing.T) {
 		t.Errorf("original.CurrentState() = %+v, want %+v", original.CurrentState(), want)
 	}
 }
+
+func TestStartTime(t *testing.T) {
+	startTime := time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC)
+	pauseTime := time.Date(2015, 7, 29, 12, 30, 0, 0, time.UTC)
+	resumeTime := time.Date(2015, 7, 29, 13, 25, 0, 0, time.UTC)
+	finishTime := time.Date(2015, 7, 29, 18, 30, 0, 0, time.UTC)
+
+	work := New("TestStartTime", 0)
+	if !work.StartTime().IsZero() {
+		t.Errorf("work.StartTime() = %+v, want Zero", work.StartTime())
+	}
+
+	started := work.Start(startTime)
+	want := startTime
+	if !started.StartTime().Equal(want) {
+		t.Errorf("started.StartTime() = %+v, want %+v", started.StartTime(), want)
+	}
+
+	paused := started.Toggle(pauseTime)
+	if !paused.StartTime().Equal(want) {
+		t.Errorf("paused.StartTime() = %+v, want %+v", paused.StartTime(), want)
+	}
+
+	resumed := paused.Toggle(resumeTime)
+	if !resumed.StartTime().Equal(want) {
+		t.Errorf("resumed.StartTime() = %+v, want %+v", resumed.StartTime(), want)
+	}
+
+	finished := resumed.Finish(finishTime)
+	if !finished.StartTime().Equal(want) {
+		t.Errorf("finished.StartTime() = %+v, want %+v", finished.StartTime(), want)
+	}
+}

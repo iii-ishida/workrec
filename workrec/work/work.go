@@ -102,3 +102,10 @@ func (work Work) nextState() State {
 		return Unknown
 	}
 }
+
+func (work Work) StartTime() time.Time {
+	if len(work.Actions) == 0 {
+		return time.Time{}
+	}
+	return work.Actions[0].Time
+}
