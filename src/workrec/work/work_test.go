@@ -141,7 +141,12 @@ func TestWorkFromJSON(t *testing.T) {
 		t.Errorf("err = %+v, want nil", err)
 	}
 
-	want := "TestWorkJSON"
+	want := "777"
+	if work.ID != want {
+		t.Errorf("work.ID = %+v, want %+v", work.ID, want)
+	}
+
+	want = "TestWorkJSON"
 	if work.Title != want {
 		t.Errorf("work.Title = %+v, want %+v", work.Title, want)
 	}
@@ -177,7 +182,11 @@ func TestWorkToJSON(t *testing.T) {
 	workJSON := original.ToJSON()
 	work, _ := FromJSON(strings.NewReader(workJSON))
 
-	if work.Title != original.Title || len(work.Actions) != len(original.Actions) || work.GoalMinutes != original.GoalMinutes {
+	isEqual := work.ID == original.ID
+	isEqual = isEqual && work.Title == original.Title
+	isEqual = isEqual && len(work.Actions) == len(original.Actions)
+	isEqual = isEqual && work.GoalMinutes == original.GoalMinutes
+	if !isEqual {
 		t.Errorf("work = %+v, want %+v", work, original)
 	}
 	for i, action := range work.Actions {
@@ -191,6 +200,7 @@ func TestWorkToJSON(t *testing.T) {
 
 const jsonString = `
 {
+	"id": "777",
 	"title": "TestWorkJSON",
 	"actions": [
 		{

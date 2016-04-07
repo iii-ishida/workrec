@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"io"
 	"time"
+
+	"workrec/db"
 )
 
 type State int
@@ -40,6 +42,7 @@ type action struct {
 }
 
 type Work struct {
+	ID          string   `json:"id"`
 	Title       string   `json:"title"`
 	Actions     []action `json:"actions"`
 	GoalMinutes int      `json:"goal_minutes"`
@@ -47,6 +50,7 @@ type Work struct {
 
 func New(title string, goalMinutes int) Work {
 	return Work{
+		ID:          db.NextWorkID(),
 		Title:       title,
 		Actions:     []action{},
 		GoalMinutes: goalMinutes,
