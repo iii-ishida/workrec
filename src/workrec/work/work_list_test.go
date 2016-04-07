@@ -57,6 +57,23 @@ func TestWorkListFromJSON(t *testing.T) {
 	}
 }
 
+func TestWorkListToJSON(t *testing.T) {
+	workListJSON := testWorkList.ToJSON()
+	workList, _ := WorkListFromJSON(strings.NewReader(workListJSON))
+
+	if !workList.Equal(testWorkList) {
+		t.Errorf("workList = %+v, want %+v", workList, testWorkList)
+	}
+
+	orderedOriginal := testWorkList.Ordered()
+	orderedWorkListJSON := orderedOriginal.ToJSON()
+	orderedWorkList, _ := WorkListFromJSON(strings.NewReader(orderedWorkListJSON))
+
+	if !orderedWorkList.Equal(orderedOriginal) {
+		t.Errorf("orderedWorkList = %+v, want %+v", orderedWorkList, orderedOriginal)
+	}
+}
+
 func TestWorkListOrder(t *testing.T) {
 	wants := []string{
 		"作業03",

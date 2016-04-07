@@ -1,6 +1,7 @@
 package work
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"sort"
@@ -14,6 +15,14 @@ func WorkListFromJSON(r io.Reader) (WorkList, error) {
 	err := decoder.Decode(&workList)
 
 	return workList, err
+}
+
+func (workList WorkList) ToJSON() string {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.Encode(&workList)
+
+	return buffer.String()
 }
 
 func (workList WorkList) Equal(another WorkList) bool {
