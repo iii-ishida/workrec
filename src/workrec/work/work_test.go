@@ -6,6 +6,51 @@ import (
 	"time"
 )
 
+func TestWorkEqual(t *testing.T) {
+	if !(Work{}).Equal(Work{}) {
+		t.Errorf("Work{}.Equal(Work{}) is false")
+	}
+
+	startTime := time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC)
+	pauseTime := time.Date(2015, 7, 29, 12, 30, 0, 0, time.UTC)
+	resumeTime := time.Date(2015, 7, 29, 13, 25, 0, 0, time.UTC)
+	finishTime := time.Date(2015, 7, 29, 18, 30, 0, 0, time.UTC)
+
+	work1 := New("Work01", 100).Start(startTime).Toggle(pauseTime).Toggle(resumeTime).Finish(finishTime)
+	work2 := New("Work01", 100).Start(startTime).Toggle(pauseTime).Toggle(resumeTime).Finish(finishTime)
+	work1.ID = "1"
+	work2.ID = "1"
+
+	if !work1.Equal(work2) {
+		t.Errorf("work1.Equal(work2) = false, want true")
+	}
+
+	work3 := New("Work02", 100).Start(startTime).Toggle(pauseTime).Toggle(resumeTime).Finish(finishTime)
+	work3.ID = "1"
+	if work1.Equal(work3) {
+		t.Errorf("work1.Equal(work3) = true, want false")
+	}
+
+	work4 := New("Work01", 10).Start(startTime).Toggle(pauseTime).Toggle(resumeTime).Finish(finishTime)
+	work4.ID = "1"
+	if work1.Equal(work4) {
+		t.Errorf("work1.Equal(work4) = true, want false")
+	}
+
+	work5 := New("Work01", 100).Start(startTime).Toggle(pauseTime).Toggle(resumeTime)
+	work5.ID = "1"
+	if work1.Equal(work5) {
+		t.Errorf("work1.Equal(work5) = true, want false")
+	}
+
+	resumeTime2 := time.Date(2015, 7, 29, 13, 26, 0, 0, time.UTC)
+	work6 := New("Work01", 100).Start(startTime).Toggle(pauseTime).Toggle(resumeTime2).Finish(finishTime)
+	work6.ID = "1"
+	if work1.Equal(work6) {
+		t.Errorf("work1.Equal(work6) = true, want false")
+	}
+}
+
 func TestCurrentState(t *testing.T) {
 	work := New("TestCurrentState", 0)
 	want := Unknown
@@ -141,33 +186,15 @@ func TestWorkFromJSON(t *testing.T) {
 		t.Errorf("err = %+v, want nil", err)
 	}
 
-	want := "777"
-	if work.ID != want {
-		t.Errorf("work.ID = %+v, want %+v", work.ID, want)
-	}
+	startTime := time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC)
+	pauseTime := time.Date(2015, 7, 29, 12, 30, 0, 0, time.UTC)
+	resumeTime := time.Date(2015, 7, 29, 13, 25, 0, 0, time.UTC)
+	finishTime := time.Date(2015, 7, 29, 18, 30, 0, 0, time.UTC)
 
-	want = "TestWorkJSON"
-	if work.Title != want {
-		t.Errorf("work.Title = %+v, want %+v", work.Title, want)
-	}
-
-	wantActions := []action{
-		{State: Start, Time: time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC)},
-		{State: Pause, Time: time.Date(2015, 7, 29, 12, 30, 0, 0, time.UTC)},
-		{State: Resume, Time: time.Date(2015, 7, 29, 13, 25, 0, 0, time.UTC)},
-		{State: Finish, Time: time.Date(2015, 7, 29, 18, 30, 0, 0, time.UTC)},
-	}
-
-	for i, wantAction := range wantActions {
-		action := work.Actions[i]
-		if action.State != wantAction.State || !action.Time.Equal(wantAction.Time) {
-			t.Errorf("work.Actions[%d] = %+v, want %+v", i, action, wantAction)
-		}
-	}
-
-	wantGoalMinutes := 500
-	if work.GoalMinutes != wantGoalMinutes {
-		t.Errorf("work.GoalMinutes = %+v, want %+v", work.GoalMinutes, wantGoalMinutes)
+	want := New("TestWorkJSON", 500).Start(startTime).Toggle(pauseTime).Toggle(resumeTime).Finish(finishTime)
+	want.ID = "777"
+	if !work.Equal(want) {
+		t.Errorf("work = %+v, want %+v", work, want)
 	}
 }
 
@@ -182,19 +209,8 @@ func TestWorkToJSON(t *testing.T) {
 	workJSON := original.ToJSON()
 	work, _ := FromJSON(strings.NewReader(workJSON))
 
-	isEqual := work.ID == original.ID
-	isEqual = isEqual && work.Title == original.Title
-	isEqual = isEqual && len(work.Actions) == len(original.Actions)
-	isEqual = isEqual && work.GoalMinutes == original.GoalMinutes
-	if !isEqual {
+	if !work.Equal(original) {
 		t.Errorf("work = %+v, want %+v", work, original)
-	}
-	for i, action := range work.Actions {
-		wantAction := original.Actions[i]
-		if action.State != wantAction.State || !action.Time.Equal(wantAction.Time) {
-			t.Errorf("work = %+v, want %+v", work, original)
-			break
-		}
 	}
 }
 

@@ -73,6 +73,23 @@ func (work *Work) ToJSON() string {
 	return buffer.String()
 }
 
+func (work Work) Equal(another Work) bool {
+	isEqual := work.ID == another.ID
+	isEqual = isEqual && work.Title == another.Title
+	isEqual = isEqual && len(work.Actions) == len(another.Actions)
+	isEqual = isEqual && work.GoalMinutes == another.GoalMinutes
+	for i, action := range work.Actions {
+		anotherAction := another.Actions[i]
+		isEqual = isEqual && action.State == anotherAction.State
+		isEqual = isEqual && action.Time.Equal(anotherAction.Time)
+		if !isEqual {
+			break
+		}
+	}
+
+	return isEqual
+}
+
 func (work Work) Start(time time.Time) Work {
 	if work.CurrentState() != Unknown {
 		return work
