@@ -1,10 +1,20 @@
 package work
 
 import (
+	"encoding/json"
+	"io"
 	"sort"
 )
 
 type WorkList []Work
+
+func WorkListFromJSON(r io.Reader) (WorkList, error) {
+	var workList WorkList
+	decoder := json.NewDecoder(r)
+	err := decoder.Decode(&workList)
+
+	return workList, err
+}
 
 func (workList WorkList) Ordered() WorkList {
 	ordered := make([]Work, len(workList))

@@ -2,9 +2,41 @@ package work
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
+
+func TestWorkListFromJSON(t *testing.T) {
+	if _, err := WorkListFromJSON(strings.NewReader(`{}`)); err == nil {
+		t.Errorf("err = nil, want not nil")
+	}
+
+	workList, err := WorkListFromJSON(strings.NewReader(workListJSONString))
+	if err != nil {
+		t.Errorf("err = %+v, want nil", err)
+	}
+
+	if len(workList) != len(testWorkList) {
+		t.Errorf("len(workList) = %+v, want %+v", len(workList), len(testWorkList))
+	}
+
+	for i, work := range workList {
+		testWork := testWorkList[i]
+		isEqual := work.ID == testWork.ID
+		isEqual = isEqual && work.Title == testWork.Title
+		isEqual = isEqual && len(work.Actions) == len(testWork.Actions)
+		isEqual = isEqual && work.GoalMinutes == testWork.GoalMinutes
+		for j, action := range work.Actions {
+			testWorkAction := testWork.Actions[j]
+			isEqual = isEqual && action.State == testWorkAction.State
+			isEqual = isEqual && action.Time.Equal(testWorkAction.Time)
+		}
+		if !isEqual {
+			t.Errorf("workList[%d]) = %+v, want %+v", i, work, testWork)
+		}
+	}
+}
 
 func TestWorkListOrder(t *testing.T) {
 	wants := []string{
@@ -74,7 +106,7 @@ var testWorkList = WorkList{
 		return work
 	}(),
 	func() Work {
-		work := New("作業02", 0)
+		work := New("作業02", 500)
 		work = work.Start(time.Date(2015, 7, 28, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 28, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 28, 14, 30, 0, 0, time.UTC)) // 再開
@@ -89,7 +121,7 @@ var testWorkList = WorkList{
 		return work
 	}(),
 	func() Work {
-		work := New("作業03", 0)
+		work := New("作業03", 1000)
 		work = work.Start(time.Date(2015, 7, 30, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 30, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 30, 14, 30, 0, 0, time.UTC)) // 再開
@@ -97,7 +129,7 @@ var testWorkList = WorkList{
 		return work
 	}(),
 	func() Work {
-		work := New("作業04", 0)
+		work := New("作業04", 750)
 		work = work.Start(time.Date(2015, 7, 27, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 27, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 27, 14, 30, 0, 0, time.UTC)) // 再開
@@ -113,6 +145,154 @@ var testWorkList = WorkList{
 		return work
 	}(),
 }
+
+const workListJSONString = `
+[
+	{
+		"id": "1",
+		"title": "作業01",
+		"actions": [
+			{
+				"state": 1,
+				"time": "2015-07-29T09:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-29T12:30:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-29T13:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-29T18:30:00+00:00"
+			}
+		],
+		"goal_minutes": 0
+	},
+	{
+		"id": "2",
+		"title": "作業02",
+		"actions": [
+			{
+				"state": 1,
+				"time": "2015-07-28T10:00:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-28T12:00:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-28T14:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-28T19:30:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-29T10:00:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-29T12:00:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-29T14:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-30T01:00:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-30T13:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-30T15:30:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-30T16:30:00+00:00"
+			}
+		],
+		"goal_minutes": 500
+	},
+	{
+		"id": "3",
+		"title": "作業03",
+		"actions": [
+			{
+				"state": 1,
+				"time": "2015-07-30T10:00:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-30T12:00:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-30T14:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-30T18:30:00+00:00"
+			}
+		],
+		"goal_minutes": 1000
+	},
+	{
+		"id": "4",
+		"title": "作業04",
+		"actions": [
+			{
+				"state": 1,
+				"time": "2015-07-27T10:00:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-27T12:00:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-27T14:30:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-27T18:30:00+00:00"
+			}
+		],
+		"goal_minutes": 750
+	},
+	{
+		"id": "5",
+		"title": "作業05",
+		"actions": [
+			{
+				"state": 1,
+				"time": "2015-07-28T10:00:00+00:00"
+			},
+			{
+				"state": 2,
+				"time": "2015-07-28T12:00:00+00:00"
+			},
+			{
+				"state": 3,
+				"time": "2015-07-28T14:30:00+00:00"
+			},
+			{
+				"state": 4,
+				"time": "2015-07-28T18:30:00+00:00"
+			}
+		],
+		"goal_minutes": 0
+	}
+]
+`
 
 func workIDs(works []Work) []string {
 	workIDs := []string{}
