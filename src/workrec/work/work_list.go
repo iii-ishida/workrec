@@ -14,6 +14,21 @@ func (workList WorkList) Ordered() WorkList {
 	return ordered
 }
 
+func (workList WorkList) Select(ids []string) WorkList {
+	idMap := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		idMap[id] = struct{}{}
+	}
+
+	selected := WorkList{}
+	for _, work := range workList {
+		if _, ok := idMap[work.ID]; ok {
+			selected = append(selected, work)
+		}
+	}
+	return selected
+}
+
 func byStartTime() by {
 	return func(work1, work2 *Work) bool {
 		startTime1 := work1.StartTime()

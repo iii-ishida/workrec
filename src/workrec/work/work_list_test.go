@@ -1,6 +1,7 @@
 package work
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -36,6 +37,30 @@ func TestWorkListOrder(t *testing.T) {
 		if work.Title != want {
 			t.Errorf("original[%d] = %+v, want %+v", i, work, want)
 		}
+	}
+}
+
+func TestWorkSelect(t *testing.T) {
+	selected := testWorkList.Select([]string{})
+	if len(selected) != 0 {
+		t.Errorf("Select([]) = %+v, want []", workIDs(selected))
+	}
+
+	selected = testWorkList.Select([]string{"ABC"})
+	if len(selected) != 0 {
+		t.Errorf("Select([\"ABC\"]) = %+v, want []", workIDs(selected))
+	}
+
+	selectedIDs := workIDs(testWorkList.Select([]string{"1", "3", "5"}))
+	want := []string{"1", "3", "5"}
+	if !reflect.DeepEqual(selectedIDs, want) {
+		t.Errorf("selected = %+v, want %+v", selectedIDs, want)
+	}
+
+	selectedIDs = workIDs(testWorkList.Ordered().Select([]string{"1", "3", "5"}))
+	want = []string{"3", "1", "5"}
+	if !reflect.DeepEqual(selectedIDs, want) {
+		t.Errorf("orderedSelected = %+v, want %+v", selectedIDs, want)
 	}
 }
 
@@ -87,4 +112,12 @@ var testWorkList = WorkList{
 		work = work.Finish(time.Date(2015, 7, 28, 18, 30, 0, 0, time.UTC)) // 完了
 		return work
 	}(),
+}
+
+func workIDs(works []Work) []string {
+	workIDs := []string{}
+	for _, work := range works {
+		workIDs = append(workIDs, work.ID)
+	}
+	return workIDs
 }
