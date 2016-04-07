@@ -7,6 +7,41 @@ import (
 	"time"
 )
 
+func TestWorkListEqual(t *testing.T) {
+	if !(WorkList{}).Equal(WorkList{}) {
+		t.Errorf("WorkList{}.Equal(WorkList{}) is false")
+	}
+
+	workList1 := make(WorkList, len(testWorkList))
+	copy(workList1, testWorkList)
+
+	workList2 := make(WorkList, len(testWorkList))
+	copy(workList2, testWorkList)
+
+	if !workList1.Equal(workList2) {
+		t.Errorf("workList1.Equal(workList2) = false, want true")
+	}
+
+	workList3 := make(WorkList, len(testWorkList))
+	copy(workList3, testWorkList)
+	workList3[0].Title = "TEST TITLE"
+	if workList1.Equal(workList3) {
+		t.Errorf("workList1.Equal(workList3) = true, want false")
+	}
+
+	workList4 := make(WorkList, len(testWorkList))
+	copy(workList4, append(testWorkList[1:], testWorkList[0]))
+	if workList1.Equal(workList4) {
+		t.Errorf("workList1.Equal(workList4) = true, want false")
+	}
+
+	workList5 := make(WorkList, len(testWorkList)-1)
+	copy(workList5, testWorkList[1:])
+	if workList1.Equal(workList5) {
+		t.Errorf("workList1.Equal(workList5) = true, want false")
+	}
+}
+
 func TestWorkListFromJSON(t *testing.T) {
 	if _, err := WorkListFromJSON(strings.NewReader(`{}`)); err == nil {
 		t.Errorf("err = nil, want not nil")
@@ -17,24 +52,8 @@ func TestWorkListFromJSON(t *testing.T) {
 		t.Errorf("err = %+v, want nil", err)
 	}
 
-	if len(workList) != len(testWorkList) {
-		t.Errorf("len(workList) = %+v, want %+v", len(workList), len(testWorkList))
-	}
-
-	for i, work := range workList {
-		testWork := testWorkList[i]
-		isEqual := work.ID == testWork.ID
-		isEqual = isEqual && work.Title == testWork.Title
-		isEqual = isEqual && len(work.Actions) == len(testWork.Actions)
-		isEqual = isEqual && work.GoalMinutes == testWork.GoalMinutes
-		for j, action := range work.Actions {
-			testWorkAction := testWork.Actions[j]
-			isEqual = isEqual && action.State == testWorkAction.State
-			isEqual = isEqual && action.Time.Equal(testWorkAction.Time)
-		}
-		if !isEqual {
-			t.Errorf("workList[%d]) = %+v, want %+v", i, work, testWork)
-		}
+	if !workList.Equal(testWorkList) {
+		t.Errorf("workList = %+v, want %+v", workList, testWorkList)
 	}
 }
 

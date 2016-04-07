@@ -16,6 +16,22 @@ func WorkListFromJSON(r io.Reader) (WorkList, error) {
 	return workList, err
 }
 
+func (workList WorkList) Equal(another WorkList) bool {
+	isEqual := len(workList) == len(another)
+	if !isEqual {
+		return false
+	}
+
+	for i, work := range workList {
+		anotherWork := another[i]
+		isEqual = work.Equal(anotherWork)
+		if !isEqual {
+			return false
+		}
+	}
+	return isEqual
+}
+
 func (workList WorkList) Ordered() WorkList {
 	ordered := make([]Work, len(workList))
 	copy(ordered, workList)
