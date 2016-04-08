@@ -135,6 +135,7 @@ func TestWorkSelect(t *testing.T) {
 var testWorkList = WorkList{
 	func() Work {
 		work := New("作業01", 0)
+		work.ID = "1"
 		work = work.Start(time.Date(2015, 7, 29, 9, 30, 0, 0, time.UTC))
 		work = work.Toggle(time.Date(2015, 7, 29, 12, 30, 0, 0, time.UTC))
 		work = work.Toggle(time.Date(2015, 7, 29, 13, 30, 0, 0, time.UTC))
@@ -143,6 +144,7 @@ var testWorkList = WorkList{
 	}(),
 	func() Work {
 		work := New("作業02", 500)
+		work.ID = "2"
 		work = work.Start(time.Date(2015, 7, 28, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 28, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 28, 14, 30, 0, 0, time.UTC)) // 再開
@@ -158,6 +160,7 @@ var testWorkList = WorkList{
 	}(),
 	func() Work {
 		work := New("作業03", 1000)
+		work.ID = "3"
 		work = work.Start(time.Date(2015, 7, 30, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 30, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 30, 14, 30, 0, 0, time.UTC)) // 再開
@@ -166,6 +169,7 @@ var testWorkList = WorkList{
 	}(),
 	func() Work {
 		work := New("作業04", 750)
+		work.ID = "4"
 		work = work.Start(time.Date(2015, 7, 27, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 27, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 27, 14, 30, 0, 0, time.UTC)) // 再開
@@ -174,6 +178,7 @@ var testWorkList = WorkList{
 	}(),
 	func() Work {
 		work := New("作業05", 0)
+		work.ID = "5"
 		work = work.Start(time.Date(2015, 7, 28, 10, 00, 0, 0, time.UTC))  // 開始
 		work = work.Toggle(time.Date(2015, 7, 28, 12, 00, 0, 0, time.UTC)) // 停止
 		work = work.Toggle(time.Date(2015, 7, 28, 14, 30, 0, 0, time.UTC)) // 再開
