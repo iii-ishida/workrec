@@ -11,13 +11,17 @@ import (
 )
 
 func TestNextWorkID(t *testing.T) {
-	workID := NextWorkID()
+	db, inst := db(t)
+	defer inst.Close()
+	defer func() { currentId = _UnInitializedId }()
+
+	workID := db.NextWorkID()
 	want := "1"
 	if workID != want {
 		t.Errorf("NextWorkID() = %+v, want %+v", workID, want)
 	}
 
-	workID = NextWorkID()
+	workID = db.NextWorkID()
 	want = "2"
 	if workID != want {
 		t.Errorf("NextWorkID() = %+v, want %+v", workID, want)
@@ -27,7 +31,7 @@ func TestNextWorkID(t *testing.T) {
 	c := make(chan string, loopCnt-3)
 	for i := 3; i < loopCnt; i++ {
 		go func() {
-			c <- NextWorkID()
+			c <- db.NextWorkID()
 		}()
 	}
 
@@ -42,15 +46,27 @@ func TestNextWorkID(t *testing.T) {
 	}
 }
 
-func TestCRUD(t *testing.T) {
-	inst, err := aetest.NewInstance(nil)
-	if err != nil {
-		t.Fatalf("Failed to create instance: %v", err)
-	}
+func TestNextWorkIDFromDB(t *testing.T) {
+	db, inst := db(t)
 	defer inst.Close()
 
-	req, err := inst.NewRequest("GET", "/works", nil)
-	db := NewAppEngineDB(req)
+	wk := work.New("TestTitle", 0)
+	wk.ID = "3000"
+
+	db.SaveWork(wk)
+	defer db.DeleteWork(wk)
+	tmp := work.Work{}
+	datastore.Get(db.ctx, datastore.NewKey(db.ctx, "Works", wk.ID, 0, nil), &tmp)
+
+	want := "3001"
+	if workID := db.NextWorkID(); workID != want {
+		t.Errorf("NextWorkID() = %+v, want %+v", workID, want)
+	}
+}
+
+func TestCRUD(t *testing.T) {
+	db, inst := db(t)
+	defer inst.Close()
 
 	// Save
 	for i, wk := range works {
@@ -256,3 +272,13 @@ const workListJSONString = `
 `
 
 var works, _ = work.WorkListFromJSON(strings.NewReader(workListJSONString))
+
+func db(t *testing.T) (AppengineDB, aetest.Instance) {
+	inst, err := aetest.NewInstance(nil)
+	if err != nil {
+		t.Fatalf("Failed to create instance: %v", err)
+	}
+
+	req, err := inst.NewRequest("GET", "/works", nil)
+	return NewAppEngineDB(req), inst
+}
