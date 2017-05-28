@@ -5,6 +5,7 @@ service: api
 
 env_variables:
   MESSAGING_SERVICE_HOST: https://messaging-dot-[PROJECT_ID].appspot.com
+  QUERY_SERVICE_HOST: https://query-dot-[PROJECT_ID].appspot.com
 
 handlers:
 - url: /.*

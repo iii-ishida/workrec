@@ -14,6 +14,9 @@ func NewRouterForAPI(conf Config) http.Handler {
 		path    string
 		handler http.HandlerFunc
 	}{
+		{"GET", "/", queryHandler(conf, getWorks)},
+		{"GET", "/{id}", queryHandler(conf, getWork)},
+
 		{"POST", "/", commandHandler(conf, createWork)},
 		{"PUT", "/{id}", commandHandler(conf, toCommandFunc(updateWork))},
 		{"DELETE", "/{id}", commandHandler(conf, toCommandFunc(deleteWork))},

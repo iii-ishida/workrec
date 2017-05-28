@@ -19,6 +19,15 @@ func Now() int64 {
 	return time.Now().UTC().UnixNano()
 }
 
+// RespondRaw writes status and data to w.
+func RespondRaw(w http.ResponseWriter, status int, contentType string, data []byte) {
+	w.Header().Set("Content-Type", contentType)
+	w.WriteHeader(status)
+	if data != nil {
+		w.Write(data)
+	}
+}
+
 // RespondJSON writes status and data(JSON) to w.
 func RespondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

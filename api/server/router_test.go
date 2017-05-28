@@ -17,6 +17,7 @@ import (
 
 const (
 	PublishURL = "http://localhost:8081/messaging/v1/workrec/publish"
+	QueryURL   = "http://localhost:8082/query/v1/works"
 )
 
 type p struct {
@@ -41,6 +42,17 @@ type testcase struct {
 
 func TestRouter(t *testing.T) {
 	tests := []testcase{
+		{
+			tag:     "get work",
+			initial: model.Work{ID: "1", Title: "A"},
+			method:  "GET",
+			path:    "/api/v1/works/1",
+
+			wants: wants{
+				status: http.StatusOK,
+				work:   model.Work{Title: "A"},
+			},
+		},
 		{
 			tag:    "create work",
 			method: "POST",
@@ -165,6 +177,7 @@ func testRouter(tests []testcase, t *testing.T) {
 		HTTPClient: client,
 		Log:        logger.StandardLog,
 		PublishURL: PublishURL,
+		QueryURL:   QueryURL,
 	}
 
 	server := httptest.NewServer(server.NewRouterForAPI(conf))

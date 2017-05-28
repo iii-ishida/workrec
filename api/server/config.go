@@ -13,6 +13,7 @@ type Config struct {
 	HTTPClient httpclient.HTTPClient
 	Log        logger.Log
 	PublishURL string
+	QueryURL   string
 }
 
 // WithRequest returns a Config with r.
