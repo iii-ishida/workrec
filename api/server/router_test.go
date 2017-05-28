@@ -11,7 +11,12 @@ import (
 	"workrec/api/model"
 	"workrec/api/repo"
 	"workrec/api/server"
+	"workrec/libs/httpclient"
 	"workrec/libs/logger"
+)
+
+const (
+	PublishURL = "http://localhost:8081/messaging/v1/workrec/publish"
 )
 
 type p struct {
@@ -154,15 +159,21 @@ func TestRouter(t *testing.T) {
 
 func testRouter(tests []testcase, t *testing.T) {
 	re := repo.InmemoryRepo
+	client := httpclient.EmptyHTTPClient
 	conf := server.Config{
-		Repo: re,
-		Log:  logger.StandardLog,
+		Repo:       re,
+		HTTPClient: client,
+		Log:        logger.StandardLog,
+		PublishURL: PublishURL,
 	}
 
 	server := httptest.NewServer(server.NewRouterForAPI(conf))
 	defer server.Close()
 
 	for _, test := range tests {
+		re.Reset()
+		client.Reset()
+
 		if !test.initial.IsEmpty() {
 			re.SaveWork(test.initial)
 		}
@@ -194,6 +205,18 @@ func testRouter(tests []testcase, t *testing.T) {
 			}
 			if !equalEvent(e, test.wants.event) {
 				t.Errorf("[%s] savedEvent = %#v, want = %#v", test.tag, e, test.wants.event)
+			}
+
+			// POST Event Test
+			if l := len(client.PostedLogs()); l != 1 {
+				t.Errorf("[%s] len(PostedLogs) = %d, want = 1", test.tag, l)
+			}
+
+			wantsPostPb, _ := event.MarshalPb(e)
+			if log := client.PostedLogs()[0]; log.URL != PublishURL {
+				t.Errorf("[%s] PostURL = %s, want = %s", test.tag, log.URL, PublishURL)
+			} else if log.Body != string(wantsPostPb) {
+				t.Errorf("[%s] PostBody = %s, want = %s", test.tag, log.Body, wantsPostPb)
 			}
 		}
 	}

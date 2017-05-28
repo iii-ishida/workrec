@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"workrec/api/event"
 	"workrec/api/model"
 	"workrec/libs/util"
 
@@ -65,6 +66,14 @@ func commandHandler(conf Config, f commandFunc) http.HandlerFunc {
 			status, work, err := commandInTransaction(conf, p, f)
 			if err != nil {
 				return status, model.Work{}, err
+			}
+
+			if pb, err := event.MarshalPb(work.Change()); err != nil {
+				conf.Log.Errorf("event = %#v marshal error: %v", work.Change(), err)
+			} else {
+				if err := conf.HTTPClient.AsyncPost(conf.PublishURL, "application/octet-stream", string(pb), 10); err != nil {
+					conf.Log.Errorf("event = %#v, post error: %v", work.Change(), err)
+				}
 			}
 
 			return status, work, nil

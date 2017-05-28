@@ -3,6 +3,9 @@ api_version: go1
 
 service: api
 
+env_variables:
+  MESSAGING_SERVICE_HOST: https://messaging-dot-[PROJECT_ID].appspot.com
+
 handlers:
 - url: /.*
   script: _go_app
