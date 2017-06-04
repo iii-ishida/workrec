@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -14,8 +15,9 @@ import (
 
 // Config is a a router configuration.
 type Config struct {
-	Repo repo.Repo
-	Log  logger.Log
+	Repo            repo.Repo
+	Log             logger.Log
+	ValidateRequest func(*http.Request) bool
 }
 
 // WithRequest returns a Config with r.
@@ -27,9 +29,19 @@ func (c Config) WithRequest(r *http.Request) Config {
 
 // NewRouterForQuery returns query router.
 func NewRouterForQuery(conf Config) http.Handler {
+	withValidateRequest := func(h http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			if !conf.ValidateRequest(r) {
+				util.RespondHTTPErr(w, http.StatusForbidden, errors.New("Status Forbidden"))
+				return
+			}
+			h(w, r)
+		}
+	}
+
 	r := mux.NewRouter()
-	r.HandleFunc("/query/v1/works", getWorks(conf)).Methods("GET")
-	r.HandleFunc("/query/v1/works", updateWork(conf)).Methods("POST")
+	r.HandleFunc("/query/v1/works", withValidateRequest(getWorks(conf))).Methods("GET")
+	r.HandleFunc("/query/v1/works", withValidateRequest(updateWork(conf))).Methods("POST")
 	return r
 }
 
