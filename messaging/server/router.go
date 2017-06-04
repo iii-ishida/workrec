@@ -16,9 +16,10 @@ import (
 
 // Config is router configuration.
 type Config struct {
-	Repo       repo.Repo
-	HTTPClient httpclient.HTTPClient
-	Log        logger.Log
+	Repo            repo.Repo
+	HTTPClient      httpclient.HTTPClient
+	Log             logger.Log
+	ValidateRequest func(*http.Request) bool
 }
 
 func (c Config) withRequest(r *http.Request) Config {
@@ -33,16 +34,27 @@ func NewRouterForMessaging(conf Config) http.Handler {
 	r := mux.NewRouter()
 
 	type handlerWithConfig func(Config, string, http.ResponseWriter, *http.Request)
-	f := func(h handlerWithConfig) func(http.ResponseWriter, *http.Request) {
+	withConfig := func(h handlerWithConfig) func(http.ResponseWriter, *http.Request) {
 		return func(w http.ResponseWriter, r *http.Request) {
+			conf = conf.withRequest(r)
+
 			topic := mux.Vars(r)["topic"]
-			h(conf.withRequest(r), topic, w, r)
+			h(conf, topic, w, r)
+		}
+	}
+	withValidateRequest := func(h http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			if !conf.ValidateRequest(r) {
+				util.RespondHTTPErr(w, http.StatusForbidden, errors.New("Status Forbidden"))
+				return
+			}
+			h(w, r)
 		}
 	}
 
-	r.HandleFunc("/messaging/v1/{topic}", f(deleteTopic)).Methods("DELETE")
-	r.HandleFunc("/messaging/v1/{topic}/publish", f(publishMessage)).Methods("POST")
-	r.HandleFunc("/messaging/v1/{topic}/subscriptions", f(addSubscription)).Methods("PUT")
+	r.HandleFunc("/messaging/v1/{topic}", withConfig(deleteTopic)).Methods("DELETE")
+	r.HandleFunc("/messaging/v1/{topic}/publish", withValidateRequest(withConfig(publishMessage))).Methods("POST")
+	r.HandleFunc("/messaging/v1/{topic}/subscriptions", withConfig(addSubscription)).Methods("PUT")
 
 	return r
 }

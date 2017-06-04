@@ -80,7 +80,12 @@ func TestAddSubscription(t *testing.T) {
 	}
 
 	re := repo.InmemoryRepo
-	conf := server.Config{Repo: re, HTTPClient: httpclient.EmptyHTTPClient, Log: logger.StandardLog}
+	conf := server.Config{
+		Repo:            re,
+		HTTPClient:      httpclient.EmptyHTTPClient,
+		Log:             logger.StandardLog,
+		ValidateRequest: func(_ *http.Request) bool { return true },
+	}
 	server := httptest.NewServer(server.NewRouterForMessaging(conf))
 	defer server.Close()
 
@@ -204,7 +209,12 @@ func TestPublish(t *testing.T) {
 
 	re := repo.InmemoryRepo
 	client := httpclient.EmptyHTTPClient
-	conf := server.Config{Repo: re, HTTPClient: client, Log: logger.StandardLog}
+	conf := server.Config{
+		Repo:            re,
+		HTTPClient:      client,
+		Log:             logger.StandardLog,
+		ValidateRequest: func(_ *http.Request) bool { return true },
+	}
 	server := httptest.NewServer(server.NewRouterForMessaging(conf))
 	defer server.Close()
 
@@ -243,6 +253,48 @@ func TestPublish(t *testing.T) {
 			if p.Body != test.wants.message {
 				t.Errorf("CASE %d: POST BODY = %s, wants = %s.", i+1, p.Body, test.wants.message)
 			}
+		}
+	}
+}
+
+func TestValidateRequest(t *testing.T) {
+	tests := []struct {
+		method      string
+		path        string
+		body        io.Reader
+		wantsStatus int
+	}{
+		{
+			method:      "POST",
+			path:        "/messaging/v1/sample/publish",
+			body:        strings.NewReader("TEST"),
+			wantsStatus: http.StatusForbidden,
+		},
+		{
+			method:      "PUT",
+			path:        "/messaging/v1/sample/subscriptions",
+			body:        param("https://localhost:8080/sub1/endpoint"),
+			wantsStatus: http.StatusOK,
+		},
+	}
+
+	conf := server.Config{
+		Repo:            repo.InmemoryRepo,
+		HTTPClient:      httpclient.EmptyHTTPClient,
+		Log:             logger.StandardLog,
+		ValidateRequest: func(_ *http.Request) bool { return false },
+	}
+	server := httptest.NewServer(server.NewRouterForMessaging(conf))
+	defer server.Close()
+
+	for _, test := range tests {
+		req, _ := http.NewRequest(test.method, server.URL+test.path, test.body)
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Errorf("[%s] request error %v", test.path, err)
+		}
+		if res.StatusCode != test.wantsStatus {
+			t.Errorf("[%s] StatusCode = %d, wants = %d", test.path, res.StatusCode, test.wantsStatus)
 		}
 	}
 }
