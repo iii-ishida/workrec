@@ -535,6 +535,37 @@ func TestStartWork(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 	testChangeWorkState(t, "開始", command.Command.StartWork, source, model.StartWork, model.Started)
+
+	for _, state := range []model.WorkState{
+		model.UnknownState,
+		model.Started,
+		model.Paused,
+		model.Resumed,
+		model.Finished,
+	} {
+		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				w := source
+				w.State = state
+				*dst = w
+			})
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.StartWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			if _, ok := err.(command.ValidationError); !ok {
+				t.Errorf("error = %#v, wants ValidationError", err)
+			}
+		})
+	}
 }
 
 func TestPauseWork(t *testing.T) {
@@ -546,6 +577,36 @@ func TestPauseWork(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 	testChangeWorkState(t, "停止", command.Command.PauseWork, source, model.PauseWork, model.Paused)
+
+	for _, state := range []model.WorkState{
+		model.UnknownState,
+		model.Unstarted,
+		model.Paused,
+		model.Finished,
+	} {
+		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				w := source
+				w.State = state
+				*dst = w
+			})
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.PauseWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			if _, ok := err.(command.ValidationError); !ok {
+				t.Errorf("error = %#v, wants ValidationError", err)
+			}
+		})
+	}
 }
 
 func TestResumeWork(t *testing.T) {
@@ -557,6 +618,37 @@ func TestResumeWork(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 	testChangeWorkState(t, "再開", command.Command.ResumeWork, source, model.ResumeWork, model.Resumed)
+
+	for _, state := range []model.WorkState{
+		model.UnknownState,
+		model.Unstarted,
+		model.Started,
+		model.Resumed,
+		model.Finished,
+	} {
+		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				w := source
+				w.State = state
+				*dst = w
+			})
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.ResumeWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			if _, ok := err.(command.ValidationError); !ok {
+				t.Errorf("error = %#v, wants ValidationError", err)
+			}
+		})
+	}
 }
 
 func TestFinishWork(t *testing.T) {
@@ -568,6 +660,36 @@ func TestFinishWork(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 	testChangeWorkState(t, "完了", command.Command.FinishWork, source, model.FinishWork, model.Finished)
+
+	for _, state := range []model.WorkState{
+		model.UnknownState,
+		model.Unstarted,
+		model.Finished,
+	} {
+		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				w := source
+				w.State = state
+				*dst = w
+			})
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.FinishWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			if _, ok := err.(command.ValidationError); !ok {
+				t.Errorf("error = %#v, wants ValidationError", err)
+			}
+		})
+	}
+
 }
 
 func TestCancelFinishWork(t *testing.T) {
@@ -579,6 +701,37 @@ func TestCancelFinishWork(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 	testChangeWorkState(t, "完了取り消し", command.Command.CancelFinishWork, source, model.CancelFinishWork, model.Paused)
+
+	for _, state := range []model.WorkState{
+		model.UnknownState,
+		model.Unstarted,
+		model.Started,
+		model.Paused,
+		model.Resumed,
+	} {
+		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				w := source
+				w.State = state
+				*dst = w
+			})
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			if _, ok := err.(command.ValidationError); !ok {
+				t.Errorf("error = %#v, wants ValidationError", err)
+			}
+		})
+	}
 }
 
 type changeWorkStateFunc func(command.Command, string, command.ChangeWorkStateParam) error
@@ -650,14 +803,11 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 				}
 			})
 
-			// CancelFinishWork の場合はTimeを設定しないのでテストしない
-			if eventType != model.CancelFinishWork {
-				t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
-					if event.Time != now {
-						t.Errorf("event.Time = %s, wants = %s", event.Time, now)
-					}
-				})
-			}
+			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
+				if event.Time != now {
+					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				}
+			})
 		})
 
 		t.Run("UpdateWork", func(t *testing.T) {
@@ -715,7 +865,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
 
 			if err != command.ErrNotfound {
 				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
@@ -740,7 +890,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
 
 			if err == nil {
 				t.Fatal("error is nil, wants not nil")
@@ -769,7 +919,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
 
 			if err == nil {
 				t.Fatal("error is nil, wants not nil")

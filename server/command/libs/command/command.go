@@ -2,6 +2,7 @@ package command
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/iii-ishida/workrec/server/command/libs/model"
@@ -26,6 +27,10 @@ func New(dep Dependency) Command {
 
 // ValidationError is a error for the validation.
 type ValidationError string
+
+func (v ValidationError) Error() string {
+	return string(v)
+}
 
 // ErrNotfound is error for the notfound.
 var ErrNotfound = errors.New("not found")
@@ -167,30 +172,65 @@ type ChangeWorkStateParam struct {
 
 // StartWork starts the work.
 func (c Command) StartWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.StartWork)
+	return c.changeWorkState(workID, param, model.StartWork, func(source model.Work) error {
+		switch source.State {
+		case model.Unstarted:
+			return nil
+		default:
+			return ValidationError(fmt.Sprintf("invalid state (%s -> %s)", source.State, model.Started))
+		}
+	})
 }
 
 // PauseWork pauses the work.
 func (c Command) PauseWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.PauseWork)
+	return c.changeWorkState(workID, param, model.PauseWork, func(source model.Work) error {
+		switch source.State {
+		case model.Started, model.Resumed:
+			return nil
+		default:
+			return ValidationError(fmt.Sprintf("invalid state (%s -> %s)", source.State, model.Paused))
+		}
+	})
 }
 
 // ResumeWork resumes the work.
 func (c Command) ResumeWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.ResumeWork)
+	return c.changeWorkState(workID, param, model.ResumeWork, func(source model.Work) error {
+		switch source.State {
+		case model.Paused:
+			return nil
+		default:
+			return ValidationError(fmt.Sprintf("invalid state (%s -> %s)", source.State, model.Resumed))
+		}
+	})
 }
 
 // FinishWork finishes the work.
 func (c Command) FinishWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.FinishWork)
+	return c.changeWorkState(workID, param, model.FinishWork, func(source model.Work) error {
+		switch source.State {
+		case model.Started, model.Paused, model.Resumed:
+			return nil
+		default:
+			return ValidationError(fmt.Sprintf("invalid state (%s -> %s)", source.State, model.Finished))
+		}
+	})
 }
 
 // CancelFinishWork cancels the finish state for the work.
 func (c Command) CancelFinishWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.CancelFinishWork)
+	return c.changeWorkState(workID, param, model.CancelFinishWork, func(source model.Work) error {
+		switch source.State {
+		case model.Finished:
+			return nil
+		default:
+			return ValidationError(fmt.Sprintf("invalid state (%s -> %s (Cancel Finish))", source.State, model.Paused))
+		}
+	})
 }
 
-func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, eventType model.EventType) error {
+func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, eventType model.EventType, validationFunc func(model.Work) error) error {
 	now := time.Now()
 
 	return c.dep.Store.RunTransaction(func(s store.Store) error {
@@ -199,6 +239,10 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			if err == store.ErrNotfound {
 				return ErrNotfound
 			}
+			return err
+		}
+
+		if err := validationFunc(source); err != nil {
 			return err
 		}
 
