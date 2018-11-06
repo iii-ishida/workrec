@@ -1,0 +1,1551 @@
+package command_test
+
+import (
+	"errors"
+	"testing"
+	"time"
+
+	"github.com/golang/mock/gomock"
+	"github.com/iii-ishida/workrec/server/command/libs/command"
+	"github.com/iii-ishida/workrec/server/command/libs/model"
+	"github.com/iii-ishida/workrec/server/command/libs/store"
+	"github.com/iii-ishida/workrec/server/testutil"
+	"github.com/iii-ishida/workrec/server/util"
+)
+
+type tranFunc func(store.Store) error
+
+func TestCreateWork(t *testing.T) {
+	t.Run("登録OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().AddWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		id, err := cmd.CreateWork(command.CreateWorkParam{Title: "Some Title"})
+
+		t.Run("登録したWorkのIDが返却されること", func(t *testing.T) {
+			if id == "" {
+				t.Fatal("id is empty, wants not empty")
+			}
+			if id != work.ID {
+				t.Errorf("id = %s, wants = %s (work.ID)", id, work.ID)
+			}
+		})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに空文字を設定すること", func(t *testing.T) {
+				if event.PrevID != "" {
+					t.Error("event.PrevID is not empty, wants empty")
+				}
+			})
+			t.Run("WorkIDに作成したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
+				if event.Title != "Some Title" {
+					t.Errorf("event.Title = %s, wants = Some Title", event.Title)
+				}
+			})
+			t.Run("TypeにCreateWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.CreateWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.CreateWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("AddWork", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if work.ID == "" {
+					t.Error("work.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(work.ID)) {
+					t.Error("work.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
+				if work.Title != "Some Title" {
+					t.Errorf("work.Title = %s, wants = Some Title", work.Title)
+				}
+			})
+			t.Run("StateにUnstartedを設定すること", func(t *testing.T) {
+				if work.State != model.Unstarted {
+					t.Errorf("work.State = %s, wants = %s", work.State, model.Unstarted)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("登録エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			_, err := cmd.CreateWork(command.CreateWorkParam{Title: "Some Title"})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#AddWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().AddWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			_, err := cmd.CreateWork(command.CreateWorkParam{Title: "Some Title"})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestUpdateWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Started,
+		UpdatedAt: time.Now(),
+	}
+
+	t.Run("更新OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.UpdateWork(string(source.ID), command.UpdateWorkParam{Title: "Updated Title"})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
+				if event.Title != "Updated Title" {
+					t.Errorf("event.Title = %s, wants = Updated Title", event.Title)
+				}
+			})
+			t.Run("TypeにUpdateWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.UpdateWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.UpdateWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("UpdateWork", func(t *testing.T) {
+			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
+				if work.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID == source.EventID {
+					t.Error("work.EventID = source.EventID, wants not equals")
+				}
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
+				if work.Title != "Updated Title" {
+					t.Errorf("work.Title = %s, wants = Updated Title", work.Title)
+				}
+			})
+			t.Run("Stateに更新前のWork.Stateを設定すること", func(t *testing.T) {
+				if work.State != source.State {
+					t.Errorf("work.State = %s, wants = %s", work.State, source.State)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("更新エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.UpdateWork(util.NewUUID(), command.UpdateWorkParam{Title: "Updated Title"})
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.UpdateWork(util.NewUUID(), command.UpdateWorkParam{Title: "Updated Title"})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#UpdateWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.UpdateWork(util.NewUUID(), command.UpdateWorkParam{Title: "Updated Title"})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestDeleteWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Unstarted,
+		UpdatedAt: time.Now(),
+	}
+
+	t.Run("削除OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		mockStoreInTran.EXPECT().DeleteWork(gomock.Any())
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.DeleteWork(string(source.ID))
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに削除前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに削除したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != source.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, source.ID)
+				}
+			})
+			t.Run("TypeにDeleteWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.DeleteWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.DeleteWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+	})
+
+	t.Run("削除エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.DeleteWork(util.NewUUID())
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.DeleteWork(util.NewUUID())
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#DeleteWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().DeleteWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.DeleteWork(util.NewUUID())
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestStartWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Unstarted,
+		UpdatedAt: time.Now(),
+	}
+	now := time.Now()
+
+	t.Run("開始OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.StartWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
+				if event.Time != now {
+					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				}
+			})
+			t.Run("TypeにStartWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.StartWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.StartWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("UpdateWork", func(t *testing.T) {
+			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
+				if work.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID == source.EventID {
+					t.Error("work.EventID = source.EventID, wants not equals")
+				}
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに更新前のWork.Titleを設定すること", func(t *testing.T) {
+				if work.Title != source.Title {
+					t.Errorf("work.Title = %s, wants = %s", work.Title, source.Title)
+				}
+			})
+			t.Run("StateにStartedを設定すること", func(t *testing.T) {
+				if work.State != model.Started {
+					t.Errorf("work.State = %s, wants = %s", work.State, model.Started)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("開始エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.StartWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.StartWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#UpdateWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.StartWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestPauseWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Started,
+		UpdatedAt: time.Now(),
+	}
+	now := time.Now()
+
+	t.Run("停止OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.PauseWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
+				if event.Time != now {
+					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				}
+			})
+			t.Run("TypeにPauseWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.PauseWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.PauseWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("UpdateWork", func(t *testing.T) {
+			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
+				if work.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID == source.EventID {
+					t.Error("work.EventID = source.EventID, wants not equals")
+				}
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに更新前のWork.Titleを設定すること", func(t *testing.T) {
+				if work.Title != source.Title {
+					t.Errorf("work.Title = %s, wants = %s", work.Title, source.Title)
+				}
+			})
+			t.Run("StateにPausedを設定すること", func(t *testing.T) {
+				if work.State != model.Paused {
+					t.Errorf("work.State = %s, wants = %s", work.State, model.Paused)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("停止エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.PauseWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.PauseWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#UpdateWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.PauseWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestResumeWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Paused,
+		UpdatedAt: time.Now(),
+	}
+	now := time.Now()
+
+	t.Run("再開OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.ResumeWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
+				if event.Time != now {
+					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				}
+			})
+			t.Run("TypeにResumeWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.ResumeWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.ResumeWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("UpdateWork", func(t *testing.T) {
+			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
+				if work.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID == source.EventID {
+					t.Error("work.EventID = source.EventID, wants not equals")
+				}
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに更新前のWork.Titleを設定すること", func(t *testing.T) {
+				if work.Title != source.Title {
+					t.Errorf("work.Title = %s, wants = %s", work.Title, source.Title)
+				}
+			})
+			t.Run("StateにResumedを設定すること", func(t *testing.T) {
+				if work.State != model.Resumed {
+					t.Errorf("work.State = %s, wants = %s", work.State, model.Resumed)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("再開エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.ResumeWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.ResumeWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#UpdateWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.ResumeWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestFinishWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Resumed,
+		UpdatedAt: time.Now(),
+	}
+	now := time.Now()
+
+	t.Run("完了OK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.FinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
+				if event.Time != now {
+					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				}
+			})
+			t.Run("TypeにFinishWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.FinishWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.FinishWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("UpdateWork", func(t *testing.T) {
+			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
+				if work.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID == source.EventID {
+					t.Error("work.EventID = source.EventID, wants not equals")
+				}
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに更新前のWork.Titleを設定すること", func(t *testing.T) {
+				if work.Title != source.Title {
+					t.Errorf("work.Title = %s, wants = %s", work.Title, source.Title)
+				}
+			})
+			t.Run("StateにFinishedを設定すること", func(t *testing.T) {
+				if work.State != model.Finished {
+					t.Errorf("work.State = %s, wants = %s", work.State, model.Finished)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("完了エラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.FinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.FinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#UpdateWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.FinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
+
+func TestCancelFinishWork(t *testing.T) {
+	source := model.Work{
+		ID:        model.WorkID(util.NewUUID()),
+		EventID:   model.EventID(util.NewUUID()),
+		Title:     "Some Title",
+		State:     model.Finished,
+		UpdatedAt: time.Now(),
+	}
+	now := time.Now()
+
+	t.Run("完了取り消しOK", func(t *testing.T) {
+		mockCtrl := gomock.NewController(t)
+		defer mockCtrl.Finish()
+
+		mockStore := store.NewMockStore(mockCtrl)
+		mockStoreInTran := store.NewMockStore(mockCtrl)
+
+		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			return f(mockStoreInTran)
+		})
+
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			*dst = source
+		})
+
+		var event model.Event
+		mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Do(func(e model.Event) {
+			event = e
+		})
+
+		var work model.Work
+		mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Do(func(w model.Work) {
+			work = w
+		})
+
+		cmd := command.New(command.Dependency{Store: mockStore})
+		err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+		t.Run("errorがnil であること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants nil", err)
+			}
+		})
+
+		t.Run("AddEvent", func(t *testing.T) {
+			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
+				if event.ID == "" {
+					t.Error("event.ID is empty, wants not empty")
+				}
+				if !testutil.IsUUID(string(event.ID)) {
+					t.Error("event.ID is not UUID, wants UUID")
+				}
+			})
+			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
+				if event.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				}
+			})
+			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
+				if event.WorkID != work.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				}
+			})
+			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
+				if event.Time != now {
+					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				}
+			})
+			t.Run("TypeにCancelFinishWorkを設定すること", func(t *testing.T) {
+				if event.Type != model.CancelFinishWork {
+					t.Errorf("event.Type = %s, wants = %s", event.Type, model.CancelFinishWork)
+				}
+			})
+			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(event.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				}
+			})
+		})
+
+		t.Run("UpdateWork", func(t *testing.T) {
+			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
+				if work.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				}
+			})
+			t.Run("EventIDに作成したAddEventで登録したeventのIDを設定すること", func(t *testing.T) {
+				if work.EventID == source.EventID {
+					t.Error("work.EventID = source.EventID, wants not equals")
+				}
+				if work.EventID != event.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				}
+			})
+			t.Run("Titleに更新前のWork.Titleを設定すること", func(t *testing.T) {
+				if work.Title != source.Title {
+					t.Errorf("work.Title = %s, wants = %s", work.Title, source.Title)
+				}
+			})
+			t.Run("StateにPausedを設定すること", func(t *testing.T) {
+				if work.State != model.Paused {
+					t.Errorf("work.State = %s, wants = %s", work.State, model.Paused)
+				}
+			})
+			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
+				if !testutil.IsSystemTime(work.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				}
+			})
+		})
+
+		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
+			if event.CreatedAt != work.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			}
+		})
+	})
+
+	t.Run("完了取り消しエラー", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err != command.ErrNotfound {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+			}
+		})
+
+		t.Run("Store#AddEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#UpdateWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockStore := store.NewMockStore(mockCtrl)
+			mockStoreInTran := store.NewMockStore(mockCtrl)
+
+			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+				return f(mockStoreInTran)
+			})
+
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+				*dst = source
+			})
+			mockStoreInTran.EXPECT().AddEvent(gomock.Any())
+			mockStoreInTran.EXPECT().UpdateWork(gomock.Any()).Return(someErr)
+
+			cmd := command.New(command.Dependency{Store: mockStore})
+			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: now})
+
+			if err == nil {
+				t.Fatal("error is nil, wants not nil")
+			}
+
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+	})
+}
