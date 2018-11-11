@@ -57,7 +57,7 @@ func (c Command) CreateWork(param CreateWorkParam) (model.WorkID, error) {
 			Title:     param.Title,
 			CreatedAt: now,
 		}
-		if err := s.AddEvent(e); err != nil {
+		if err := s.PutEvent(e); err != nil {
 			return err
 		}
 
@@ -68,7 +68,7 @@ func (c Command) CreateWork(param CreateWorkParam) (model.WorkID, error) {
 			State:     model.Unstarted,
 			UpdatedAt: now,
 		}
-		if err := s.AddWork(w); err != nil {
+		if err := s.PutWork(w); err != nil {
 			return err
 		}
 
@@ -111,7 +111,7 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 			Title:     param.Title,
 			CreatedAt: now,
 		}
-		if err := s.AddEvent(e); err != nil {
+		if err := s.PutEvent(e); err != nil {
 			return err
 		}
 
@@ -122,7 +122,7 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 			State:     source.State,
 			UpdatedAt: now,
 		}
-		if err := s.UpdateWork(w); err != nil {
+		if err := s.PutWork(w); err != nil {
 			return err
 		}
 
@@ -152,7 +152,7 @@ func (c Command) DeleteWork(workID string) error {
 			Type:      model.DeleteWork,
 			CreatedAt: now,
 		}
-		if err := s.AddEvent(e); err != nil {
+		if err := s.PutEvent(e); err != nil {
 			return err
 		}
 
@@ -256,7 +256,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			Time:      param.Time,
 			CreatedAt: now,
 		}
-		if err := s.AddEvent(e); err != nil {
+		if err := s.PutEvent(e); err != nil {
 			return err
 		}
 
@@ -267,7 +267,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			State:     workStateFromEventType(eventType),
 			UpdatedAt: now,
 		}
-		if err := s.UpdateWork(w); err != nil {
+		if err := s.PutWork(w); err != nil {
 			return err
 		}
 

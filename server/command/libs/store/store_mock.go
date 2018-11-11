@@ -57,28 +57,16 @@ func (mr *MockStoreMockRecorder) GetWork(id, dst interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWork", reflect.TypeOf((*MockStore)(nil).GetWork), id, dst)
 }
 
-// AddWork mocks base method
-func (m *MockStore) AddWork(w model.Work) error {
-	ret := m.ctrl.Call(m, "AddWork", w)
+// PutWork mocks base method
+func (m *MockStore) PutWork(w model.Work) error {
+	ret := m.ctrl.Call(m, "PutWork", w)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddWork indicates an expected call of AddWork
-func (mr *MockStoreMockRecorder) AddWork(w interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddWork", reflect.TypeOf((*MockStore)(nil).AddWork), w)
-}
-
-// UpdateWork mocks base method
-func (m *MockStore) UpdateWork(w model.Work) error {
-	ret := m.ctrl.Call(m, "UpdateWork", w)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateWork indicates an expected call of UpdateWork
-func (mr *MockStoreMockRecorder) UpdateWork(w interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWork", reflect.TypeOf((*MockStore)(nil).UpdateWork), w)
+// PutWork indicates an expected call of PutWork
+func (mr *MockStoreMockRecorder) PutWork(w interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutWork", reflect.TypeOf((*MockStore)(nil).PutWork), w)
 }
 
 // DeleteWork mocks base method
@@ -93,14 +81,14 @@ func (mr *MockStoreMockRecorder) DeleteWork(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteWork", reflect.TypeOf((*MockStore)(nil).DeleteWork), id)
 }
 
-// AddEvent mocks base method
-func (m *MockStore) AddEvent(e model.Event) error {
-	ret := m.ctrl.Call(m, "AddEvent", e)
+// PutEvent mocks base method
+func (m *MockStore) PutEvent(e model.Event) error {
+	ret := m.ctrl.Call(m, "PutEvent", e)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddEvent indicates an expected call of AddEvent
-func (mr *MockStoreMockRecorder) AddEvent(e interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddEvent", reflect.TypeOf((*MockStore)(nil).AddEvent), e)
+// PutEvent indicates an expected call of PutEvent
+func (mr *MockStoreMockRecorder) PutEvent(e interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutEvent", reflect.TypeOf((*MockStore)(nil).PutEvent), e)
 }
