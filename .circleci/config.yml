@@ -1,60 +1,60 @@
 version: 2
 jobs:
-  build:
+  server-test-and-deploy:
     docker:
-      - image: circleci/golang:1.8.0
+      - image: circleci/golang:1.11-stretch-browsers
+        environment:
+          GO111MODULE: "on"
 
-    working_directory: /go/src/workrec
-
-    environment:
-      SDK_VERSION: "1.9.53"
-
+    working_directory: /go/src/github.com/iii-ishida/workrec
     steps:
       - checkout
 
-
-      ## Download Appengine SDK
-
-      - restore_cache:
-          key: go_appengine_sdk_1.9.53
+      - run:
+          name: Install gcloud
+          command: |
+            sudo apt-get install -qqy lsb-release && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
+            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+            sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-datastore-emulator google-cloud-sdk-app-engine-go
 
       - run:
-          name: Download appengine sdk
+          name: Setup glcoud
           command: |
-            if [ -f ~/google_appengine_${SDK_VERSION}.zip ]; then
-              echo "Use cache"
-            else
-              curl -o ~/google_appengine_${SDK_VERSION}.zip https://storage.googleapis.com/appengine-sdks/featured/go_appengine_sdk_linux_amd64-${SDK_VERSION}.zip
-            fi
-
-      - save_cache:
-          key: go_appengine_sdk_1.9.53
-          paths:
-            - ~/google_appengine_1.9.53.zip
-
-
-      ## Install dependencies
-
-      - run:
-          name: Install dependencies
-          command: |
-            unzip -q -d ~/ ~/google_appengine_${SDK_VERSION}.zip
-            export PATH=${PATH}:~/go_appengine
-            goapp get ./...
-
-
-      ## Install golint
+            echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud --quiet config set core/disable_usage_reporting true
+            gcloud --quiet config set component_manager/disable_update_check true
 
       - run:
           name: Install golint
-          command: go get -u github.com/golang/lint/golint
+          command: go get -u golang.org/x/lint/golint
 
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "server/go.sum" }}
 
-      # Unit testing
+      - run: cd server && go mod download
+
+      - save_cache:
+          key: go-mod-v1-{{ checksum "server/go.sum" }}
+          paths:
+            - "/go/pkg/mod"
 
       - run:
           name: Unit testing
           command: |
-            export PATH=$PATH:$HOME/go_appengine
-            ./test.sh
+            cd ./server
+            gcloud beta emulators datastore start --no-store-on-disk --consistency=1.0 & sleep 10; $(gcloud beta emulators datastore env-init) && sh ./test.sh
 
+      - run:
+          name: Deploy Server
+          command: |
+            gcloud --quiet app deploy ./server/command/web/
+
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+      - server-test-and-deploy
