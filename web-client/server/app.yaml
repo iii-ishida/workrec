@@ -1,0 +1,10 @@
+runtime: go111
+
+handlers:
+- url: /(.*\.(json|ico|svg|map|css|js|gif|png|jpg))$
+  static_files: dist/\1
+  upload: dist/.*\.(json|ico|svg|map|css|js|gif|png|jpg)$
+
+- url: .*
+  static_files: dist/index.html
+  upload: dist/index.html

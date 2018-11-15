@@ -53,8 +53,55 @@ jobs:
           command: |
             gcloud --quiet app deploy ./server/command/web/
 
+  client-test-and-deploy:
+    docker:
+      - image: circleci/node:10-stretch-browsers
+
+    working_directory: ~/workrec
+    steps:
+      - checkout
+
+      - run:
+          name: Install gcloud
+          command: |
+            sudo apt-get install -qqy lsb-release && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
+            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+            sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-datastore-emulator google-cloud-sdk-app-engine-go
+
+      - run:
+          name: Setup glcoud
+          command: |
+            echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud --quiet config set core/disable_usage_reporting true
+            gcloud --quiet config set component_manager/disable_update_check true
+
+      - restore_cache:
+          keys:
+            - yarn-packages-{{ checksum "web-client/workrec/yarn.lock" }}
+
+      - run: cd ./web-client/workrec && yarn install
+
+      - save_cache:
+          key: yarn-packages-{{ checksum "web-client/workrec/yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+
+      - run:
+          name: Unit testing
+          command: |
+            cd ./web-client
+            sh ./scripts/test.sh
+
+      - run:
+          name: Deploy Server
+          command: |
+            sh ./web-client/scripts/build.sh && gcloud --quiet app deploy ./web-client/server
 workflows:
   version: 2
   test_and_deploy:
     jobs:
       - server-test-and-deploy
+      - client-test-and-deploy
