@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // WorkID is a type for work id.
 type WorkID string
@@ -43,6 +46,6 @@ func (s WorkState) String() string {
 	case Finished:
 		return "Finished"
 	default:
-		return "UNKNOWN"
+		panic(fmt.Sprintf("unknown WorkState: %d", s))
 	}
 }

@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // EventID is a type for event id.
 type EventID string
@@ -53,6 +56,6 @@ func (t EventType) String() string {
 	case CancelFinishWork:
 		return "CancelFinishWork"
 	default:
-		return "UNKNOWN"
+		panic(fmt.Sprintf("unknown EventType: %d", t))
 	}
 }
