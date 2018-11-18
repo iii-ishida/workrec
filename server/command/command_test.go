@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/iii-ishida/workrec/server/command/libs/command"
-	"github.com/iii-ishida/workrec/server/command/libs/model"
-	"github.com/iii-ishida/workrec/server/command/libs/store"
+	"github.com/iii-ishida/workrec/server/command"
+	"github.com/iii-ishida/workrec/server/command/model"
+	"github.com/iii-ishida/workrec/server/command/store"
 	"github.com/iii-ishida/workrec/server/testutil"
 	"github.com/iii-ishida/workrec/server/util"
 )

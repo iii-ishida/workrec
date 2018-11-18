@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/iii-ishida/workrec/server/command/libs/model"
-	"github.com/iii-ishida/workrec/server/command/libs/store"
+	"github.com/iii-ishida/workrec/server/command/model"
+	"github.com/iii-ishida/workrec/server/command/store"
 	"github.com/iii-ishida/workrec/server/util"
 )
 

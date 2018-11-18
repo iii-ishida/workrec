@@ -3,7 +3,7 @@ package store
 import (
 	"errors"
 
-	"github.com/iii-ishida/workrec/server/command/libs/model"
+	"github.com/iii-ishida/workrec/server/command/model"
 )
 
 // ErrNotfound is error for the notfound.

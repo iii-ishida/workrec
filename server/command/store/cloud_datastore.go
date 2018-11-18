@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/datastore"
-	"github.com/iii-ishida/workrec/server/command/libs/model"
+	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/util"
 )
 
