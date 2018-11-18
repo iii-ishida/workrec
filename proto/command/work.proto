@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package model;
+
+import "google/protobuf/timestamp.proto";
+
+message WorkPb {
+  enum State {
+    STATE_UNSPECIFIED = 0;
+	  UNSTARTED = 1;
+	  STARTED = 2;
+	  PAUSED = 3;
+	  RESUMED = 4;
+	  FINISHED = 5;
+  }
+
+  string id = 1;
+  string eventId = 2;
+  string title = 3;
+  google.protobuf.Timestamp time = 4;
+  State state = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
