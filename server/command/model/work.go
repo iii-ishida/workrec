@@ -10,6 +10,7 @@ type Work struct {
 	ID        WorkID
 	EventID   EventID
 	Title     string
+	Time      time.Time
 	State     WorkState
 	UpdatedAt time.Time
 }

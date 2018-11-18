@@ -65,6 +65,7 @@ func (c Command) CreateWork(param CreateWorkParam) (model.WorkID, error) {
 			ID:        workID,
 			EventID:   eventID,
 			Title:     param.Title,
+			Time:      time.Time{},
 			State:     model.Unstarted,
 			UpdatedAt: now,
 		}
@@ -119,6 +120,7 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 			ID:        source.ID,
 			EventID:   eventID,
 			Title:     param.Title,
+			Time:      source.Time,
 			State:     source.State,
 			UpdatedAt: now,
 		}
@@ -242,6 +244,10 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			return err
 		}
 
+		if source.Time.After(param.Time) {
+			return ValidationError("invalid time")
+		}
+
 		if err := validationFunc(source); err != nil {
 			return err
 		}
@@ -264,6 +270,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			ID:        source.ID,
 			EventID:   eventID,
 			Title:     source.Title,
+			Time:      param.Time,
 			State:     workStateFromEventType(eventType),
 			UpdatedAt: now,
 		}
