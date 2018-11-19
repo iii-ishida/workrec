@@ -3,11 +3,11 @@ package store_test
 import (
 	"errors"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/google/go-cmp/cmp"
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
 	"github.com/iii-ishida/workrec/server/util"
@@ -94,8 +94,8 @@ func TestGetWork(t *testing.T) {
 		err := s.GetWork(source.ID, &work)
 
 		t.Run("Workが取得されること", func(t *testing.T) {
-			if !reflect.DeepEqual(work, source) {
-				t.Errorf("get = %#v, wants = %#v", work, source)
+			if !cmp.Equal(work, source) {
+				t.Errorf("stored != source, diff = %s", cmp.Diff(work, source))
 			}
 		})
 
@@ -147,8 +147,8 @@ func TestPutWork(t *testing.T) {
 		err := s.PutWork(work)
 
 		t.Run("Workが更新されること", func(t *testing.T) {
-			if w := getWork(r, source.ID); !reflect.DeepEqual(w, work) {
-				t.Errorf("updated = %#v, wants = %#v", w, work)
+			if w := getWork(r, source.ID); !cmp.Equal(w, work) {
+				t.Errorf("updated != source, diff = %s", cmp.Diff(w, work))
 			}
 		})
 
@@ -166,8 +166,8 @@ func TestPutWork(t *testing.T) {
 
 		s.PutWork(source)
 
-		if w := getWork(r, source.ID); !reflect.DeepEqual(w, source) {
-			t.Errorf("created = %#v, wants = %#v", w, source)
+		if w := getWork(r, source.ID); !cmp.Equal(w, source) {
+			t.Errorf("created != source, diff = %s", cmp.Diff(w, source))
 		}
 	})
 }
@@ -232,8 +232,8 @@ func TestPutEvent(t *testing.T) {
 	err := s.PutEvent(event)
 
 	t.Run("Eventが登録されること", func(t *testing.T) {
-		if e := getEvent(r, event.ID); !reflect.DeepEqual(e, event) {
-			t.Errorf("created = %#v, wants = %#v", e, event)
+		if e := getEvent(r, event.ID); !cmp.Equal(e, event) {
+			t.Errorf("created != stored, diff = %s", cmp.Diff(e, event))
 		}
 	})
 	t.Run("errorがnilであること", func(t *testing.T) {

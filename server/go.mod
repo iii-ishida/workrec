@@ -5,6 +5,7 @@ require (
 	github.com/gofrs/uuid v3.1.0+incompatible
 	github.com/golang/mock v1.1.2-0.20181024150832-8a44ef6e8be5
 	github.com/golang/protobuf v1.2.0
+	github.com/google/go-cmp v0.2.0
 	github.com/googleapis/gax-go v2.0.0+incompatible // indirect
 	go.opencensus.io v0.18.0 // indirect
 	golang.org/x/net v0.0.0-20181102091132-c10e9556a7bc // indirect
