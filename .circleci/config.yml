@@ -29,7 +29,7 @@ jobs:
 
       - run:
           name: Install golint
-          command: go get -u golang.org/x/lint/golint
+          command: GO111MODULE=off go get -u golang.org/x/lint/golint
 
       - restore_cache:
           keys:
@@ -46,7 +46,8 @@ jobs:
           name: Unit testing
           command: |
             cd ./server
-            gcloud beta emulators datastore start --no-store-on-disk --consistency=1.0 & sleep 10; $(gcloud beta emulators datastore env-init) && sh ./test.sh
+            gcloud beta emulators datastore start --quiet --no-store-on-disk --consistency=1.0 &
+            sleep 10; $(gcloud beta emulators datastore env-init) && sh ./scripts/test.sh
 
       - run:
           name: Deploy Server
