@@ -1,6 +1,6 @@
 runtime: go111
 
-service: command
+service: api
 
 handlers:
 - url: /.*

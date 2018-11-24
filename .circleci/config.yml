@@ -52,7 +52,7 @@ jobs:
       - run:
           name: Deploy Server
           command: |
-            gcloud --quiet app deploy ./server/command/web/
+            gcloud --quiet app deploy ./server/web/
 
   client-test-and-deploy:
     docker:

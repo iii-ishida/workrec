@@ -7,11 +7,11 @@ func GetProjectID() string {
 	return os.Getenv("GOOGLE_CLOUD_PROJECT")
 }
 
-// GetQueryAPIOrigin returns the origin for query api.
-func GetQueryAPIOrigin() string {
-	origin := os.Getenv("QUERY_API_ORIGIN")
+// GetAPIOrigin returns the origin for api.
+func GetAPIOrigin() string {
+	origin := os.Getenv("API_ORIGIN")
 	if origin != "" {
 		return origin
 	}
-	return "https://query-dot-" + GetProjectID() + ".appspot.com"
+	return "https://api-dot-" + GetProjectID() + ".appspot.com"
 }

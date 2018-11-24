@@ -15,8 +15,8 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
-	main "github.com/iii-ishida/workrec/server/command/web"
 	"github.com/iii-ishida/workrec/server/util"
+	main "github.com/iii-ishida/workrec/server/web"
 )
 
 const (
@@ -50,7 +50,7 @@ func TestCreateWork(t *testing.T) {
 		})
 
 		t.Run("Locationヘッダに作成したWorkのURLを設定すること", func(t *testing.T) {
-			wants := fmt.Sprintf("%s/v1/works/%s", util.GetQueryAPIOrigin(), work.ID)
+			wants := fmt.Sprintf("%s/v1/works/%s", util.GetAPIOrigin(), work.ID)
 			if l, _ := res.Location(); l.String() != wants {
 				t.Errorf("Location = %s, wants = %s", l, wants)
 			}
