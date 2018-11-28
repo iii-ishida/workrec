@@ -7,9 +7,9 @@ import (
 )
 
 type eventForStore struct {
-	ID                EventID
-	PrevID            EventID
-	WorkID            WorkID
+	ID                string
+	PrevID            string
+	WorkID            string
 	Type              EventType
 	CreatedAt         time.Time
 	PbSerializedValue []byte `datastore:",noindex"`
@@ -47,9 +47,9 @@ func (e *Event) Save() ([]datastore.Property, error) {
 	}
 
 	return []datastore.Property{
-		{Name: "ID", Value: string(e.ID)},
-		{Name: "PrevID", Value: string(e.PrevID)},
-		{Name: "WorkID", Value: string(e.WorkID)},
+		{Name: "ID", Value: e.ID},
+		{Name: "PrevID", Value: e.PrevID},
+		{Name: "WorkID", Value: e.WorkID},
 		{Name: "Type", Value: int64(e.Type)},
 		{Name: "CreatedAt", Value: e.CreatedAt},
 		{Name: "PbSerializedValue", Value: pbSerializedValue, NoIndex: true},

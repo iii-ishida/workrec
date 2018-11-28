@@ -23,9 +23,9 @@ func TestMarshalEventPb(t *testing.T) {
 	createdAtPb, _ := ptypes.TimestampProto(createdAt)
 
 	e := model.Event{
-		ID:        model.EventID(id),
-		PrevID:    model.EventID(prevID),
-		WorkID:    model.WorkID(workID),
+		ID:        id,
+		PrevID:    prevID,
+		WorkID:    workID,
 		Type:      eventType,
 		Title:     title,
 		Time:      eventTime,
@@ -110,17 +110,17 @@ func TestUnmarshalEventPb(t *testing.T) {
 		}
 
 		t.Run("ID", func(t *testing.T) {
-			if e.ID != model.EventID(id) {
+			if e.ID != id {
 				t.Errorf("e.ID = %s, wants = %s", e.ID, id)
 			}
 		})
 		t.Run("PrevID", func(t *testing.T) {
-			if e.PrevID != model.EventID(prevID) {
+			if e.PrevID != prevID {
 				t.Errorf("e.PrevID = %s, wants = %s", e.PrevID, prevID)
 			}
 		})
 		t.Run("WorkID", func(t *testing.T) {
-			if e.WorkID != model.WorkID(workID) {
+			if e.WorkID != workID {
 				t.Errorf("e.WorkID = %s, wants = %s", e.WorkID, workID)
 			}
 		})

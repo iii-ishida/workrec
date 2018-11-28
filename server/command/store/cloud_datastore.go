@@ -41,8 +41,8 @@ func (s CloudDataStore) RunTransaction(f func(Store) error) error {
 }
 
 // GetWork loads the work stored for id into dst
-func (s CloudDataStore) GetWork(id model.WorkID, dst *model.Work) error {
-	key := datastore.NameKey(kindWork, string(id), nil)
+func (s CloudDataStore) GetWork(id string, dst *model.Work) error {
+	key := datastore.NameKey(kindWork, id, nil)
 
 	err := s.get(key, dst)
 	if err == datastore.ErrNoSuchEntity {
@@ -53,21 +53,21 @@ func (s CloudDataStore) GetWork(id model.WorkID, dst *model.Work) error {
 
 // PutWork saves the work into the datastore.
 func (s CloudDataStore) PutWork(work model.Work) error {
-	key := datastore.NameKey(kindWork, string(work.ID), nil)
+	key := datastore.NameKey(kindWork, work.ID, nil)
 
 	return s.put(key, &work)
 }
 
 // DeleteWork deletes the work for the given id from datastore.
-func (s CloudDataStore) DeleteWork(id model.WorkID) error {
-	key := datastore.NameKey(kindWork, string(id), nil)
+func (s CloudDataStore) DeleteWork(id string) error {
+	key := datastore.NameKey(kindWork, id, nil)
 
 	return s.delete(key)
 }
 
 // PutEvent saves the event into the datastore.
 func (s CloudDataStore) PutEvent(event model.Event) error {
-	key := datastore.NameKey(kindEvent, string(event.ID), nil)
+	key := datastore.NameKey(kindEvent, event.ID, nil)
 
 	return s.put(key, &event)
 }

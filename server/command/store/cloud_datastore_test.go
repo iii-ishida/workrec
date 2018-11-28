@@ -22,18 +22,18 @@ func TestRunTransaction(t *testing.T) {
 
 		s.RunTransaction(func(s store.Store) error {
 			s.PutWork(model.Work{
-				ID: model.WorkID("someid"),
+				ID: "some-workid",
 			})
 			s.PutEvent(model.Event{
-				ID: model.EventID("someid"),
+				ID: "some-eventid",
 			})
 			return nil
 		})
 
-		if w := getWork(r, model.WorkID("someid")); w.ID == "" {
+		if w := getWork(r, "some-workid"); w.ID == "" {
 			t.Fatal("Work is not saved")
 		}
-		if e := getEvent(r, model.EventID("someid")); e.ID == "" {
+		if e := getEvent(r, "some-eventid"); e.ID == "" {
 			t.Fatal("Event is not saved")
 		}
 	})
@@ -43,18 +43,18 @@ func TestRunTransaction(t *testing.T) {
 
 		s.RunTransaction(func(s store.Store) error {
 			s.PutWork(model.Work{
-				ID: model.WorkID("someid"),
+				ID: "some-workid",
 			})
 			s.PutEvent(model.Event{
-				ID: model.EventID("someid"),
+				ID: "some-eventid",
 			})
 			return errors.New("some error")
 		})
 
-		if w := getWork(r, model.WorkID("someid")); w.ID != "" {
+		if w := getWork(r, "some-workid"); w.ID != "" {
 			t.Fatal("Work is saved")
 		}
-		if e := getEvent(r, model.EventID("someid")); e.ID != "" {
+		if e := getEvent(r, "some-eventid"); e.ID != "" {
 			t.Fatal("Event is saved")
 		}
 	})
@@ -81,8 +81,8 @@ func TestGetWork(t *testing.T) {
 		s, _ := store.NewCloudDatastore(r)
 
 		source := model.Work{
-			ID:        model.WorkID(util.NewUUID()),
-			EventID:   model.EventID(util.NewUUID()),
+			ID:        util.NewUUID(),
+			EventID:   util.NewUUID(),
 			Title:     "Some Title",
 			State:     model.Started,
 			UpdatedAt: time.Now().Truncate(time.Millisecond),
@@ -112,7 +112,7 @@ func TestGetWork(t *testing.T) {
 		s, _ := store.NewCloudDatastore(r)
 
 		var work model.Work
-		err := s.GetWork(model.WorkID("someid"), &work)
+		err := s.GetWork("some-workid", &work)
 		if err != store.ErrNotfound {
 			t.Errorf("error = %#v, wants = ErrNotfound", err)
 		}
@@ -123,8 +123,8 @@ func TestPutWork(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/", nil)
 
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		State:     model.Started,
 		UpdatedAt: time.Now().Truncate(time.Millisecond),
@@ -139,7 +139,7 @@ func TestPutWork(t *testing.T) {
 
 		work := model.Work{
 			ID:        source.ID,
-			EventID:   model.EventID("someid"),
+			EventID:   "some-eventid",
 			Title:     "Updated Title",
 			State:     model.Finished,
 			UpdatedAt: time.Now().Truncate(time.Millisecond),
@@ -175,8 +175,8 @@ func TestDeleteWork(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/", nil)
 
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		State:     model.Started,
 		UpdatedAt: time.Now().Truncate(time.Millisecond),
@@ -207,7 +207,7 @@ func TestDeleteWork(t *testing.T) {
 
 		s, _ := store.NewCloudDatastore(r)
 
-		err := s.DeleteWork(model.WorkID("someid"))
+		err := s.DeleteWork("some-workid")
 		if err != nil {
 			t.Errorf("error = %#v, wants = nil", err)
 		}
@@ -220,9 +220,9 @@ func TestPutEvent(t *testing.T) {
 	defer clearStore(r)
 
 	event := model.Event{
-		ID:        model.EventID(util.NewUUID()),
-		PrevID:    model.EventID(util.NewUUID()),
-		WorkID:    model.WorkID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		PrevID:    util.NewUUID(),
+		WorkID:    util.NewUUID(),
 		Type:      model.UpdateWork,
 		Title:     "Some Title",
 		Time:      time.Now().Truncate(time.Millisecond),
@@ -243,10 +243,10 @@ func TestPutEvent(t *testing.T) {
 	})
 }
 
-func getWork(r *http.Request, id model.WorkID) model.Work {
+func getWork(r *http.Request, id string) model.Work {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
-	key := datastore.NameKey(store.KindWork, string(id), nil)
+	key := datastore.NameKey(store.KindWork, id, nil)
 
 	var w model.Work
 	client.Get(ctx, key, &w)
@@ -254,10 +254,10 @@ func getWork(r *http.Request, id model.WorkID) model.Work {
 	return w
 }
 
-func getEvent(r *http.Request, id model.EventID) model.Event {
+func getEvent(r *http.Request, id string) model.Event {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
-	key := datastore.NameKey(store.KindEvent, string(id), nil)
+	key := datastore.NameKey(store.KindEvent, id, nil)
 
 	var e model.Event
 	client.Get(ctx, key, &e)
@@ -268,7 +268,7 @@ func getEvent(r *http.Request, id model.EventID) model.Event {
 func putWork(r *http.Request, w model.Work) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
-	key := datastore.NameKey(store.KindWork, string(w.ID), nil)
+	key := datastore.NameKey(store.KindWork, w.ID, nil)
 
 	client.Put(ctx, key, &w)
 }

@@ -48,8 +48,8 @@ func convertToWorkPb(w Work) (WorkPb, error) {
 	}
 
 	return WorkPb{
-		Id:        string(w.ID),
-		EventId:   string(w.EventID),
+		Id:        w.ID,
+		EventId:   w.EventID,
 		Title:     w.Title,
 		State:     convertToWorkStatePb(w.State),
 		Time:      time,
@@ -69,8 +69,8 @@ func convertToWork(w WorkPb) (Work, error) {
 	}
 
 	return Work{
-		ID:        WorkID(w.Id),
-		EventID:   EventID(w.EventId),
+		ID:        w.Id,
+		EventID:   w.EventId,
 		Title:     w.Title,
 		State:     convertToWorkState(w.State),
 		Time:      time,

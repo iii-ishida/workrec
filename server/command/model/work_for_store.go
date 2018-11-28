@@ -7,7 +7,7 @@ import (
 )
 
 type workForStore struct {
-	ID                WorkID
+	ID                string
 	UpdatedAt         time.Time
 	PbSerializedValue []byte `datastore:",noindex"`
 }
@@ -44,7 +44,7 @@ func (w *Work) Save() ([]datastore.Property, error) {
 	}
 
 	return []datastore.Property{
-		{Name: "ID", Value: string(w.ID)},
+		{Name: "ID", Value: w.ID},
 		{Name: "UpdatedAt", Value: w.UpdatedAt},
 		{Name: "PbSerializedValue", Value: pbSerializedValue, NoIndex: true},
 	}, nil

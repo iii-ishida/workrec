@@ -13,9 +13,9 @@ var ErrNotfound = errors.New("not found")
 type Store interface {
 	RunTransaction(func(Store) error) error
 
-	GetWork(id model.WorkID, dst *model.Work) error
+	GetWork(id string, dst *model.Work) error
 	PutWork(w model.Work) error
-	DeleteWork(id model.WorkID) error
+	DeleteWork(id string) error
 
 	PutEvent(e model.Event) error
 }

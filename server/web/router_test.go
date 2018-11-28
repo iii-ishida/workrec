@@ -85,7 +85,7 @@ func TestCreateWork(t *testing.T) {
 
 func TestUpdateWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
+		ID:        util.NewUUID(),
 		Title:     "some title",
 		UpdatedAt: time.Now().Add(-1 * time.Hour),
 	}
@@ -172,7 +172,7 @@ func TestUpdateWork(t *testing.T) {
 
 func TestDeleteWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
+		ID:        util.NewUUID(),
 		UpdatedAt: time.Now().Add(-1 * time.Hour),
 	}
 
@@ -242,7 +242,7 @@ func TestCancelFinishWork(t *testing.T) {
 
 func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
+		ID:        util.NewUUID(),
 		State:     sourceState,
 		Time:      time.Now().Add(-1 * time.Hour),
 		UpdatedAt: time.Now().Add(-1 * time.Hour),

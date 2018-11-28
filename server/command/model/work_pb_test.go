@@ -22,8 +22,8 @@ func TestMarshalWorkPb(t *testing.T) {
 	updatedAtPb, _ := ptypes.TimestampProto(updatedAt)
 
 	w := model.Work{
-		ID:        model.WorkID(id),
-		EventID:   model.EventID(eventID),
+		ID:        id,
+		EventID:   eventID,
 		Title:     title,
 		Time:      workTime,
 		State:     workState,
@@ -101,12 +101,12 @@ func TestUnmarshalWorkPb(t *testing.T) {
 		}
 
 		t.Run("ID", func(t *testing.T) {
-			if w.ID != model.WorkID(id) {
+			if w.ID != id {
 				t.Errorf("w.ID = %s, wants = %s", w.ID, id)
 			}
 		})
 		t.Run("EventID", func(t *testing.T) {
-			if w.EventID != model.EventID(eventID) {
+			if w.EventID != eventID {
 				t.Errorf("w.EventID = %s, wants = %s", w.EventID, eventID)
 			}
 		})

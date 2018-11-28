@@ -48,9 +48,9 @@ func convertToEventPb(e Event) (EventPb, error) {
 	}
 
 	return EventPb{
-		Id:        string(e.ID),
-		PrevId:    string(e.PrevID),
-		WorkId:    string(e.WorkID),
+		Id:        e.ID,
+		PrevId:    e.PrevID,
+		WorkId:    e.WorkID,
 		Type:      convertToEventTypePb(e.Type),
 		Title:     e.Title,
 		Time:      time,
@@ -70,9 +70,9 @@ func convertToEvent(e EventPb) (Event, error) {
 	}
 
 	return Event{
-		ID:        EventID(e.Id),
-		PrevID:    EventID(e.PrevId),
-		WorkID:    WorkID(e.WorkId),
+		ID:        e.Id,
+		PrevID:    e.PrevId,
+		WorkID:    e.WorkId,
 		Type:      convertToEventType(e.Type),
 		Title:     e.Title,
 		Time:      time,

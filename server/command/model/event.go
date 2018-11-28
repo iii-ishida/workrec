@@ -5,14 +5,11 @@ import (
 	"time"
 )
 
-// EventID is a type for event id.
-type EventID string
-
 // Event is a event for a Work.
 type Event struct {
-	ID        EventID
-	PrevID    EventID
-	WorkID    WorkID
+	ID        string
+	PrevID    string
+	WorkID    string
 	Type      EventType
 	Title     string
 	Time      time.Time

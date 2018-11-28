@@ -62,7 +62,7 @@ func TestCreateWork(t *testing.T) {
 				if event.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(string(event.ID)) {
+				if !testutil.IsUUID(event.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
@@ -98,7 +98,7 @@ func TestCreateWork(t *testing.T) {
 				if work.ID == "" {
 					t.Error("work.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(string(work.ID)) {
+				if !testutil.IsUUID(work.ID) {
 					t.Error("work.ID is not UUID, wants UUID")
 				}
 			})
@@ -192,8 +192,8 @@ func TestCreateWork(t *testing.T) {
 func TestUpdateWork(t *testing.T) {
 	workTime := time.Now().Add(-1 * time.Hour)
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      workTime,
 		State:     model.Started,
@@ -211,7 +211,7 @@ func TestUpdateWork(t *testing.T) {
 			return f(mockStoreInTran)
 		})
 
-		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 			*dst = source
 		})
 
@@ -227,7 +227,7 @@ func TestUpdateWork(t *testing.T) {
 
 		paramTitle := "Updated Title"
 		cmd := command.New(command.Dependency{Store: mockStore})
-		err := cmd.UpdateWork(string(source.ID), command.UpdateWorkParam{Title: paramTitle})
+		err := cmd.UpdateWork(source.ID, command.UpdateWorkParam{Title: paramTitle})
 
 		t.Run("errorがnil であること", func(t *testing.T) {
 			if err != nil {
@@ -240,7 +240,7 @@ func TestUpdateWork(t *testing.T) {
 				if event.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(string(event.ID)) {
+				if !testutil.IsUUID(event.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
@@ -392,8 +392,8 @@ func TestUpdateWork(t *testing.T) {
 
 func TestDeleteWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      time.Now(),
 		State:     model.Unstarted,
@@ -411,7 +411,7 @@ func TestDeleteWork(t *testing.T) {
 			return f(mockStoreInTran)
 		})
 
-		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 			*dst = source
 		})
 
@@ -423,7 +423,7 @@ func TestDeleteWork(t *testing.T) {
 		mockStoreInTran.EXPECT().DeleteWork(gomock.Eq(source.ID))
 
 		cmd := command.New(command.Dependency{Store: mockStore})
-		err := cmd.DeleteWork(string(source.ID))
+		err := cmd.DeleteWork(source.ID)
 
 		t.Run("errorがnil であること", func(t *testing.T) {
 			if err != nil {
@@ -436,7 +436,7 @@ func TestDeleteWork(t *testing.T) {
 				if event.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(string(event.ID)) {
+				if !testutil.IsUUID(event.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
@@ -541,8 +541,8 @@ func TestDeleteWork(t *testing.T) {
 
 func TestStartWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      time.Now().Add(-1 * time.Hour),
 		State:     model.Unstarted,
@@ -567,14 +567,14 @@ func TestStartWork(t *testing.T) {
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				w := source
 				w.State = state
 				*dst = w
 			})
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.StartWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			err := cmd.StartWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
@@ -584,8 +584,8 @@ func TestStartWork(t *testing.T) {
 
 func TestPauseWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      time.Now().Add(-1 * time.Hour),
 		State:     model.Started,
@@ -609,14 +609,14 @@ func TestPauseWork(t *testing.T) {
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				w := source
 				w.State = state
 				*dst = w
 			})
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.PauseWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			err := cmd.PauseWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
@@ -626,8 +626,8 @@ func TestPauseWork(t *testing.T) {
 
 func TestResumeWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      time.Now().Add(-1 * time.Hour),
 		State:     model.Paused,
@@ -652,14 +652,14 @@ func TestResumeWork(t *testing.T) {
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				w := source
 				w.State = state
 				*dst = w
 			})
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.ResumeWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			err := cmd.ResumeWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
@@ -669,8 +669,8 @@ func TestResumeWork(t *testing.T) {
 
 func TestFinishWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      time.Now().Add(-1 * time.Hour),
 		State:     model.Resumed,
@@ -693,14 +693,14 @@ func TestFinishWork(t *testing.T) {
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				w := source
 				w.State = state
 				*dst = w
 			})
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.FinishWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			err := cmd.FinishWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
@@ -711,8 +711,8 @@ func TestFinishWork(t *testing.T) {
 
 func TestCancelFinishWork(t *testing.T) {
 	source := model.Work{
-		ID:        model.WorkID(util.NewUUID()),
-		EventID:   model.EventID(util.NewUUID()),
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
 		Title:     "Some Title",
 		Time:      time.Now().Add(-1 * time.Hour),
 		State:     model.Finished,
@@ -737,14 +737,14 @@ func TestCancelFinishWork(t *testing.T) {
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				w := source
 				w.State = state
 				*dst = w
 			})
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := cmd.CancelFinishWork(string(source.ID), command.ChangeWorkStateParam{Time: time.Now()})
+			err := cmd.CancelFinishWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
@@ -768,7 +768,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			return f(mockStoreInTran)
 		})
 
-		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+		mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 			*dst = source
 		})
 
@@ -783,7 +783,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 		})
 
 		cmd := command.New(command.Dependency{Store: mockStore})
-		err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
+		err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 		t.Run("errorがnil であること", func(t *testing.T) {
 			if err != nil {
@@ -796,7 +796,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 				if event.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(string(event.ID)) {
+				if !testutil.IsUUID(event.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
@@ -888,7 +888,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
+			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 			if err != command.ErrNotfound {
 				t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
@@ -906,14 +906,14 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				*dst = source
 			})
 
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Return(someErr)
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
+			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 			if err == nil {
 				t.Fatal("error is nil, wants not nil")
@@ -935,14 +935,14 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				*dst = source
 			})
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any())
 			mockStoreInTran.EXPECT().PutWork(gomock.Any()).Return(someErr)
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: now})
+			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 			if err == nil {
 				t.Fatal("error is nil, wants not nil")
@@ -963,12 +963,12 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 				return f(mockStoreInTran)
 			})
 
-			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ model.WorkID, dst *model.Work) {
+			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Do(func(_ string, dst *model.Work) {
 				*dst = source
 			})
 
 			cmd := command.New(command.Dependency{Store: mockStore})
-			err := testFunc(cmd, string(source.ID), command.ChangeWorkStateParam{Time: source.Time.Add(-1 * time.Second)})
+			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: source.Time.Add(-1 * time.Second)})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}

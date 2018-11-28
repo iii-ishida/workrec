@@ -41,13 +41,13 @@ type CreateWorkParam struct {
 }
 
 // CreateWork creates a work and returns the created work id.
-func (c Command) CreateWork(param CreateWorkParam) (model.WorkID, error) {
+func (c Command) CreateWork(param CreateWorkParam) (string, error) {
 	now := time.Now()
 
-	var ret model.WorkID
+	var ret string
 	err := c.dep.Store.RunTransaction(func(s store.Store) error {
-		eventID := model.EventID(util.NewUUID())
-		workID := model.WorkID(util.NewUUID())
+		eventID := util.NewUUID()
+		workID := util.NewUUID()
 
 		e := model.Event{
 			ID:        eventID,
@@ -95,14 +95,14 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 
 	return c.dep.Store.RunTransaction(func(s store.Store) error {
 		var source model.Work
-		if err := s.GetWork(model.WorkID(workID), &source); err != nil {
+		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
 				return ErrNotfound
 			}
 			return err
 		}
 
-		eventID := model.EventID(util.NewUUID())
+		eventID := util.NewUUID()
 
 		e := model.Event{
 			ID:        eventID,
@@ -138,14 +138,14 @@ func (c Command) DeleteWork(workID string) error {
 
 	return c.dep.Store.RunTransaction(func(s store.Store) error {
 		var source model.Work
-		if err := s.GetWork(model.WorkID(workID), &source); err != nil {
+		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
 				return ErrNotfound
 			}
 			return err
 		}
 
-		eventID := model.EventID(util.NewUUID())
+		eventID := util.NewUUID()
 
 		e := model.Event{
 			ID:        eventID,
@@ -237,7 +237,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 
 	return c.dep.Store.RunTransaction(func(s store.Store) error {
 		var source model.Work
-		if err := s.GetWork(model.WorkID(workID), &source); err != nil {
+		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
 				return ErrNotfound
 			}
@@ -252,7 +252,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			return err
 		}
 
-		eventID := model.EventID(util.NewUUID())
+		eventID := util.NewUUID()
 
 		e := model.Event{
 			ID:        eventID,

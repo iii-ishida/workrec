@@ -5,13 +5,10 @@ import (
 	"time"
 )
 
-// WorkID is a type for work id.
-type WorkID string
-
 // Work is a Work.
 type Work struct {
-	ID        WorkID
-	EventID   EventID
+	ID        string
+	EventID   string
 	Title     string
 	Time      time.Time
 	State     WorkState
