@@ -166,7 +166,7 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 }
 
 func newCmd(r *http.Request) (command.Command, error) {
-	cloudStore, err := store.NewCloudDatastore(r)
+	cloudStore, err := store.NewCloudDataStore(r)
 	if err != nil {
 		return command.Command{}, err
 	}

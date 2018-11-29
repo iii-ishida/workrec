@@ -34,16 +34,16 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
-// RunTransaction mocks base method
-func (m *MockStore) RunTransaction(arg0 func(Store) error) error {
-	ret := m.ctrl.Call(m, "RunTransaction", arg0)
+// RunInTransaction mocks base method
+func (m *MockStore) RunInTransaction(arg0 func(Store) error) error {
+	ret := m.ctrl.Call(m, "RunInTransaction", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// RunTransaction indicates an expected call of RunTransaction
-func (mr *MockStoreMockRecorder) RunTransaction(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTransaction", reflect.TypeOf((*MockStore)(nil).RunTransaction), arg0)
+// RunInTransaction indicates an expected call of RunInTransaction
+func (mr *MockStoreMockRecorder) RunInTransaction(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunInTransaction", reflect.TypeOf((*MockStore)(nil).RunInTransaction), arg0)
 }
 
 // GetWork mocks base method

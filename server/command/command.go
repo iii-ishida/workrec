@@ -46,7 +46,7 @@ func (c Command) CreateWork(param CreateWorkParam) (string, error) {
 	now := time.Now()
 
 	var ret string
-	err := c.dep.Store.RunTransaction(func(s store.Store) error {
+	err := c.dep.Store.RunInTransaction(func(s store.Store) error {
 		eventID := util.NewUUID()
 		workID := util.NewUUID()
 
@@ -94,7 +94,7 @@ type UpdateWorkParam struct {
 func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 	now := time.Now()
 
-	return c.dep.Store.RunTransaction(func(s store.Store) error {
+	return c.dep.Store.RunInTransaction(func(s store.Store) error {
 		var source model.Work
 		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
@@ -137,7 +137,7 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 func (c Command) DeleteWork(workID string) error {
 	now := time.Now()
 
-	return c.dep.Store.RunTransaction(func(s store.Store) error {
+	return c.dep.Store.RunInTransaction(func(s store.Store) error {
 		var source model.Work
 		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
@@ -236,7 +236,7 @@ func (c Command) CancelFinishWork(workID string, param ChangeWorkStateParam) err
 func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, eventAction event.Action, validationFunc func(model.Work) error) error {
 	now := time.Now()
 
-	return c.dep.Store.RunTransaction(func(s store.Store) error {
+	return c.dep.Store.RunInTransaction(func(s store.Store) error {
 		var source model.Work
 		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {

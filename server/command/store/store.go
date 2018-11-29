@@ -12,7 +12,7 @@ var ErrNotfound = errors.New("not found")
 
 // Store is a repository for the command.
 type Store interface {
-	RunTransaction(func(Store) error) error
+	RunInTransaction(func(Store) error) error
 
 	GetWork(id string, dst *model.Work) error
 	PutWork(w model.Work) error

@@ -17,8 +17,8 @@ type CloudDataStore struct {
 	tx     *datastore.Transaction
 }
 
-// NewCloudDatastore returns a CloudDataStore.
-func NewCloudDatastore(r *http.Request) (CloudDataStore, error) {
+// NewCloudDataStore returns a CloudDataStore.
+func NewCloudDataStore(r *http.Request) (CloudDataStore, error) {
 	ctx := r.Context()
 
 	client, err := datastore.NewClient(ctx, util.GetProjectID())
@@ -28,8 +28,8 @@ func NewCloudDatastore(r *http.Request) (CloudDataStore, error) {
 	return CloudDataStore{ctx: ctx, client: client}, nil
 }
 
-// RunTransaction runs f in transaction.
-func (s CloudDataStore) RunTransaction(f func(Store) error) error {
+// RunInTransaction runs f in transaction.
+func (s CloudDataStore) RunInTransaction(f func(Store) error) error {
 	_, err := s.client.RunInTransaction(s.ctx, func(tx *datastore.Transaction) error {
 		return f(CloudDataStore{ctx: s.ctx, client: s.client, tx: tx})
 	})

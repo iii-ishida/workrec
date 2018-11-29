@@ -381,7 +381,7 @@ func newChangeWorkStateRequest(tm time.Time) io.Reader {
 
 func createWork(w model.Work) {
 	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := store.NewCloudDatastore(r)
+	s, _ := store.NewCloudDataStore(r)
 	s.PutWork(w)
 }
 

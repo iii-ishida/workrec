@@ -25,7 +25,7 @@ func TestCreateWork(t *testing.T) {
 		mockStore := store.NewMockStore(mockCtrl)
 		mockStoreInTran := store.NewMockStore(mockCtrl)
 
-		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
 		})
 
@@ -146,7 +146,7 @@ func TestCreateWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -169,7 +169,7 @@ func TestCreateWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any())
@@ -208,7 +208,7 @@ func TestUpdateWork(t *testing.T) {
 		mockStore := store.NewMockStore(mockCtrl)
 		mockStoreInTran := store.NewMockStore(mockCtrl)
 
-		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
 		})
 
@@ -324,7 +324,7 @@ func TestUpdateWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -344,7 +344,7 @@ func TestUpdateWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any())
@@ -369,7 +369,7 @@ func TestUpdateWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any())
@@ -408,7 +408,7 @@ func TestDeleteWork(t *testing.T) {
 		mockStore := store.NewMockStore(mockCtrl)
 		mockStoreInTran := store.NewMockStore(mockCtrl)
 
-		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
 		})
 
@@ -473,7 +473,7 @@ func TestDeleteWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -493,7 +493,7 @@ func TestDeleteWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any())
@@ -518,7 +518,7 @@ func TestDeleteWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any())
@@ -564,7 +564,7 @@ func TestStartWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -606,7 +606,7 @@ func TestPauseWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -649,7 +649,7 @@ func TestResumeWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -690,7 +690,7 @@ func TestFinishWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -734,7 +734,7 @@ func TestCancelFinishWork(t *testing.T) {
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -765,7 +765,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 		mockStore := store.NewMockStore(mockCtrl)
 		mockStoreInTran := store.NewMockStore(mockCtrl)
 
-		mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
 		})
 
@@ -882,7 +882,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
 
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -903,7 +903,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
 
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -932,7 +932,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
 
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
@@ -960,7 +960,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 
 			mockStore := store.NewMockStore(mockCtrl)
 			mockStoreInTran := store.NewMockStore(mockCtrl)
-			mockStore.EXPECT().RunTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
+			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 

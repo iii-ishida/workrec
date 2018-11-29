@@ -14,14 +14,14 @@ import (
 	"github.com/iii-ishida/workrec/server/util"
 )
 
-func TestRunTransaction(t *testing.T) {
+func TestRunInTransaction(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := store.NewCloudDatastore(r)
+	s, _ := store.NewCloudDataStore(r)
 
 	t.Run("errorがnilの場合は全ての変更を適用すること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s.RunTransaction(func(s store.Store) error {
+		s.RunInTransaction(func(s store.Store) error {
 			s.PutWork(model.Work{
 				ID: "some-workid",
 			})
@@ -42,7 +42,7 @@ func TestRunTransaction(t *testing.T) {
 	t.Run("errorがnilでない場合は全ての変更を適用しないこと", func(t *testing.T) {
 		defer clearStore(r)
 
-		s.RunTransaction(func(s store.Store) error {
+		s.RunInTransaction(func(s store.Store) error {
 			s.PutWork(model.Work{
 				ID: "some-workid",
 			})
@@ -64,7 +64,7 @@ func TestRunTransaction(t *testing.T) {
 		defer clearStore(r)
 
 		someErr := errors.New("some error")
-		err := s.RunTransaction(func(s store.Store) error {
+		err := s.RunInTransaction(func(s store.Store) error {
 			return someErr
 		})
 		if err != someErr {
@@ -79,7 +79,7 @@ func TestGetWork(t *testing.T) {
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDatastore(r)
+		s, _ := store.NewCloudDataStore(r)
 
 		source := model.Work{
 			ID:        util.NewUUID(),
@@ -110,7 +110,7 @@ func TestGetWork(t *testing.T) {
 	t.Run("対象が存在しない場合はErrNotfoundが返却されること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDatastore(r)
+		s, _ := store.NewCloudDataStore(r)
 
 		var work model.Work
 		err := s.GetWork("some-workid", &work)
@@ -134,7 +134,7 @@ func TestPutWork(t *testing.T) {
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDatastore(r)
+		s, _ := store.NewCloudDataStore(r)
 
 		putWork(r, source)
 
@@ -163,7 +163,7 @@ func TestPutWork(t *testing.T) {
 	t.Run("対象が存在しない場合Workを新規登録すること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDatastore(r)
+		s, _ := store.NewCloudDataStore(r)
 
 		s.PutWork(source)
 
@@ -185,7 +185,7 @@ func TestDeleteWork(t *testing.T) {
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDatastore(r)
+		s, _ := store.NewCloudDataStore(r)
 
 		putWork(r, source)
 
@@ -206,7 +206,7 @@ func TestDeleteWork(t *testing.T) {
 	t.Run("対象が存在しない場合でもerrorがnilであること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDatastore(r)
+		s, _ := store.NewCloudDataStore(r)
 
 		err := s.DeleteWork("some-workid")
 		if err != nil {
@@ -216,7 +216,7 @@ func TestDeleteWork(t *testing.T) {
 }
 func TestPutEvent(t *testing.T) {
 	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := store.NewCloudDatastore(r)
+	s, _ := store.NewCloudDataStore(r)
 
 	defer clearStore(r)
 
