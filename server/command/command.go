@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/iii-ishida/workrec/server/command/model"
@@ -24,6 +25,11 @@ type Command struct {
 // New returns a new Command.
 func New(dep Dependency) Command {
 	return Command{dep: dep}
+}
+
+// NewCloudDataStore returns a new CloudDataStore
+func NewCloudDataStore(r *http.Request) (store.CloudDataStore, error) {
+	return store.NewCloudDataStore(r)
 }
 
 // ValidationError is a error for the validation.

@@ -9,7 +9,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command"
-	"github.com/iii-ishida/workrec/server/command/store"
 	"github.com/iii-ishida/workrec/server/util"
 )
 
@@ -166,7 +165,7 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 }
 
 func newCmd(r *http.Request) (command.Command, error) {
-	cloudStore, err := store.NewCloudDataStore(r)
+	cloudStore, err := command.NewCloudDataStore(r)
 	if err != nil {
 		return command.Command{}, err
 	}

@@ -13,8 +13,8 @@ import (
 	"cloud.google.com/go/datastore"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/command/model"
-	"github.com/iii-ishida/workrec/server/command/store"
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
 	main "github.com/iii-ishida/workrec/server/web"
@@ -381,7 +381,7 @@ func newChangeWorkStateRequest(tm time.Time) io.Reader {
 
 func createWork(w model.Work) {
 	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := store.NewCloudDataStore(r)
+	s, _ := command.NewCloudDataStore(r)
 	s.PutWork(w)
 }
 
