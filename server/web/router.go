@@ -4,18 +4,23 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/util"
+	"github.com/iii-ishida/workrec/server/worklist"
 )
+
+const defaultPageSize = 50
 
 // NewRouter returns the command http handler.
 func NewRouter() http.Handler {
 	r := chi.NewRouter()
 	r.Route("/v1", func(r chi.Router) {
+		r.Get("/works", getWorkList)
 		r.Post("/works", createWork)
 		r.Patch("/works/{workID}", updateWork)
 		r.Delete("/works/{workID}", deleteWork)
@@ -26,6 +31,42 @@ func NewRouter() http.Handler {
 		r.Post("/works/{workID}:cancelFinish", cancelFinishWork)
 	})
 	return r
+}
+
+func getWorkList(w http.ResponseWriter, r *http.Request) {
+	q, err := newWorkListQuery(r)
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if err := q.ConstructWorks(); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	pageSize, err := strconv.Atoi(r.URL.Query().Get("page_size"))
+	if err != nil {
+		pageSize = defaultPageSize
+	}
+	pageToken := r.URL.Query().Get("page_token")
+
+	list, err := q.Get(worklist.Param{PageSize: pageSize, PageToken: pageToken})
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	b, err := worklist.MarshalWorkListPb(list)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
 }
 
 func createWork(w http.ResponseWriter, r *http.Request) {
@@ -162,6 +203,17 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func newWorkListQuery(r *http.Request) (worklist.Query, error) {
+	cloudStore, err := worklist.NewCloudDataStore(r)
+	if err != nil {
+		return worklist.Query{}, err
+	}
+
+	return worklist.NewQuery(worklist.Dependency{
+		Store: cloudStore,
+	}), nil
 }
 
 func newCmd(r *http.Request) (command.Command, error) {
