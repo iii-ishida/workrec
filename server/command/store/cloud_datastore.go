@@ -10,10 +10,6 @@ import (
 	"github.com/iii-ishida/workrec/server/util"
 )
 
-const (
-	kindWork = "Work"
-)
-
 // CloudDataStore is a Store for Cloud Datastore.
 type CloudDataStore struct {
 	ctx    context.Context
@@ -42,7 +38,7 @@ func (s CloudDataStore) RunTransaction(f func(Store) error) error {
 
 // GetWork loads the work stored for id into dst
 func (s CloudDataStore) GetWork(id string, dst *model.Work) error {
-	key := datastore.NameKey(kindWork, id, nil)
+	key := datastore.NameKey(model.KindNameWork, id, nil)
 
 	err := s.get(key, dst)
 	if err == datastore.ErrNoSuchEntity {
@@ -53,14 +49,14 @@ func (s CloudDataStore) GetWork(id string, dst *model.Work) error {
 
 // PutWork saves the work into the datastore.
 func (s CloudDataStore) PutWork(work model.Work) error {
-	key := datastore.NameKey(kindWork, work.ID, nil)
+	key := datastore.NameKey(model.KindNameWork, work.ID, nil)
 
 	return s.put(key, &work)
 }
 
 // DeleteWork deletes the work for the given id from datastore.
 func (s CloudDataStore) DeleteWork(id string) error {
-	key := datastore.NameKey(kindWork, id, nil)
+	key := datastore.NameKey(model.KindNameWork, id, nil)
 
 	return s.delete(key)
 }

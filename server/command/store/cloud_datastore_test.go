@@ -247,7 +247,7 @@ func TestPutEvent(t *testing.T) {
 func getWork(r *http.Request, id string) model.Work {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
-	key := datastore.NameKey(store.KindWork, id, nil)
+	key := datastore.NameKey(model.KindNameWork, id, nil)
 
 	var w model.Work
 	client.Get(ctx, key, &w)
@@ -269,7 +269,7 @@ func getEvent(r *http.Request, id string) event.Event {
 func putWork(r *http.Request, w model.Work) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
-	key := datastore.NameKey(store.KindWork, w.ID, nil)
+	key := datastore.NameKey(model.KindNameWork, w.ID, nil)
 
 	client.Put(ctx, key, &w)
 }
@@ -278,7 +278,7 @@ func clearStore(r *http.Request) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
 
-	for _, kind := range []string{store.KindWork, event.KindName} {
+	for _, kind := range []string{model.KindNameWork, event.KindName} {
 		q := datastore.NewQuery(kind).KeysOnly()
 		keys, _ := client.GetAll(ctx, q, nil)
 		client.DeleteMulti(ctx, keys)

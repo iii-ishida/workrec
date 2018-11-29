@@ -20,10 +20,6 @@ import (
 	main "github.com/iii-ishida/workrec/server/web"
 )
 
-const (
-	kindWork = "Work"
-)
-
 func TestCreateWork(t *testing.T) {
 	t.Run("正常時", func(t *testing.T) {
 		defer clearStore()
@@ -395,7 +391,7 @@ func getLatestWork() *model.Work {
 
 	var ws []model.Work
 
-	q := datastore.NewQuery(kindWork).Order("-UpdatedAt").Limit(1)
+	q := datastore.NewQuery(model.KindNameWork).Order("-UpdatedAt").Limit(1)
 	client.GetAll(ctx, q, &ws)
 
 	if len(ws) == 0 {
@@ -408,7 +404,7 @@ func clearStore() {
 	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
 
-	for _, kind := range []string{kindWork, event.KindName} {
+	for _, kind := range []string{model.KindNameWork, event.KindName} {
 		q := datastore.NewQuery(kind).KeysOnly()
 		keys, _ := client.GetAll(ctx, q, nil)
 		client.DeleteMulti(ctx, keys)

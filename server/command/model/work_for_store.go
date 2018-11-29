@@ -6,6 +6,9 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+// KindNameWork is a datastore kind name for Work.
+const KindNameWork = "CommandWork"
+
 type workForStore struct {
 	ID                string
 	UpdatedAt         time.Time
