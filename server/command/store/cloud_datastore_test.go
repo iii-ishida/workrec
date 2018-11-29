@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
+	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
 )
 
@@ -24,7 +25,7 @@ func TestRunTransaction(t *testing.T) {
 			s.PutWork(model.Work{
 				ID: "some-workid",
 			})
-			s.PutEvent(model.Event{
+			s.PutEvent(event.Event{
 				ID: "some-eventid",
 			})
 			return nil
@@ -45,7 +46,7 @@ func TestRunTransaction(t *testing.T) {
 			s.PutWork(model.Work{
 				ID: "some-workid",
 			})
-			s.PutEvent(model.Event{
+			s.PutEvent(event.Event{
 				ID: "some-eventid",
 			})
 			return errors.New("some error")
@@ -219,21 +220,21 @@ func TestPutEvent(t *testing.T) {
 
 	defer clearStore(r)
 
-	event := model.Event{
+	e := event.Event{
 		ID:        util.NewUUID(),
 		PrevID:    util.NewUUID(),
 		WorkID:    util.NewUUID(),
-		Type:      model.UpdateWork,
+		Action:    event.UpdateWork,
 		Title:     "Some Title",
 		Time:      time.Now().Truncate(time.Millisecond),
 		CreatedAt: time.Now().Truncate(time.Millisecond),
 	}
 
-	err := s.PutEvent(event)
+	err := s.PutEvent(e)
 
 	t.Run("Eventが登録されること", func(t *testing.T) {
-		if e := getEvent(r, event.ID); !cmp.Equal(e, event) {
-			t.Errorf("created != stored, diff = %s", cmp.Diff(e, event))
+		if saved := getEvent(r, e.ID); !cmp.Equal(saved, e) {
+			t.Errorf("created != stored, diff = %s", cmp.Diff(saved, e))
 		}
 	})
 	t.Run("errorがnilであること", func(t *testing.T) {
@@ -254,12 +255,12 @@ func getWork(r *http.Request, id string) model.Work {
 	return w
 }
 
-func getEvent(r *http.Request, id string) model.Event {
+func getEvent(r *http.Request, id string) event.Event {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
-	key := datastore.NameKey(store.KindEvent, id, nil)
+	key := datastore.NameKey(event.KindName, id, nil)
 
-	var e model.Event
+	var e event.Event
 	client.Get(ctx, key, &e)
 
 	return e
@@ -277,7 +278,7 @@ func clearStore(r *http.Request) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
 
-	for _, kind := range []string{store.KindWork, store.KindEvent} {
+	for _, kind := range []string{store.KindWork, event.KindName} {
 		q := datastore.NewQuery(kind).KeysOnly()
 		keys, _ := client.GetAll(ctx, q, nil)
 		client.DeleteMulti(ctx, keys)

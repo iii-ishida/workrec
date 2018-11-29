@@ -15,13 +15,13 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
+	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
 	main "github.com/iii-ishida/workrec/server/web"
 )
 
 const (
-	kindWork  = "Work"
-	kindEvent = "Event"
+	kindWork = "Work"
 )
 
 func TestCreateWork(t *testing.T) {
@@ -408,7 +408,7 @@ func clearStore() {
 	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
 
-	for _, kind := range []string{kindWork, kindEvent} {
+	for _, kind := range []string{kindWork, event.KindName} {
 		q := datastore.NewQuery(kind).KeysOnly()
 		keys, _ := client.GetAll(ctx, q, nil)
 		client.DeleteMulti(ctx, keys)

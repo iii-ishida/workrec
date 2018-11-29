@@ -10,6 +10,7 @@ import (
 	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
+	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/testutil"
 	"github.com/iii-ishida/workrec/server/util"
 )
@@ -28,14 +29,14 @@ func TestCreateWork(t *testing.T) {
 			return f(mockStoreInTran)
 		})
 
-		var event model.Event
-		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(e model.Event) {
-			event = e
+		var e event.Event
+		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(evnt event.Event) {
+			e = evnt
 		})
 
-		var work model.Work
-		mockStoreInTran.EXPECT().PutWork(gomock.Any()).Do(func(w model.Work) {
-			work = w
+		var w model.Work
+		mockStoreInTran.EXPECT().PutWork(gomock.Any()).Do(func(work model.Work) {
+			w = work
 		})
 
 		paramTitle := "Some Title"
@@ -46,8 +47,8 @@ func TestCreateWork(t *testing.T) {
 			if id == "" {
 				t.Fatal("id is empty, wants not empty")
 			}
-			if id != work.ID {
-				t.Errorf("id = %s, wants = %s (work.ID)", id, work.ID)
+			if id != w.ID {
+				t.Errorf("id = %s, wants = %s (work.ID)", id, w.ID)
 			}
 		})
 
@@ -59,79 +60,79 @@ func TestCreateWork(t *testing.T) {
 
 		t.Run("Event", func(t *testing.T) {
 			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
-				if event.ID == "" {
+				if e.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(event.ID) {
+				if !testutil.IsUUID(e.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
 			t.Run("PrevIDに空文字を設定すること", func(t *testing.T) {
-				if event.PrevID != "" {
+				if e.PrevID != "" {
 					t.Error("event.PrevID is not empty, wants empty")
 				}
 			})
 			t.Run("WorkIDに作成したWorkのIDを設定すること", func(t *testing.T) {
-				if event.WorkID != work.ID {
-					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				if e.WorkID != w.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", e.ID, w.ID)
 				}
 			})
 			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
-				if event.Title != paramTitle {
-					t.Errorf("event.Title = %s, wants = %s", event.Title, paramTitle)
+				if e.Title != paramTitle {
+					t.Errorf("event.Title = %s, wants = %s", e.Title, paramTitle)
 				}
 			})
-			t.Run("TypeにCreateWorkを設定すること", func(t *testing.T) {
-				if event.Type != model.CreateWork {
-					t.Errorf("event.Type = %s, wants = %s", event.Type, model.CreateWork)
+			t.Run("ActionにCreateWorkを設定すること", func(t *testing.T) {
+				if e.Action != event.CreateWork {
+					t.Errorf("event.Action = %s, wants = %s", e.Action, event.CreateWork)
 				}
 			})
 			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(event.CreatedAt) {
-					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				if !testutil.IsSystemTime(e.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", e.CreatedAt)
 				}
 			})
 		})
 
 		t.Run("Work", func(t *testing.T) {
 			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
-				if work.ID == "" {
+				if w.ID == "" {
 					t.Error("work.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(work.ID) {
+				if !testutil.IsUUID(w.ID) {
 					t.Error("work.ID is not UUID, wants UUID")
 				}
 			})
 			t.Run("EventIDに作成したPutEventで登録したeventのIDを設定すること", func(t *testing.T) {
-				if work.EventID != event.ID {
-					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				if w.EventID != e.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", w.EventID, e.ID)
 				}
 			})
 			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
-				if work.Title != paramTitle {
-					t.Errorf("work.Title = %s, wants = %s", work.Title, paramTitle)
+				if w.Title != paramTitle {
+					t.Errorf("work.Title = %s, wants = %s", w.Title, paramTitle)
 				}
 			})
 			t.Run("Timeにゼロ値を設定すること", func(t *testing.T) {
-				if !work.Time.IsZero() {
-					t.Errorf("work.Time = %s, wants Zero", work.Time)
+				if !w.Time.IsZero() {
+					t.Errorf("work.Time = %s, wants Zero", w.Time)
 				}
 			})
 			t.Run("StateにUnstartedを設定すること", func(t *testing.T) {
-				if work.State != model.Unstarted {
-					t.Errorf("work.State = %s, wants = %s", work.State, model.Unstarted)
+				if w.State != model.Unstarted {
+					t.Errorf("work.State = %s, wants = %s", w.State, model.Unstarted)
 				}
 			})
 			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(work.UpdatedAt) {
-					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				if !testutil.IsSystemTime(w.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", w.UpdatedAt)
 				}
 			})
 		})
 
 		t.Run("Event.CreatedAtとWork.UpdatedAtが同じであること", func(t *testing.T) {
-			if !event.CreatedAt.Equal(work.UpdatedAt) {
-				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			if !e.CreatedAt.Equal(w.UpdatedAt) {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", e.CreatedAt, w.UpdatedAt)
 			}
 		})
 	})
@@ -215,14 +216,14 @@ func TestUpdateWork(t *testing.T) {
 			*dst = source
 		})
 
-		var event model.Event
-		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(e model.Event) {
-			event = e
+		var e event.Event
+		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(evnt event.Event) {
+			e = evnt
 		})
 
-		var work model.Work
-		mockStoreInTran.EXPECT().PutWork(gomock.Any()).Do(func(w model.Work) {
-			work = w
+		var w model.Work
+		mockStoreInTran.EXPECT().PutWork(gomock.Any()).Do(func(work model.Work) {
+			w = work
 		})
 
 		paramTitle := "Updated Title"
@@ -237,79 +238,79 @@ func TestUpdateWork(t *testing.T) {
 
 		t.Run("Event", func(t *testing.T) {
 			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
-				if event.ID == "" {
+				if e.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(event.ID) {
+				if !testutil.IsUUID(e.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
 			t.Run("PrevIDに更新前のWork.EventIDを設定すること", func(t *testing.T) {
-				if event.PrevID != source.EventID {
-					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				if e.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", e.PrevID, source.EventID)
 				}
 			})
 			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
-				if event.WorkID != work.ID {
-					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				if e.WorkID != w.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", e.ID, w.ID)
 				}
 			})
 			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
-				if event.Title != paramTitle {
-					t.Errorf("event.Title = %s, wants = %s", event.Title, paramTitle)
+				if e.Title != paramTitle {
+					t.Errorf("event.Title = %s, wants = %s", e.Title, paramTitle)
 				}
 			})
-			t.Run("TypeにUpdateWorkを設定すること", func(t *testing.T) {
-				if event.Type != model.UpdateWork {
-					t.Errorf("event.Type = %s, wants = %s", event.Type, model.UpdateWork)
+			t.Run("ActionにUpdateWorkを設定すること", func(t *testing.T) {
+				if e.Action != event.UpdateWork {
+					t.Errorf("event.Type = %s, wants = %s", e.Action, event.UpdateWork)
 				}
 			})
 			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(event.CreatedAt) {
-					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				if !testutil.IsSystemTime(e.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", e.CreatedAt)
 				}
 			})
 		})
 
 		t.Run("Work", func(t *testing.T) {
 			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
-				if work.ID != source.ID {
-					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				if w.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", w.ID, source.ID)
 				}
 			})
 			t.Run("EventIDに作成したPutEventで登録したEventのIDを設定すること", func(t *testing.T) {
-				if work.EventID == source.EventID {
+				if w.EventID == source.EventID {
 					t.Error("work.EventID = source.EventID, wants not equals")
 				}
-				if work.EventID != event.ID {
-					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				if w.EventID != e.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", w.EventID, e.ID)
 				}
 			})
 			t.Run("Titleに引数で指定したTitleを設定すること", func(t *testing.T) {
-				if work.Title != paramTitle {
-					t.Errorf("work.Title = %s, wants = %s", work.Title, paramTitle)
+				if w.Title != paramTitle {
+					t.Errorf("work.Title = %s, wants = %s", w.Title, paramTitle)
 				}
 			})
 			t.Run("Timeに更新前のWork.Timeを設定すること", func(t *testing.T) {
-				if !work.Time.Equal(source.Time) {
-					t.Errorf("work.Time = %s, wants = %s", work.Time, source.Time)
+				if !w.Time.Equal(source.Time) {
+					t.Errorf("work.Time = %s, wants = %s", w.Time, source.Time)
 				}
 			})
 			t.Run("Stateに更新前のWork.Stateを設定すること", func(t *testing.T) {
-				if work.State != source.State {
-					t.Errorf("work.State = %s, wants = %s", work.State, source.State)
+				if w.State != source.State {
+					t.Errorf("work.State = %s, wants = %s", w.State, source.State)
 				}
 			})
 			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(work.UpdatedAt) {
-					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				if !testutil.IsSystemTime(w.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", w.UpdatedAt)
 				}
 			})
 		})
 
 		t.Run("Event.CreatedAtとWork.UpdatedAtが同じであること", func(t *testing.T) {
-			if !event.CreatedAt.Equal(work.UpdatedAt) {
-				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			if !e.CreatedAt.Equal(w.UpdatedAt) {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", e.CreatedAt, w.UpdatedAt)
 			}
 		})
 	})
@@ -415,9 +416,9 @@ func TestDeleteWork(t *testing.T) {
 			*dst = source
 		})
 
-		var event model.Event
-		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(e model.Event) {
-			event = e
+		var e event.Event
+		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(evnt event.Event) {
+			e = evnt
 		})
 
 		mockStoreInTran.EXPECT().DeleteWork(gomock.Eq(source.ID))
@@ -433,31 +434,31 @@ func TestDeleteWork(t *testing.T) {
 
 		t.Run("Event", func(t *testing.T) {
 			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
-				if event.ID == "" {
+				if e.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(event.ID) {
+				if !testutil.IsUUID(e.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
 			t.Run("PrevIDに削除前のWork.EventIDを設定すること", func(t *testing.T) {
-				if event.PrevID != source.EventID {
-					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				if e.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", e.PrevID, source.EventID)
 				}
 			})
 			t.Run("WorkIDに削除したWorkのIDを設定すること", func(t *testing.T) {
-				if event.WorkID != source.ID {
-					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, source.ID)
+				if e.WorkID != source.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", e.ID, source.ID)
 				}
 			})
-			t.Run("TypeにDeleteWorkを設定すること", func(t *testing.T) {
-				if event.Type != model.DeleteWork {
-					t.Errorf("event.Type = %s, wants = %s", event.Type, model.DeleteWork)
+			t.Run("ActionにDeleteWorkを設定すること", func(t *testing.T) {
+				if e.Action != event.DeleteWork {
+					t.Errorf("event.Action = %s, wants = %s", e.Action, event.DeleteWork)
 				}
 			})
 			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(event.CreatedAt) {
-					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				if !testutil.IsSystemTime(e.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", e.CreatedAt)
 				}
 			})
 		})
@@ -548,7 +549,7 @@ func TestStartWork(t *testing.T) {
 		State:     model.Unstarted,
 		UpdatedAt: time.Now(),
 	}
-	testChangeWorkState(t, "開始", command.Command.StartWork, source, model.StartWork, model.Started)
+	testChangeWorkState(t, "開始", command.Command.StartWork, source, event.StartWork, model.Started)
 
 	for _, state := range []model.WorkState{
 		model.UnknownState,
@@ -591,7 +592,7 @@ func TestPauseWork(t *testing.T) {
 		State:     model.Started,
 		UpdatedAt: time.Now(),
 	}
-	testChangeWorkState(t, "停止", command.Command.PauseWork, source, model.PauseWork, model.Paused)
+	testChangeWorkState(t, "停止", command.Command.PauseWork, source, event.PauseWork, model.Paused)
 
 	for _, state := range []model.WorkState{
 		model.UnknownState,
@@ -633,7 +634,7 @@ func TestResumeWork(t *testing.T) {
 		State:     model.Paused,
 		UpdatedAt: time.Now(),
 	}
-	testChangeWorkState(t, "再開", command.Command.ResumeWork, source, model.ResumeWork, model.Resumed)
+	testChangeWorkState(t, "再開", command.Command.ResumeWork, source, event.ResumeWork, model.Resumed)
 
 	for _, state := range []model.WorkState{
 		model.UnknownState,
@@ -676,7 +677,7 @@ func TestFinishWork(t *testing.T) {
 		State:     model.Resumed,
 		UpdatedAt: time.Now(),
 	}
-	testChangeWorkState(t, "完了", command.Command.FinishWork, source, model.FinishWork, model.Finished)
+	testChangeWorkState(t, "完了", command.Command.FinishWork, source, event.FinishWork, model.Finished)
 
 	for _, state := range []model.WorkState{
 		model.UnknownState,
@@ -718,7 +719,7 @@ func TestCancelFinishWork(t *testing.T) {
 		State:     model.Finished,
 		UpdatedAt: time.Now(),
 	}
-	testChangeWorkState(t, "完了取り消し", command.Command.CancelFinishWork, source, model.CancelFinishWork, model.Paused)
+	testChangeWorkState(t, "完了取り消し", command.Command.CancelFinishWork, source, event.CancelFinishWork, model.Paused)
 
 	for _, state := range []model.WorkState{
 		model.UnknownState,
@@ -754,7 +755,7 @@ func TestCancelFinishWork(t *testing.T) {
 
 type changeWorkStateFunc func(command.Command, string, command.ChangeWorkStateParam) error
 
-func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStateFunc, source model.Work, eventType model.EventType, state model.WorkState) {
+func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStateFunc, source model.Work, eventAction event.Action, state model.WorkState) {
 	now := time.Now()
 
 	t.Run(fmt.Sprintf("%sOK", testTitle), func(t *testing.T) {
@@ -772,14 +773,14 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			*dst = source
 		})
 
-		var event model.Event
-		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(e model.Event) {
-			event = e
+		var e event.Event
+		mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Do(func(evnt event.Event) {
+			e = evnt
 		})
 
-		var work model.Work
-		mockStoreInTran.EXPECT().PutWork(gomock.Any()).Do(func(w model.Work) {
-			work = w
+		var w model.Work
+		mockStoreInTran.EXPECT().PutWork(gomock.Any()).Do(func(work model.Work) {
+			w = work
 		})
 
 		cmd := command.New(command.Dependency{Store: mockStore})
@@ -793,80 +794,80 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 
 		t.Run("Event", func(t *testing.T) {
 			t.Run("IDにUUIDを設定すること", func(t *testing.T) {
-				if event.ID == "" {
+				if e.ID == "" {
 					t.Error("event.ID is empty, wants not empty")
 				}
-				if !testutil.IsUUID(event.ID) {
+				if !testutil.IsUUID(e.ID) {
 					t.Error("event.ID is not UUID, wants UUID")
 				}
 			})
 			t.Run("PrevIDに更新前のwork.EventIDを設定すること", func(t *testing.T) {
-				if event.PrevID != source.EventID {
-					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", event.PrevID, source.EventID)
+				if e.PrevID != source.EventID {
+					t.Errorf("event.PrevID = %s, wants = work.EventID(%s)", e.PrevID, source.EventID)
 				}
 			})
 			t.Run("WorkIDに更新したWorkのIDを設定すること", func(t *testing.T) {
-				if event.WorkID != work.ID {
-					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", event.ID, work.ID)
+				if e.WorkID != w.ID {
+					t.Errorf("event.WorkID = %s, wants = %s (work.ID)", e.ID, w.ID)
 				}
 			})
-			t.Run(fmt.Sprintf("Typeに%sを設定すること", eventType), func(t *testing.T) {
-				if event.Type != eventType {
-					t.Errorf("event.Type = %s, wants = %s", event.Type, eventType)
+			t.Run(fmt.Sprintf("Actionに%sを設定すること", eventAction), func(t *testing.T) {
+				if e.Action != eventAction {
+					t.Errorf("event.Action = %s, wants = %s", e.Action, eventAction)
 				}
 			})
 			t.Run("CreatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(event.CreatedAt) {
-					t.Errorf("event.CreatedAt = %s, wants now", event.CreatedAt)
+				if !testutil.IsSystemTime(e.CreatedAt) {
+					t.Errorf("event.CreatedAt = %s, wants now", e.CreatedAt)
 				}
 			})
 
 			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
-				if !event.Time.Equal(now) {
-					t.Errorf("event.Time = %s, wants = %s", event.Time, now)
+				if !e.Time.Equal(now) {
+					t.Errorf("event.Time = %s, wants = %s", e.Time, now)
 				}
 			})
 		})
 
 		t.Run("Work", func(t *testing.T) {
 			t.Run("IDに更新前のWork.IDを設定すること", func(t *testing.T) {
-				if work.ID != source.ID {
-					t.Errorf("work.ID = %s, wants = %s", work.ID, source.ID)
+				if w.ID != source.ID {
+					t.Errorf("work.ID = %s, wants = %s", w.ID, source.ID)
 				}
 			})
 			t.Run("EventIDに作成したPutEventで登録したeventのIDを設定すること", func(t *testing.T) {
-				if work.EventID == source.EventID {
+				if w.EventID == source.EventID {
 					t.Error("work.EventID = source.EventID, wants not equals")
 				}
-				if work.EventID != event.ID {
-					t.Errorf("work.EventID = %s, wants = %s (event.ID)", work.EventID, event.ID)
+				if w.EventID != e.ID {
+					t.Errorf("work.EventID = %s, wants = %s (event.ID)", w.EventID, e.ID)
 				}
 			})
 			t.Run("Titleに更新前のWork.Titleを設定すること", func(t *testing.T) {
-				if work.Title != source.Title {
-					t.Errorf("work.Title = %s, wants = %s", work.Title, source.Title)
+				if w.Title != source.Title {
+					t.Errorf("work.Title = %s, wants = %s", w.Title, source.Title)
 				}
 			})
 			t.Run("Timeに引数で指定したTimeを設定すること", func(t *testing.T) {
-				if !work.Time.Equal(now) {
-					t.Errorf("work.Time = %s, wants = %s", work.Time, now)
+				if !w.Time.Equal(now) {
+					t.Errorf("work.Time = %s, wants = %s", w.Time, now)
 				}
 			})
 			t.Run(fmt.Sprintf("Stateに%sを設定すること", state), func(t *testing.T) {
-				if work.State != state {
-					t.Errorf("work.State = %s, wants = %s", work.State, state)
+				if w.State != state {
+					t.Errorf("work.State = %s, wants = %s", w.State, state)
 				}
 			})
 			t.Run("UpdatedAtにシステム日時を設定すること", func(t *testing.T) {
-				if !testutil.IsSystemTime(work.UpdatedAt) {
-					t.Errorf("work.UpdatedAt = %s, wants now", work.UpdatedAt)
+				if !testutil.IsSystemTime(w.UpdatedAt) {
+					t.Errorf("work.UpdatedAt = %s, wants now", w.UpdatedAt)
 				}
 			})
 		})
 
 		t.Run("event.CreatedAtとwork.UpdatedAtが同じであること", func(t *testing.T) {
-			if event.CreatedAt != work.UpdatedAt {
-				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", event.CreatedAt, work.UpdatedAt)
+			if e.CreatedAt != w.UpdatedAt {
+				t.Errorf("event.CreatedAt(%v) != work.UpdatedAt(%v), wants equals", e.CreatedAt, w.UpdatedAt)
 			}
 		})
 	})

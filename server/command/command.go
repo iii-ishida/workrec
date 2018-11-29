@@ -7,6 +7,7 @@ import (
 
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
+	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
 )
 
@@ -49,11 +50,11 @@ func (c Command) CreateWork(param CreateWorkParam) (string, error) {
 		eventID := util.NewUUID()
 		workID := util.NewUUID()
 
-		e := model.Event{
+		e := event.Event{
 			ID:        eventID,
 			PrevID:    "",
 			WorkID:    workID,
-			Type:      model.CreateWork,
+			Action:    event.CreateWork,
 			Title:     param.Title,
 			CreatedAt: now,
 		}
@@ -104,11 +105,11 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 
 		eventID := util.NewUUID()
 
-		e := model.Event{
+		e := event.Event{
 			ID:        eventID,
 			PrevID:    source.EventID,
 			WorkID:    source.ID,
-			Type:      model.UpdateWork,
+			Action:    event.UpdateWork,
 			Title:     param.Title,
 			CreatedAt: now,
 		}
@@ -147,11 +148,11 @@ func (c Command) DeleteWork(workID string) error {
 
 		eventID := util.NewUUID()
 
-		e := model.Event{
+		e := event.Event{
 			ID:        eventID,
 			PrevID:    source.EventID,
 			WorkID:    source.ID,
-			Type:      model.DeleteWork,
+			Action:    event.DeleteWork,
 			CreatedAt: now,
 		}
 		if err := s.PutEvent(e); err != nil {
@@ -174,7 +175,7 @@ type ChangeWorkStateParam struct {
 
 // StartWork starts the work.
 func (c Command) StartWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.StartWork, func(source model.Work) error {
+	return c.changeWorkState(workID, param, event.StartWork, func(source model.Work) error {
 		switch source.State {
 		case model.Unstarted:
 			return nil
@@ -186,7 +187,7 @@ func (c Command) StartWork(workID string, param ChangeWorkStateParam) error {
 
 // PauseWork pauses the work.
 func (c Command) PauseWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.PauseWork, func(source model.Work) error {
+	return c.changeWorkState(workID, param, event.PauseWork, func(source model.Work) error {
 		switch source.State {
 		case model.Started, model.Resumed:
 			return nil
@@ -198,7 +199,7 @@ func (c Command) PauseWork(workID string, param ChangeWorkStateParam) error {
 
 // ResumeWork resumes the work.
 func (c Command) ResumeWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.ResumeWork, func(source model.Work) error {
+	return c.changeWorkState(workID, param, event.ResumeWork, func(source model.Work) error {
 		switch source.State {
 		case model.Paused:
 			return nil
@@ -210,7 +211,7 @@ func (c Command) ResumeWork(workID string, param ChangeWorkStateParam) error {
 
 // FinishWork finishes the work.
 func (c Command) FinishWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.FinishWork, func(source model.Work) error {
+	return c.changeWorkState(workID, param, event.FinishWork, func(source model.Work) error {
 		switch source.State {
 		case model.Started, model.Paused, model.Resumed:
 			return nil
@@ -222,7 +223,7 @@ func (c Command) FinishWork(workID string, param ChangeWorkStateParam) error {
 
 // CancelFinishWork cancels the finish state for the work.
 func (c Command) CancelFinishWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, model.CancelFinishWork, func(source model.Work) error {
+	return c.changeWorkState(workID, param, event.CancelFinishWork, func(source model.Work) error {
 		switch source.State {
 		case model.Finished:
 			return nil
@@ -232,7 +233,7 @@ func (c Command) CancelFinishWork(workID string, param ChangeWorkStateParam) err
 	})
 }
 
-func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, eventType model.EventType, validationFunc func(model.Work) error) error {
+func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, eventAction event.Action, validationFunc func(model.Work) error) error {
 	now := time.Now()
 
 	return c.dep.Store.RunTransaction(func(s store.Store) error {
@@ -254,11 +255,11 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 
 		eventID := util.NewUUID()
 
-		e := model.Event{
+		e := event.Event{
 			ID:        eventID,
 			PrevID:    source.EventID,
 			WorkID:    source.ID,
-			Type:      eventType,
+			Action:    eventAction,
 			Time:      param.Time,
 			CreatedAt: now,
 		}
@@ -271,7 +272,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 			EventID:   eventID,
 			Title:     source.Title,
 			Time:      param.Time,
-			State:     workStateFromEventType(eventType),
+			State:     workStateFromEventAction(eventAction),
 			UpdatedAt: now,
 		}
 		if err := s.PutWork(w); err != nil {
@@ -283,17 +284,17 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 
 }
 
-func workStateFromEventType(eventType model.EventType) model.WorkState {
-	switch eventType {
-	case model.StartWork:
+func workStateFromEventAction(eventAction event.Action) model.WorkState {
+	switch eventAction {
+	case event.StartWork:
 		return model.Started
-	case model.PauseWork:
+	case event.PauseWork:
 		return model.Paused
-	case model.ResumeWork:
+	case event.ResumeWork:
 		return model.Resumed
-	case model.FinishWork:
+	case event.FinishWork:
 		return model.Finished
-	case model.CancelFinishWork:
+	case event.CancelFinishWork:
 		return model.Paused
 	default:
 		return model.UnknownState

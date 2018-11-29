@@ -7,6 +7,7 @@ package store
 import (
 	gomock "github.com/golang/mock/gomock"
 	model "github.com/iii-ishida/workrec/server/command/model"
+	event "github.com/iii-ishida/workrec/server/event"
 	reflect "reflect"
 )
 
@@ -82,7 +83,7 @@ func (mr *MockStoreMockRecorder) DeleteWork(id interface{}) *gomock.Call {
 }
 
 // PutEvent mocks base method
-func (m *MockStore) PutEvent(e model.Event) error {
+func (m *MockStore) PutEvent(e event.Event) error {
 	ret := m.ctrl.Call(m, "PutEvent", e)
 	ret0, _ := ret[0].(error)
 	return ret0

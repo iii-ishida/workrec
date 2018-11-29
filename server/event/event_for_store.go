@@ -1,4 +1,4 @@
-package model
+package event
 
 import (
 	"time"
@@ -6,31 +6,34 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+// KindName is a datastore kind name for Event.
+const KindName = "Event"
+
 type eventForStore struct {
 	ID                string
 	PrevID            string
 	WorkID            string
-	Type              EventType
+	Action            Action
 	CreatedAt         time.Time
 	PbSerializedValue []byte `datastore:",noindex"`
 }
 
-func (e eventForStore) toEvent() (Event, error) {
-	var event Event
-	if err := UnmarshalEventPb(e.PbSerializedValue, &event); err != nil {
+func (es eventForStore) toEvent() (Event, error) {
+	var e Event
+	if err := UnmarshalPb(es.PbSerializedValue, &e); err != nil {
 		return Event{}, err
 	}
-	return event, nil
+	return e, nil
 }
 
 // Load loads a Event from datastore.
 func (e *Event) Load(ps []datastore.Property) error {
-	var forStore eventForStore
-	if err := datastore.LoadStruct(&forStore, ps); err != nil {
+	var es eventForStore
+	if err := datastore.LoadStruct(&es, ps); err != nil {
 		return err
 	}
 
-	evnt, err := forStore.toEvent()
+	evnt, err := es.toEvent()
 	if err != nil {
 		return err
 	}
@@ -41,7 +44,7 @@ func (e *Event) Load(ps []datastore.Property) error {
 
 // Save saves a Event to datastore.
 func (e *Event) Save() ([]datastore.Property, error) {
-	pbSerializedValue, err := MarshalEventPb(*e)
+	pbSerializedValue, err := MarshalPb(*e)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +53,7 @@ func (e *Event) Save() ([]datastore.Property, error) {
 		{Name: "ID", Value: e.ID},
 		{Name: "PrevID", Value: e.PrevID},
 		{Name: "WorkID", Value: e.WorkID},
-		{Name: "Type", Value: int64(e.Type)},
+		{Name: "Action", Value: int64(e.Action)},
 		{Name: "CreatedAt", Value: e.CreatedAt},
 		{Name: "PbSerializedValue", Value: pbSerializedValue, NoIndex: true},
 	}, nil

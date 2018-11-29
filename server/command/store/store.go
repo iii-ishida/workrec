@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/iii-ishida/workrec/server/command/model"
+	"github.com/iii-ishida/workrec/server/event"
 )
 
 // ErrNotfound is error for the notfound.
@@ -17,5 +18,5 @@ type Store interface {
 	PutWork(w model.Work) error
 	DeleteWork(id string) error
 
-	PutEvent(e model.Event) error
+	PutEvent(e event.Event) error
 }

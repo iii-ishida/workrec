@@ -1,4 +1,4 @@
-package model
+package event
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"github.com/golang/protobuf/ptypes"
 )
 
-// MarshalEventPb takes a Event and encodes it into the wire format, returning the data.
-func MarshalEventPb(e Event) ([]byte, error) {
+// MarshalPb takes a Event and encodes it into the wire format, returning the data.
+func MarshalPb(e Event) ([]byte, error) {
 	pb, err := convertToEventPb(e)
 	if err != nil {
 		return nil, err
@@ -17,9 +17,9 @@ func MarshalEventPb(e Event) ([]byte, error) {
 	return proto.Marshal(&pb)
 }
 
-// UnmarshalEventPb parses the protocol buffer representation in buf and places the decoded result in dst.
+// UnmarshalPb parses the protocol buffer representation in buf and places the decoded result in dst.
 // If the struct underlying dst does not match the data in buf, the results can be unpredictable.
-func UnmarshalEventPb(buf []byte, dst *Event) error {
+func UnmarshalPb(buf []byte, dst *Event) error {
 	var pb EventPb
 	err := proto.Unmarshal(buf, &pb)
 
@@ -51,39 +51,39 @@ func convertToEventPb(e Event) (EventPb, error) {
 		Id:        e.ID,
 		PrevId:    e.PrevID,
 		WorkId:    e.WorkID,
-		Type:      convertToEventTypePb(e.Type),
+		Action:    convertToActionPb(e.Action),
 		Title:     e.Title,
 		Time:      time,
 		CreatedAt: createdAt,
 	}, nil
 }
 
-func convertToEvent(e EventPb) (Event, error) {
-	time, err := ptypes.Timestamp(e.Time)
+func convertToEvent(pb EventPb) (Event, error) {
+	time, err := ptypes.Timestamp(pb.Time)
 	if err != nil {
 		return Event{}, err
 	}
 
-	createdAt, err := ptypes.Timestamp(e.CreatedAt)
+	createdAt, err := ptypes.Timestamp(pb.CreatedAt)
 	if err != nil {
 		return Event{}, err
 	}
 
 	return Event{
-		ID:        e.Id,
-		PrevID:    e.PrevId,
-		WorkID:    e.WorkId,
-		Type:      convertToEventType(e.Type),
-		Title:     e.Title,
+		ID:        pb.Id,
+		PrevID:    pb.PrevId,
+		WorkID:    pb.WorkId,
+		Action:    convertToAction(pb.Action),
+		Title:     pb.Title,
 		Time:      time,
 		CreatedAt: createdAt,
 	}, nil
 }
 
-func convertToEventTypePb(t EventType) EventPb_Type {
-	switch t {
+func convertToActionPb(a Action) EventPb_Action {
+	switch a {
 	case UnknownEvent:
-		return EventPb_TYPE_UNSPECIFIED
+		return EventPb_ACTION_UNSPECIFIED
 	case CreateWork:
 		return EventPb_CREATE_WORK
 	case UpdateWork:
@@ -101,13 +101,13 @@ func convertToEventTypePb(t EventType) EventPb_Type {
 	case CancelFinishWork:
 		return EventPb_CANCEL_FINISH_WORK
 	default:
-		panic(fmt.Sprintf("unknown EventType: %s", t))
+		panic(fmt.Sprintf("unknown EventAction: %s", a))
 	}
 }
 
-func convertToEventType(t EventPb_Type) EventType {
-	switch t {
-	case EventPb_TYPE_UNSPECIFIED:
+func convertToAction(pb EventPb_Action) Action {
+	switch pb {
+	case EventPb_ACTION_UNSPECIFIED:
 		return UnknownEvent
 	case EventPb_CREATE_WORK:
 		return CreateWork
@@ -126,6 +126,6 @@ func convertToEventType(t EventPb_Type) EventType {
 	case EventPb_CANCEL_FINISH_WORK:
 		return CancelFinishWork
 	default:
-		panic(fmt.Sprintf("unknown EventPb_Type: %s", t))
+		panic(fmt.Sprintf("unknown EventPb_Action: %s", pb))
 	}
 }

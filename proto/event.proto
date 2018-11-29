@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-package model;
+package event;
 
 import "google/protobuf/timestamp.proto";
 
 message EventPb {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
 	  CREATE_WORK = 1;
 	  UPDATE_WORK = 2;
 	  DELETE_WORK = 3;
@@ -20,7 +20,7 @@ message EventPb {
   string id = 1;
   string prev_id = 2;
   string work_id = 3;
-  Type type = 4;
+  Action action = 4;
   string title = 5;
   google.protobuf.Timestamp time = 6;
   google.protobuf.Timestamp created_at = 7;

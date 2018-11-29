@@ -6,12 +6,12 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"github.com/iii-ishida/workrec/server/command/model"
+	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
 )
 
 const (
-	kindWork  = "Work"
-	kindEvent = "Event"
+	kindWork = "Work"
 )
 
 // CloudDataStore is a Store for Cloud Datastore.
@@ -66,10 +66,10 @@ func (s CloudDataStore) DeleteWork(id string) error {
 }
 
 // PutEvent saves the event into the datastore.
-func (s CloudDataStore) PutEvent(event model.Event) error {
-	key := datastore.NameKey(kindEvent, event.ID, nil)
+func (s CloudDataStore) PutEvent(e event.Event) error {
+	key := datastore.NameKey(event.KindName, e.ID, nil)
 
-	return s.put(key, &event)
+	return s.put(key, &e)
 }
 
 func (s CloudDataStore) get(key *datastore.Key, dst interface{}) error {

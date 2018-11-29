@@ -1,4 +1,4 @@
-package model
+package event
 
 import (
 	"fmt"
@@ -10,30 +10,30 @@ type Event struct {
 	ID        string
 	PrevID    string
 	WorkID    string
-	Type      EventType
+	Action    Action
 	Title     string
 	Time      time.Time
 	CreatedAt time.Time
 }
 
-// EventType is a type for a event.
-type EventType int8
+// Action is a action for event.
+type Action int8
 
-// Event types.
+// Event actions.
 const (
-	UnknownEvent     EventType = 0
-	CreateWork       EventType = 1
-	UpdateWork       EventType = 2
-	DeleteWork       EventType = 3
-	StartWork        EventType = 4
-	PauseWork        EventType = 5
-	ResumeWork       EventType = 6
-	FinishWork       EventType = 7
-	CancelFinishWork EventType = 8
+	UnknownEvent     Action = 0
+	CreateWork       Action = 1
+	UpdateWork       Action = 2
+	DeleteWork       Action = 3
+	StartWork        Action = 4
+	PauseWork        Action = 5
+	ResumeWork       Action = 6
+	FinishWork       Action = 7
+	CancelFinishWork Action = 8
 )
 
-func (t EventType) String() string {
-	switch t {
+func (a Action) String() string {
+	switch a {
 	case UnknownEvent:
 		return "Unknown"
 	case CreateWork:
@@ -53,6 +53,6 @@ func (t EventType) String() string {
 	case CancelFinishWork:
 		return "CancelFinishWork"
 	default:
-		panic(fmt.Sprintf("unknown EventType: %d", t))
+		panic(fmt.Sprintf("unknown EventAction: %d", a))
 	}
 }
