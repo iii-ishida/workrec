@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -37,11 +38,13 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	q, err := newWorkListQuery(r)
 
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	if err := q.ConstructWorks(); err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -54,12 +57,14 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 
 	list, err := q.Get(worklist.Param{PageSize: pageSize, PageToken: pageToken})
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	b, err := worklist.MarshalWorkListPb(list)
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -73,18 +78,21 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 	cmd, err := newCmd(r)
 
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	var param CreateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	id, err := cmd.CreateWork(command.CreateWorkParam{Title: param.Title})
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -97,12 +105,14 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 	cmd, err := newCmd(r)
 
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	var param UpdateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -111,12 +121,14 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 	err = cmd.UpdateWork(workID, command.UpdateWorkParam{Title: param.Title})
 
 	if _, ok := err.(command.ValidationError); ok {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	} else if err == command.ErrNotfound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	} else if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -128,6 +140,7 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 	cmd, err := newCmd(r)
 
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -139,6 +152,7 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	} else if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -172,18 +186,21 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	cmd, err := newCmd(r)
 
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	var param ChangeWorkStateRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	paramTime, err := ptypes.Timestamp(param.Time)
 	if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -192,12 +209,14 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	err = fn(cmd, workID, command.ChangeWorkStateParam{Time: paramTime})
 
 	if _, ok := err.(command.ValidationError); ok {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	} else if err == command.ErrNotfound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	} else if err != nil {
+		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
