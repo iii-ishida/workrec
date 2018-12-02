@@ -5,4 +5,5 @@ service: api
 handlers:
 - url: /.*
   script: auto
+  secure: always
 
