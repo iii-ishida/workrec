@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command"
@@ -20,6 +21,14 @@ const defaultPageSize = 50
 // NewRouter returns the command http handler.
 func NewRouter() http.Handler {
 	r := chi.NewRouter()
+
+	cors := cors.New(cors.Options{
+		AllowedOrigins: []string{util.GetClientOrigin()},
+		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "X-CSRF-Token"},
+	})
+	r.Use(cors.Handler)
+
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/works", getWorkList)
 		r.Post("/works", createWork)

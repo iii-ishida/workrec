@@ -3,6 +3,7 @@ module github.com/iii-ishida/workrec/server
 require (
 	cloud.google.com/go v0.32.0
 	github.com/go-chi/chi v3.3.3+incompatible
+	github.com/go-chi/cors v1.0.0
 	github.com/gofrs/uuid v3.1.0+incompatible
 	github.com/golang/mock v1.1.2-0.20181024150832-8a44ef6e8be5
 	github.com/golang/protobuf v1.2.0
