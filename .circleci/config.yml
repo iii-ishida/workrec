@@ -52,7 +52,7 @@ jobs:
       - run:
           name: Deploy Server
           command: |
-            gcloud --quiet app deploy ./server/web/
+            gcloud --quiet app deploy ./server/web/ > /dev/null 2>&1 && echo "deploy done."
 
   client-test-and-deploy:
     docker:
@@ -99,7 +99,7 @@ jobs:
       - run:
           name: Deploy Server
           command: |
-            sh ./web-client/scripts/build.sh && gcloud --quiet app deploy ./web-client/server
+            sh ./web-client/scripts/build.sh && gcloud --quiet app deploy ./web-client/server > /dev/null 2>&1 && echo "deploy done."
 workflows:
   version: 2
   test_and_deploy:
