@@ -1,3 +1,0 @@
-go vet ./... &&
-find . -name *.go | grep -v .pb.go  | xargs -L 1 golint -set_exit_status &&
-goapp test ./...
