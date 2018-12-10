@@ -19,12 +19,12 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
-struct Model_WorkListPb {
+struct WorkListPb {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var works: [Model_WorkListItemPb] = []
+  var works: [WorkListItemPb] = []
 
   var nextPageToken: String = String()
 
@@ -33,7 +33,7 @@ struct Model_WorkListPb {
   init() {}
 }
 
-struct Model_WorkListItemPb {
+struct WorkListItemPb {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -48,7 +48,7 @@ struct Model_WorkListItemPb {
     set {_uniqueStorage()._title = newValue}
   }
 
-  var state: Model_WorkListItemPb.State {
+  var state: WorkListItemPb.State {
     get {return _storage._state}
     set {_uniqueStorage()._state = newValue}
   }
@@ -120,9 +120,9 @@ struct Model_WorkListItemPb {
 
 #if swift(>=4.2)
 
-extension Model_WorkListItemPb.State: CaseIterable {
+extension WorkListItemPb.State: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Model_WorkListItemPb.State] = [
+  static var allCases: [WorkListItemPb.State] = [
     .unspecified,
     .unstarted,
     .started,
@@ -136,10 +136,8 @@ extension Model_WorkListItemPb.State: CaseIterable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "model"
-
-extension Model_WorkListPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".WorkListPb"
+extension WorkListPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "WorkListPb"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "works"),
     2: .standard(proto: "next_page_token"),
@@ -165,7 +163,7 @@ extension Model_WorkListPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: Model_WorkListPb, rhs: Model_WorkListPb) -> Bool {
+  static func ==(lhs: WorkListPb, rhs: WorkListPb) -> Bool {
     if lhs.works != rhs.works {return false}
     if lhs.nextPageToken != rhs.nextPageToken {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
@@ -173,8 +171,8 @@ extension Model_WorkListPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
   }
 }
 
-extension Model_WorkListItemPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".WorkListItemPb"
+extension WorkListItemPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "WorkListItemPb"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
     2: .same(proto: "title"),
@@ -186,7 +184,7 @@ extension Model_WorkListItemPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
   fileprivate class _StorageClass {
     var _id: String = String()
     var _title: String = String()
-    var _state: Model_WorkListItemPb.State = .unspecified
+    var _state: WorkListItemPb.State = .unspecified
     var _createdAt: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
     var _updatedAt: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
 
@@ -247,7 +245,7 @@ extension Model_WorkListItemPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: Model_WorkListItemPb, rhs: Model_WorkListItemPb) -> Bool {
+  static func ==(lhs: WorkListItemPb, rhs: WorkListItemPb) -> Bool {
     if lhs._storage !== rhs._storage {
       let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
         let _storage = _args.0
@@ -266,7 +264,7 @@ extension Model_WorkListItemPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
   }
 }
 
-extension Model_WorkListItemPb.State: SwiftProtobuf._ProtoNameProviding {
+extension WorkListItemPb.State: SwiftProtobuf._ProtoNameProviding {
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     0: .same(proto: "STATE_UNSPECIFIED"),
     1: .same(proto: "UNSTARTED"),

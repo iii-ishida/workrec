@@ -19,7 +19,7 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
-struct Event_EventPb {
+struct EventPb {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -39,7 +39,7 @@ struct Event_EventPb {
     set {_uniqueStorage()._workID = newValue}
   }
 
-  var action: Event_EventPb.Action {
+  var action: EventPb.Action {
     get {return _storage._action}
     set {_uniqueStorage()._action = newValue}
   }
@@ -125,9 +125,9 @@ struct Event_EventPb {
 
 #if swift(>=4.2)
 
-extension Event_EventPb.Action: CaseIterable {
+extension EventPb.Action: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Event_EventPb.Action] = [
+  static var allCases: [EventPb.Action] = [
     .unspecified,
     .createWork,
     .updateWork,
@@ -144,10 +144,8 @@ extension Event_EventPb.Action: CaseIterable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "event"
-
-extension Event_EventPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".EventPb"
+extension EventPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "EventPb"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
     2: .standard(proto: "prev_id"),
@@ -162,7 +160,7 @@ extension Event_EventPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     var _id: String = String()
     var _prevID: String = String()
     var _workID: String = String()
-    var _action: Event_EventPb.Action = .unspecified
+    var _action: EventPb.Action = .unspecified
     var _title: String = String()
     var _time: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
     var _createdAt: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
@@ -234,7 +232,7 @@ extension Event_EventPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: Event_EventPb, rhs: Event_EventPb) -> Bool {
+  static func ==(lhs: EventPb, rhs: EventPb) -> Bool {
     if lhs._storage !== rhs._storage {
       let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
         let _storage = _args.0
@@ -255,7 +253,7 @@ extension Event_EventPb: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
   }
 }
 
-extension Event_EventPb.Action: SwiftProtobuf._ProtoNameProviding {
+extension EventPb.Action: SwiftProtobuf._ProtoNameProviding {
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     0: .same(proto: "ACTION_UNSPECIFIED"),
     1: .same(proto: "CREATE_WORK"),

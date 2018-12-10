@@ -11,7 +11,7 @@ public struct WorkList {
     self.nextPageToken = nextPageToken
   }
 
-  init(pb: Model_WorkListPb) {
+  init(pb: WorkListPb) {
     self.init(works: pb.works.map { WorkListItem(pb: $0) }, nextPageToken: pb.nextPageToken)
   }
 }
@@ -25,7 +25,7 @@ public struct WorkListItem {
     self.title = title
   }
 
-  init(pb: Model_WorkListItemPb) {
+  init(pb: WorkListItemPb) {
     self.init(id: pb.id, title: pb.title)
   }
 }
@@ -35,7 +35,7 @@ public struct API {
       let url = URL(string: "\(Env.apiOrigin)/v1/works")!
       return URLSession.shared.rx.data(request: URLRequest(url: url)).map {
         print("DATA: \($0)")
-        let list = try Model_WorkListPb(serializedData: $0)
+        let list = try WorkListPb(serializedData: $0)
         return WorkList(pb: list)
       }
     }
@@ -45,7 +45,7 @@ public struct API {
       var req = URLRequest(url: url)
       req.httpMethod = "POST"
       req.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
-      req.httpBody = try! Main_CreateWorkRequestPb.with {
+      req.httpBody = try! CreateWorkRequestPb.with {
         $0.title = title
       }.serializedData()
 
