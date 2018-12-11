@@ -1,24 +1,48 @@
-import axios from 'axios';
 import { API_ORIGIN } from './env';
 const worklist_pb = require('./pb/worklist_pb');
 const command_request_pb = require('./pb/command_request_pb');
 
 export default class API {
   static getWorkList() {
-    return axios.get(`${API_ORIGIN}/v1/works`, {responseType: 'arraybuffer'}).then(ret => {
-      const list = worklist_pb.WorkListPb.deserializeBinary(new Uint8Array(ret.data));
-      return list.toObject();
-    });
+    return fetch(`${API_ORIGIN}/v1/works`)
+      .then(res => res.arrayBuffer())
+      .then(data => {
+        const pb = worklist_pb.WorkListPb.deserializeBinary(new Uint8Array(data));
+        return this.worklistPbToObject(pb);
+      });
   }
 
   static addWork(title) {
     const param = new command_request_pb.CreateWorkRequestPb();
     param.setTitle(title);
 
-    return axios.post(`${API_ORIGIN}/v1/works`, param.serializeBinary(), {headers: {'Content-Type': 'application/octet-stream'}});
+    return fetch(`${API_ORIGIN}/v1/works`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/octet-stream'},
+      body: param.serializeBinary()
+    });
   }
 
   static deleteWork(id) {
-    return axios.delete(`${API_ORIGIN}/v1/works/${id}`);
+    return fetch(`${API_ORIGIN}/v1/works/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  static worklistPbToObject(pb) {
+    const pbObj = pb.toObject();
+
+    return {
+      works: (pbObj.worksList || []).map(work => {
+        return {
+          id: work.id,
+          title: work.title,
+          state: work.state,
+          createdAt: work.createdAt,
+          updatedAt: work.updatedAt,
+        };
+      }),
+      nextPageToken: pbObj.nextPageToken
+    };
   }
 }

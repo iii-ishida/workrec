@@ -29,7 +29,7 @@ class Workrec extends React.Component {
   render() {
     return (
       <div>
-        {(this.state.worklist || {worksList: []}).worksList.map(w => {
+        {(this.state.worklist || {works: []}).works.map(w => {
           return (<div>
             <div>{w.title}</div>
             <button onClick={() => this.deleteWork(w.id)}>DELETE</button>
