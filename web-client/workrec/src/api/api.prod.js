@@ -1,4 +1,4 @@
-import { API_ORIGIN } from './env';
+import { API_ORIGIN } from '../env';
 const worklist_pb = require('./pb/worklist_pb');
 const command_request_pb = require('./pb/command_request_pb');
 
