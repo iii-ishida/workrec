@@ -19,11 +19,13 @@ type tranFunc func(store.Store) error
 
 func TestCreateWork(t *testing.T) {
 	t.Run("登録OK", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
+		var (
+			mockCtrl        = gomock.NewController(t)
+			mockStore       = store.NewMockStore(mockCtrl)
+			mockStoreInTran = store.NewMockStore(mockCtrl)
+			cmd             = command.New(command.Dependency{Store: mockStore})
+		)
 		defer mockCtrl.Finish()
-
-		mockStore := store.NewMockStore(mockCtrl)
-		mockStoreInTran := store.NewMockStore(mockCtrl)
 
 		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
@@ -40,7 +42,6 @@ func TestCreateWork(t *testing.T) {
 		})
 
 		paramTitle := "Some Title"
-		cmd := command.New(command.Dependency{Store: mockStore})
 		id, err := cmd.CreateWork(command.CreateWorkParam{Title: paramTitle})
 
 		t.Run("登録したWorkのIDが返却されること", func(t *testing.T) {
@@ -141,18 +142,19 @@ func TestCreateWork(t *testing.T) {
 		someErr := errors.New("Some Error")
 
 		t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
-
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			_, err := cmd.CreateWork(command.CreateWorkParam{Title: "Some Title"})
 
 			if err == nil {
@@ -164,11 +166,14 @@ func TestCreateWork(t *testing.T) {
 		})
 
 		t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -176,7 +181,6 @@ func TestCreateWork(t *testing.T) {
 
 			mockStoreInTran.EXPECT().PutWork(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			_, err := cmd.CreateWork(command.CreateWorkParam{Title: "Some Title"})
 
 			if err == nil {
@@ -191,22 +195,16 @@ func TestCreateWork(t *testing.T) {
 }
 
 func TestUpdateWork(t *testing.T) {
-	workTime := time.Now().Add(-1 * time.Hour)
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      workTime,
-		State:     model.Started,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
 
 	t.Run("更新OK", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
+		var (
+			mockCtrl        = gomock.NewController(t)
+			mockStore       = store.NewMockStore(mockCtrl)
+			mockStoreInTran = store.NewMockStore(mockCtrl)
+			cmd             = command.New(command.Dependency{Store: mockStore})
+		)
 		defer mockCtrl.Finish()
-
-		mockStore := store.NewMockStore(mockCtrl)
-		mockStoreInTran := store.NewMockStore(mockCtrl)
 
 		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
@@ -227,7 +225,6 @@ func TestUpdateWork(t *testing.T) {
 		})
 
 		paramTitle := "Updated Title"
-		cmd := command.New(command.Dependency{Store: mockStore})
 		err := cmd.UpdateWork(source.ID, command.UpdateWorkParam{Title: paramTitle})
 
 		t.Run("errorがnil であること", func(t *testing.T) {
@@ -319,18 +316,20 @@ func TestUpdateWork(t *testing.T) {
 		someErr := errors.New("Some Error")
 
 		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.UpdateWork(util.NewUUID(), command.UpdateWorkParam{Title: "Updated Title"})
 
 			if err != command.ErrNotfound {
@@ -339,11 +338,14 @@ func TestUpdateWork(t *testing.T) {
 		})
 
 		t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -351,7 +353,6 @@ func TestUpdateWork(t *testing.T) {
 
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.UpdateWork(util.NewUUID(), command.UpdateWorkParam{Title: "Updated Title"})
 
 			if err == nil {
@@ -364,11 +365,14 @@ func TestUpdateWork(t *testing.T) {
 		})
 
 		t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -377,7 +381,6 @@ func TestUpdateWork(t *testing.T) {
 
 			mockStoreInTran.EXPECT().PutWork(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.UpdateWork(util.NewUUID(), command.UpdateWorkParam{Title: "Updated Title"})
 
 			if err == nil {
@@ -392,21 +395,16 @@ func TestUpdateWork(t *testing.T) {
 }
 
 func TestDeleteWork(t *testing.T) {
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      time.Now(),
-		State:     model.Unstarted,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
 
 	t.Run("削除OK", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
+		var (
+			mockCtrl        = gomock.NewController(t)
+			mockStore       = store.NewMockStore(mockCtrl)
+			mockStoreInTran = store.NewMockStore(mockCtrl)
+			cmd             = command.New(command.Dependency{Store: mockStore})
+		)
 		defer mockCtrl.Finish()
-
-		mockStore := store.NewMockStore(mockCtrl)
-		mockStoreInTran := store.NewMockStore(mockCtrl)
 
 		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
@@ -423,7 +421,6 @@ func TestDeleteWork(t *testing.T) {
 
 		mockStoreInTran.EXPECT().DeleteWork(gomock.Eq(source.ID))
 
-		cmd := command.New(command.Dependency{Store: mockStore})
 		err := cmd.DeleteWork(source.ID)
 
 		t.Run("errorがnil であること", func(t *testing.T) {
@@ -468,18 +465,20 @@ func TestDeleteWork(t *testing.T) {
 		someErr := errors.New("Some Error")
 
 		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
 
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.DeleteWork(util.NewUUID())
 
 			if err != command.ErrNotfound {
@@ -488,11 +487,14 @@ func TestDeleteWork(t *testing.T) {
 		})
 
 		t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -500,7 +502,6 @@ func TestDeleteWork(t *testing.T) {
 
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.DeleteWork(util.NewUUID())
 
 			if err == nil {
@@ -513,11 +514,14 @@ func TestDeleteWork(t *testing.T) {
 		})
 
 		t.Run("Store#DeleteWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -526,7 +530,6 @@ func TestDeleteWork(t *testing.T) {
 
 			mockStoreInTran.EXPECT().DeleteWork(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.DeleteWork(util.NewUUID())
 
 			if err == nil {
@@ -541,14 +544,9 @@ func TestDeleteWork(t *testing.T) {
 }
 
 func TestStartWork(t *testing.T) {
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      time.Now().Add(-1 * time.Hour),
-		State:     model.Unstarted,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
+	source.State = model.Unstarted
+
 	testChangeWorkState(t, "開始", command.Command.StartWork, source, event.StartWork, model.Started)
 
 	for _, state := range []model.WorkState{
@@ -559,11 +557,14 @@ func TestStartWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -574,7 +575,6 @@ func TestStartWork(t *testing.T) {
 				*dst = w
 			})
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.StartWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
@@ -584,14 +584,9 @@ func TestStartWork(t *testing.T) {
 }
 
 func TestPauseWork(t *testing.T) {
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      time.Now().Add(-1 * time.Hour),
-		State:     model.Started,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
+	source.State = model.Started
+
 	testChangeWorkState(t, "停止", command.Command.PauseWork, source, event.PauseWork, model.Paused)
 
 	for _, state := range []model.WorkState{
@@ -601,11 +596,14 @@ func TestPauseWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -616,7 +614,6 @@ func TestPauseWork(t *testing.T) {
 				*dst = w
 			})
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.PauseWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
@@ -626,14 +623,9 @@ func TestPauseWork(t *testing.T) {
 }
 
 func TestResumeWork(t *testing.T) {
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      time.Now().Add(-1 * time.Hour),
-		State:     model.Paused,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
+	source.State = model.Paused
+
 	testChangeWorkState(t, "再開", command.Command.ResumeWork, source, event.ResumeWork, model.Resumed)
 
 	for _, state := range []model.WorkState{
@@ -644,11 +636,14 @@ func TestResumeWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -659,7 +654,6 @@ func TestResumeWork(t *testing.T) {
 				*dst = w
 			})
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.ResumeWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
@@ -669,14 +663,9 @@ func TestResumeWork(t *testing.T) {
 }
 
 func TestFinishWork(t *testing.T) {
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      time.Now().Add(-1 * time.Hour),
-		State:     model.Resumed,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
+	source.State = model.Resumed
+
 	testChangeWorkState(t, "完了", command.Command.FinishWork, source, event.FinishWork, model.Finished)
 
 	for _, state := range []model.WorkState{
@@ -685,11 +674,14 @@ func TestFinishWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -700,25 +692,18 @@ func TestFinishWork(t *testing.T) {
 				*dst = w
 			})
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.FinishWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
 	}
-
 }
 
 func TestCancelFinishWork(t *testing.T) {
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		Time:      time.Now().Add(-1 * time.Hour),
-		State:     model.Finished,
-		UpdatedAt: time.Now(),
-	}
+	source := newWork()
+	source.State = model.Finished
+
 	testChangeWorkState(t, "完了取り消し", command.Command.CancelFinishWork, source, event.CancelFinishWork, model.Paused)
 
 	for _, state := range []model.WorkState{
@@ -729,11 +714,14 @@ func TestCancelFinishWork(t *testing.T) {
 		model.Resumed,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -744,7 +732,6 @@ func TestCancelFinishWork(t *testing.T) {
 				*dst = w
 			})
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := cmd.CancelFinishWork(source.ID, command.ChangeWorkStateParam{Time: time.Now()})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
@@ -759,11 +746,13 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 	now := time.Now()
 
 	t.Run(fmt.Sprintf("%sOK", testTitle), func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
+		var (
+			mockCtrl        = gomock.NewController(t)
+			mockStore       = store.NewMockStore(mockCtrl)
+			mockStoreInTran = store.NewMockStore(mockCtrl)
+			cmd             = command.New(command.Dependency{Store: mockStore})
+		)
 		defer mockCtrl.Finish()
-
-		mockStore := store.NewMockStore(mockCtrl)
-		mockStoreInTran := store.NewMockStore(mockCtrl)
 
 		mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 			return f(mockStoreInTran)
@@ -783,7 +772,6 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			w = work
 		})
 
-		cmd := command.New(command.Dependency{Store: mockStore})
 		err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 		t.Run("errorがnil であること", func(t *testing.T) {
@@ -876,11 +864,13 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 		someErr := errors.New("Some Error")
 
 		t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
-
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
@@ -888,7 +878,6 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 
 			mockStoreInTran.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 			if err != command.ErrNotfound {
@@ -897,11 +886,13 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 		})
 
 		t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
-
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
@@ -913,7 +904,6 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 			if err == nil {
@@ -926,11 +916,13 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 		})
 
 		t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
-
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
@@ -942,7 +934,6 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 			mockStoreInTran.EXPECT().PutEvent(gomock.Any())
 			mockStoreInTran.EXPECT().PutWork(gomock.Any()).Return(someErr)
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: now})
 
 			if err == nil {
@@ -955,11 +946,14 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 		})
 
 		t.Run("更新前のWork.Timeがparam.Timeより大きい場合はValidationErrorになること", func(t *testing.T) {
-			mockCtrl := gomock.NewController(t)
+			var (
+				mockCtrl        = gomock.NewController(t)
+				mockStore       = store.NewMockStore(mockCtrl)
+				mockStoreInTran = store.NewMockStore(mockCtrl)
+				cmd             = command.New(command.Dependency{Store: mockStore})
+			)
 			defer mockCtrl.Finish()
 
-			mockStore := store.NewMockStore(mockCtrl)
-			mockStoreInTran := store.NewMockStore(mockCtrl)
 			mockStore.EXPECT().RunInTransaction(gomock.Any()).DoAndReturn(func(f tranFunc) error {
 				return f(mockStoreInTran)
 			})
@@ -968,11 +962,23 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 				*dst = source
 			})
 
-			cmd := command.New(command.Dependency{Store: mockStore})
 			err := testFunc(cmd, source.ID, command.ChangeWorkStateParam{Time: source.Time.Add(-1 * time.Second)})
 			if _, ok := err.(command.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
 	})
+}
+
+func newWork() model.Work {
+	workTime := time.Now().Add(-1 * time.Hour)
+
+	return model.Work{
+		ID:        util.NewUUID(),
+		EventID:   util.NewUUID(),
+		Title:     "Some Title",
+		Time:      workTime,
+		State:     model.Started,
+		UpdatedAt: time.Now(),
+	}
 }

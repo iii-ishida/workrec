@@ -11,24 +11,26 @@ import (
 )
 
 func TestMarshalWorkPb(t *testing.T) {
-	id := util.NewUUID()
-	eventID := util.NewUUID()
-	workState := model.Started
-	workStatePb := model.WorkPb_STARTED
-	title := "a title"
-	workTime := time.Now().Add(-2 * time.Hour)
-	workTimePb, _ := ptypes.TimestampProto(workTime)
-	updatedAt := time.Now()
-	updatedAtPb, _ := ptypes.TimestampProto(updatedAt)
+	var (
+		id             = util.NewUUID()
+		eventID        = util.NewUUID()
+		workState      = model.Started
+		workStatePb    = model.WorkPb_STARTED
+		title          = "a title"
+		workTime       = time.Now().Add(-2 * time.Hour)
+		workTimePb, _  = ptypes.TimestampProto(workTime)
+		updatedAt      = time.Now()
+		updatedAtPb, _ = ptypes.TimestampProto(updatedAt)
 
-	w := model.Work{
-		ID:        id,
-		EventID:   eventID,
-		Title:     title,
-		Time:      workTime,
-		State:     workState,
-		UpdatedAt: updatedAt,
-	}
+		w = model.Work{
+			ID:        id,
+			EventID:   eventID,
+			Title:     title,
+			Time:      workTime,
+			State:     workState,
+			UpdatedAt: updatedAt,
+		}
+	)
 
 	t.Run("パラメータが変更されないこと", func(t *testing.T) {
 		buf, err := model.MarshalWorkPb(w)
@@ -73,24 +75,26 @@ func TestMarshalWorkPb(t *testing.T) {
 }
 
 func TestUnmarshalWorkPb(t *testing.T) {
-	id := util.NewUUID()
-	eventID := util.NewUUID()
-	workState := model.Started
-	workStatePb := model.WorkPb_STARTED
-	title := "a title"
-	workTime := time.Now().Add(-2 * time.Hour)
-	workTimePb, _ := ptypes.TimestampProto(workTime)
-	updatedAt := time.Now()
-	updatedAtPb, _ := ptypes.TimestampProto(updatedAt)
+	var (
+		id             = util.NewUUID()
+		eventID        = util.NewUUID()
+		workState      = model.Started
+		workStatePb    = model.WorkPb_STARTED
+		title          = "a title"
+		workTime       = time.Now().Add(-2 * time.Hour)
+		workTimePb, _  = ptypes.TimestampProto(workTime)
+		updatedAt      = time.Now()
+		updatedAtPb, _ = ptypes.TimestampProto(updatedAt)
 
-	pb := model.WorkPb{
-		Id:        id,
-		EventId:   eventID,
-		Title:     title,
-		Time:      workTimePb,
-		State:     workStatePb,
-		UpdatedAt: updatedAtPb,
-	}
+		pb = model.WorkPb{
+			Id:        id,
+			EventId:   eventID,
+			Title:     title,
+			Time:      workTimePb,
+			State:     workStatePb,
+			UpdatedAt: updatedAtPb,
+		}
+	)
 
 	t.Run("パラメータが変更されないこと", func(t *testing.T) {
 		buf, _ := proto.Marshal(&pb)

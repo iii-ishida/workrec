@@ -11,26 +11,28 @@ import (
 )
 
 func TestMarshalEventPb(t *testing.T) {
-	id := util.NewUUID()
-	prevID := util.NewUUID()
-	workID := util.NewUUID()
-	action := event.CreateWork
-	actionPb := event.EventPb_CREATE_WORK
-	title := "a title"
-	tm := time.Now().Add(-1 * time.Hour)
-	tmPb, _ := ptypes.TimestampProto(tm)
-	createdAt := time.Now()
-	createdAtPb, _ := ptypes.TimestampProto(createdAt)
+	var (
+		id             = util.NewUUID()
+		prevID         = util.NewUUID()
+		workID         = util.NewUUID()
+		action         = event.CreateWork
+		actionPb       = event.EventPb_CREATE_WORK
+		title          = "a title"
+		tm             = time.Now().Add(-1 * time.Hour)
+		tmPb, _        = ptypes.TimestampProto(tm)
+		createdAt      = time.Now()
+		createdAtPb, _ = ptypes.TimestampProto(createdAt)
 
-	e := event.Event{
-		ID:        id,
-		PrevID:    prevID,
-		WorkID:    workID,
-		Action:    action,
-		Title:     title,
-		Time:      tm,
-		CreatedAt: createdAt,
-	}
+		e = event.Event{
+			ID:        id,
+			PrevID:    prevID,
+			WorkID:    workID,
+			Action:    action,
+			Title:     title,
+			Time:      tm,
+			CreatedAt: createdAt,
+		}
+	)
 
 	t.Run("パラメータが変更されないこと", func(t *testing.T) {
 		buf, err := event.MarshalPb(e)
@@ -80,26 +82,28 @@ func TestMarshalEventPb(t *testing.T) {
 }
 
 func TestUnmarshalEventPb(t *testing.T) {
-	id := util.NewUUID()
-	prevID := util.NewUUID()
-	workID := util.NewUUID()
-	action := event.CreateWork
-	actionPb := event.EventPb_CREATE_WORK
-	title := "a title"
-	tm := time.Now().Add(-1 * time.Hour)
-	tmPb, _ := ptypes.TimestampProto(tm)
-	createdAt := time.Now()
-	createdAtPb, _ := ptypes.TimestampProto(createdAt)
+	var (
+		id             = util.NewUUID()
+		prevID         = util.NewUUID()
+		workID         = util.NewUUID()
+		action         = event.CreateWork
+		actionPb       = event.EventPb_CREATE_WORK
+		title          = "a title"
+		tm             = time.Now().Add(-1 * time.Hour)
+		tmPb, _        = ptypes.TimestampProto(tm)
+		createdAt      = time.Now()
+		createdAtPb, _ = ptypes.TimestampProto(createdAt)
 
-	pb := event.EventPb{
-		Id:        id,
-		PrevId:    prevID,
-		WorkId:    workID,
-		Action:    actionPb,
-		Title:     title,
-		Time:      tmPb,
-		CreatedAt: createdAtPb,
-	}
+		pb = event.EventPb{
+			Id:        id,
+			PrevId:    prevID,
+			WorkId:    workID,
+			Action:    actionPb,
+			Title:     title,
+			Time:      tmPb,
+			CreatedAt: createdAtPb,
+		}
+	)
 
 	t.Run("パラメータが変更されないこと", func(t *testing.T) {
 		buf, _ := proto.Marshal(&pb)

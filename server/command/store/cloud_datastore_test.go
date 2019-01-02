@@ -15,8 +15,10 @@ import (
 )
 
 func TestRunInTransaction(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := store.NewCloudDataStore(r)
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+	)
 
 	t.Run("errorがnilの場合は全ての変更を適用すること", func(t *testing.T) {
 		defer clearStore(r)
@@ -74,12 +76,13 @@ func TestRunInTransaction(t *testing.T) {
 }
 
 func TestGetWork(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/", nil)
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+	)
 
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
-
-		s, _ := store.NewCloudDataStore(r)
 
 		source := model.Work{
 			ID:        util.NewUUID(),
@@ -110,8 +113,6 @@ func TestGetWork(t *testing.T) {
 	t.Run("対象が存在しない場合はErrNotfoundが返却されること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDataStore(r)
-
 		var work model.Work
 		err := s.GetWork("some-workid", &work)
 		if err != store.ErrNotfound {
@@ -121,20 +122,21 @@ func TestGetWork(t *testing.T) {
 }
 
 func TestPutWork(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/", nil)
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
 
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		State:     model.Started,
-		UpdatedAt: time.Now().Truncate(time.Millisecond),
-	}
+		source = model.Work{
+			ID:        util.NewUUID(),
+			EventID:   util.NewUUID(),
+			Title:     "Some Title",
+			State:     model.Started,
+			UpdatedAt: time.Now().Truncate(time.Millisecond),
+		}
+	)
 
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
-
-		s, _ := store.NewCloudDataStore(r)
 
 		putWork(r, source)
 
@@ -163,8 +165,6 @@ func TestPutWork(t *testing.T) {
 	t.Run("対象が存在しない場合Workを新規登録すること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDataStore(r)
-
 		s.PutWork(source)
 
 		if w := getWork(r, source.ID); !cmp.Equal(w, source) {
@@ -173,19 +173,21 @@ func TestPutWork(t *testing.T) {
 	})
 }
 func TestDeleteWork(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/", nil)
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
 
-	source := model.Work{
-		ID:        util.NewUUID(),
-		EventID:   util.NewUUID(),
-		Title:     "Some Title",
-		State:     model.Started,
-		UpdatedAt: time.Now().Truncate(time.Millisecond),
-	}
+		source = model.Work{
+			ID:        util.NewUUID(),
+			EventID:   util.NewUUID(),
+			Title:     "Some Title",
+			State:     model.Started,
+			UpdatedAt: time.Now().Truncate(time.Millisecond),
+		}
+	)
+
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
-
-		s, _ := store.NewCloudDataStore(r)
 
 		putWork(r, source)
 
@@ -206,8 +208,6 @@ func TestDeleteWork(t *testing.T) {
 	t.Run("対象が存在しない場合でもerrorがnilであること", func(t *testing.T) {
 		defer clearStore(r)
 
-		s, _ := store.NewCloudDataStore(r)
-
 		err := s.DeleteWork("some-workid")
 		if err != nil {
 			t.Errorf("error = %#v, wants = nil", err)
@@ -215,20 +215,21 @@ func TestDeleteWork(t *testing.T) {
 	})
 }
 func TestPutEvent(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := store.NewCloudDataStore(r)
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
 
+		e = event.Event{
+			ID:        util.NewUUID(),
+			PrevID:    util.NewUUID(),
+			WorkID:    util.NewUUID(),
+			Action:    event.UpdateWork,
+			Title:     "Some Title",
+			Time:      time.Now().Truncate(time.Millisecond),
+			CreatedAt: time.Now().Truncate(time.Millisecond),
+		}
+	)
 	defer clearStore(r)
-
-	e := event.Event{
-		ID:        util.NewUUID(),
-		PrevID:    util.NewUUID(),
-		WorkID:    util.NewUUID(),
-		Action:    event.UpdateWork,
-		Title:     "Some Title",
-		Time:      time.Now().Truncate(time.Millisecond),
-		CreatedAt: time.Now().Truncate(time.Millisecond),
-	}
 
 	err := s.PutEvent(e)
 
