@@ -52,6 +52,7 @@ func TestGetWork(t *testing.T) {
 		s, _   = store.NewCloudDataStore(r)
 		source = newWork()
 	)
+	defer s.Close()
 
 	t.Run("対象が存在する場合", func(t *testing.T) {
 		defer clearStore(r)
@@ -91,6 +92,7 @@ func TestPutWork(t *testing.T) {
 		s, _   = store.NewCloudDataStore(r)
 		source = newWork()
 	)
+	defer s.Close()
 
 	t.Run("対象が既に存在する場合", func(t *testing.T) {
 		defer clearStore(r)
@@ -141,6 +143,7 @@ func TestDeleteWork(t *testing.T) {
 		s, _   = store.NewCloudDataStore(r)
 		source = newWork()
 	)
+	defer s.Close()
 
 	t.Run("対象が存在する場合", func(t *testing.T) {
 		defer clearStore(r)

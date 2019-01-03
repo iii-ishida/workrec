@@ -5,7 +5,7 @@ require (
 	github.com/go-chi/chi v3.3.3+incompatible
 	github.com/go-chi/cors v1.0.0
 	github.com/gofrs/uuid v3.1.0+incompatible
-	github.com/golang/mock v1.1.2-0.20181024150832-8a44ef6e8be5
+	github.com/golang/mock v1.2.0
 	github.com/golang/protobuf v1.2.0
 	github.com/google/go-cmp v0.2.0
 	github.com/googleapis/gax-go v2.0.0+incompatible // indirect

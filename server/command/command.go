@@ -287,7 +287,15 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 
 		return nil
 	})
+}
 
+// Close closes the Store.
+func (c Command) Close() error {
+	if c.dep.Store == nil {
+		return nil
+	}
+
+	return c.dep.Store.Close()
 }
 
 func workStateFromEventAction(eventAction event.Action) model.WorkState {

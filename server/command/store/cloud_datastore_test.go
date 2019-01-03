@@ -19,6 +19,7 @@ func TestRunInTransaction(t *testing.T) {
 		r, _ = http.NewRequest("GET", "/", nil)
 		s, _ = store.NewCloudDataStore(r)
 	)
+	defer s.Close()
 
 	t.Run("errorがnilの場合は全ての変更を適用すること", func(t *testing.T) {
 		defer clearStore(r)
@@ -80,6 +81,7 @@ func TestGetWork(t *testing.T) {
 		r, _ = http.NewRequest("GET", "/", nil)
 		s, _ = store.NewCloudDataStore(r)
 	)
+	defer s.Close()
 
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
@@ -134,6 +136,7 @@ func TestPutWork(t *testing.T) {
 			UpdatedAt: time.Now().Truncate(time.Millisecond),
 		}
 	)
+	defer s.Close()
 
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
@@ -172,6 +175,7 @@ func TestPutWork(t *testing.T) {
 		}
 	})
 }
+
 func TestDeleteWork(t *testing.T) {
 	var (
 		r, _ = http.NewRequest("GET", "/", nil)
@@ -185,6 +189,7 @@ func TestDeleteWork(t *testing.T) {
 			UpdatedAt: time.Now().Truncate(time.Millisecond),
 		}
 	)
+	defer s.Close()
 
 	t.Run("対象あり", func(t *testing.T) {
 		defer clearStore(r)
@@ -214,6 +219,7 @@ func TestDeleteWork(t *testing.T) {
 		}
 	})
 }
+
 func TestPutEvent(t *testing.T) {
 	var (
 		r, _ = http.NewRequest("GET", "/", nil)
@@ -229,6 +235,7 @@ func TestPutEvent(t *testing.T) {
 			CreatedAt: time.Now().Truncate(time.Millisecond),
 		}
 	)
+	defer s.Close()
 	defer clearStore(r)
 
 	err := s.PutEvent(e)
@@ -248,6 +255,8 @@ func TestPutEvent(t *testing.T) {
 func getWork(r *http.Request, id string) model.Work {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	defer client.Close()
+
 	key := datastore.NameKey(model.KindNameWork, id, nil)
 
 	var w model.Work
@@ -259,6 +268,8 @@ func getWork(r *http.Request, id string) model.Work {
 func getEvent(r *http.Request, id string) event.Event {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	defer client.Close()
+
 	key := datastore.NameKey(event.KindName, id, nil)
 
 	var e event.Event
@@ -270,6 +281,8 @@ func getEvent(r *http.Request, id string) event.Event {
 func putWork(r *http.Request, w model.Work) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	defer client.Close()
+
 	key := datastore.NameKey(model.KindNameWork, w.ID, nil)
 
 	client.Put(ctx, key, &w)
@@ -278,6 +291,7 @@ func putWork(r *http.Request, w model.Work) {
 func clearStore(r *http.Request) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	defer client.Close()
 
 	for _, kind := range []string{model.KindNameWork, event.KindName} {
 		q := datastore.NewQuery(kind).KeysOnly()

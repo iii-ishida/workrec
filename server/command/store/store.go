@@ -19,4 +19,6 @@ type Store interface {
 	DeleteWork(id string) error
 
 	PutEvent(e event.Event) error
+
+	Close() error
 }

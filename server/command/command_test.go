@@ -970,6 +970,38 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 	})
 }
 
+func TestClose(t *testing.T) {
+	var (
+		mockCtrl  = gomock.NewController(t)
+		mockStore = store.NewMockStore(mockCtrl)
+		cmd       = command.New(command.Dependency{Store: mockStore})
+	)
+	defer mockCtrl.Finish()
+
+	t.Run("dep.Store#Closeを呼ぶこと", func(t *testing.T) {
+		mockStore.EXPECT().Close()
+		cmd.Close()
+	})
+
+	t.Run("dep.Store#Closeがエラーでない場合はnilを返すこと", func(t *testing.T) {
+		mockStore.EXPECT().Close()
+		err := cmd.Close()
+		if err != nil {
+			t.Errorf("error = %#v, wants = nil", err)
+		}
+	})
+
+	t.Run("dep.Store#Closeがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		mockStore.EXPECT().Close().Return(someErr)
+		err := cmd.Close()
+		if err != someErr {
+			t.Errorf("error = %#v, wants = %#v", err, someErr)
+		}
+	})
+}
+
 func newWork() model.Work {
 	workTime := time.Now().Add(-1 * time.Hour)
 

@@ -51,6 +51,7 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	defer q.Close()
 
 	if err := q.ConstructWorks(); err != nil {
 		log.Printf("error: %s", err.Error())
@@ -91,6 +92,7 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	defer cmd.Close()
 
 	var param CreateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
@@ -118,6 +120,7 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	defer cmd.Close()
 
 	var param UpdateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
@@ -153,6 +156,7 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	defer cmd.Close()
 
 	workID := chi.URLParam(r, "workID")
 	err = cmd.DeleteWork(workID)
@@ -199,6 +203,7 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	defer cmd.Close()
 
 	var param ChangeWorkStateRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {

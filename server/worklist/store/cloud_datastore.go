@@ -146,6 +146,11 @@ func (s CloudDataStore) PutLastConstructedAt(lastConstructedAt model.LastConstru
 	return err
 }
 
+// Close closes the Store.
+func (s CloudDataStore) Close() error {
+	return s.client.Close()
+}
+
 func (s CloudDataStore) hasNext(q *datastore.Query, cursor datastore.Cursor) bool {
 	_, err := s.client.Run(s.ctx, q.Start(cursor).Limit(1)).Next(nil)
 	return err != iterator.Done

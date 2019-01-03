@@ -36,6 +36,7 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 
 // RunInTransaction mocks base method
 func (m *MockStore) RunInTransaction(arg0 func(Store) error) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RunInTransaction", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -43,11 +44,13 @@ func (m *MockStore) RunInTransaction(arg0 func(Store) error) error {
 
 // RunInTransaction indicates an expected call of RunInTransaction
 func (mr *MockStoreMockRecorder) RunInTransaction(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunInTransaction", reflect.TypeOf((*MockStore)(nil).RunInTransaction), arg0)
 }
 
 // GetWork mocks base method
 func (m *MockStore) GetWork(id string, dst *model.Work) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetWork", id, dst)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -55,11 +58,13 @@ func (m *MockStore) GetWork(id string, dst *model.Work) error {
 
 // GetWork indicates an expected call of GetWork
 func (mr *MockStoreMockRecorder) GetWork(id, dst interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWork", reflect.TypeOf((*MockStore)(nil).GetWork), id, dst)
 }
 
 // PutWork mocks base method
 func (m *MockStore) PutWork(w model.Work) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutWork", w)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -67,11 +72,13 @@ func (m *MockStore) PutWork(w model.Work) error {
 
 // PutWork indicates an expected call of PutWork
 func (mr *MockStoreMockRecorder) PutWork(w interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutWork", reflect.TypeOf((*MockStore)(nil).PutWork), w)
 }
 
 // DeleteWork mocks base method
 func (m *MockStore) DeleteWork(id string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteWork", id)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -79,11 +86,13 @@ func (m *MockStore) DeleteWork(id string) error {
 
 // DeleteWork indicates an expected call of DeleteWork
 func (mr *MockStoreMockRecorder) DeleteWork(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteWork", reflect.TypeOf((*MockStore)(nil).DeleteWork), id)
 }
 
 // PutEvent mocks base method
 func (m *MockStore) PutEvent(e event.Event) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutEvent", e)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -91,5 +100,20 @@ func (m *MockStore) PutEvent(e event.Event) error {
 
 // PutEvent indicates an expected call of PutEvent
 func (mr *MockStoreMockRecorder) PutEvent(e interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutEvent", reflect.TypeOf((*MockStore)(nil).PutEvent), e)
+}
+
+// Close mocks base method
+func (m *MockStore) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close
+func (mr *MockStoreMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockStore)(nil).Close))
 }

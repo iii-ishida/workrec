@@ -37,6 +37,7 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 
 // GetWorks mocks base method
 func (m *MockStore) GetWorks(pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetWorks", pageSize, pageToken, dst)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -45,11 +46,13 @@ func (m *MockStore) GetWorks(pageSize int, pageToken string, dst *[]model.WorkLi
 
 // GetWorks indicates an expected call of GetWorks
 func (mr *MockStoreMockRecorder) GetWorks(pageSize, pageToken, dst interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorks", reflect.TypeOf((*MockStore)(nil).GetWorks), pageSize, pageToken, dst)
 }
 
 // GetWork mocks base method
 func (m *MockStore) GetWork(id string, dst *model.WorkListItem) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetWork", id, dst)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -57,11 +60,13 @@ func (m *MockStore) GetWork(id string, dst *model.WorkListItem) error {
 
 // GetWork indicates an expected call of GetWork
 func (mr *MockStoreMockRecorder) GetWork(id, dst interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWork", reflect.TypeOf((*MockStore)(nil).GetWork), id, dst)
 }
 
 // PutWork mocks base method
 func (m *MockStore) PutWork(w model.WorkListItem) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutWork", w)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -69,11 +74,13 @@ func (m *MockStore) PutWork(w model.WorkListItem) error {
 
 // PutWork indicates an expected call of PutWork
 func (mr *MockStoreMockRecorder) PutWork(w interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutWork", reflect.TypeOf((*MockStore)(nil).PutWork), w)
 }
 
 // DeleteWork mocks base method
 func (m *MockStore) DeleteWork(id string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteWork", id)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -81,11 +88,13 @@ func (m *MockStore) DeleteWork(id string) error {
 
 // DeleteWork indicates an expected call of DeleteWork
 func (mr *MockStoreMockRecorder) DeleteWork(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteWork", reflect.TypeOf((*MockStore)(nil).DeleteWork), id)
 }
 
 // GetLastConstructedAt mocks base method
 func (m *MockStore) GetLastConstructedAt(id string, dst *model.LastConstructedAt) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLastConstructedAt", id, dst)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -93,11 +102,13 @@ func (m *MockStore) GetLastConstructedAt(id string, dst *model.LastConstructedAt
 
 // GetLastConstructedAt indicates an expected call of GetLastConstructedAt
 func (mr *MockStoreMockRecorder) GetLastConstructedAt(id, dst interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastConstructedAt", reflect.TypeOf((*MockStore)(nil).GetLastConstructedAt), id, dst)
 }
 
 // PutLastConstructedAt mocks base method
 func (m *MockStore) PutLastConstructedAt(l model.LastConstructedAt) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PutLastConstructedAt", l)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -105,11 +116,13 @@ func (m *MockStore) PutLastConstructedAt(l model.LastConstructedAt) error {
 
 // PutLastConstructedAt indicates an expected call of PutLastConstructedAt
 func (mr *MockStoreMockRecorder) PutLastConstructedAt(l interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutLastConstructedAt", reflect.TypeOf((*MockStore)(nil).PutLastConstructedAt), l)
 }
 
 // GetEvents mocks base method
 func (m *MockStore) GetEvents(lastConstructedAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEvents", lastConstructedAt, pageSize, pageToken, dst)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -118,5 +131,20 @@ func (m *MockStore) GetEvents(lastConstructedAt time.Time, pageSize int, pageTok
 
 // GetEvents indicates an expected call of GetEvents
 func (mr *MockStoreMockRecorder) GetEvents(lastConstructedAt, pageSize, pageToken, dst interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEvents", reflect.TypeOf((*MockStore)(nil).GetEvents), lastConstructedAt, pageSize, pageToken, dst)
+}
+
+// Close mocks base method
+func (m *MockStore) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close
+func (mr *MockStoreMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockStore)(nil).Close))
 }

@@ -68,6 +68,11 @@ func (s CloudDataStore) PutEvent(e event.Event) error {
 	return s.put(key, &e)
 }
 
+// Close closes the Store.
+func (s CloudDataStore) Close() error {
+	return s.client.Close()
+}
+
 func (s CloudDataStore) get(key *datastore.Key, dst interface{}) error {
 	if s.tx != nil {
 		return s.tx.Get(key, dst)

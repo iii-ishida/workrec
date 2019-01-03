@@ -25,4 +25,6 @@ type Store interface {
 	PutLastConstructedAt(l model.LastConstructedAt) error
 
 	GetEvents(lastConstructedAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (nextPageToken string, err error)
+
+	Close() error
 }

@@ -176,3 +176,12 @@ func (Query) applyToWork(work model.WorkListItem, events []event.Event) (model.W
 	}
 	return work, nil
 }
+
+// Close closes the Store.
+func (q Query) Close() error {
+	if q.dep.Store == nil {
+		return nil
+	}
+
+	return q.dep.Store.Close()
+}

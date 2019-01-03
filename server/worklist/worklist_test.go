@@ -258,3 +258,35 @@ func TestConstructWorks(t *testing.T) {
 		})
 	})
 }
+
+func TestClose(t *testing.T) {
+	var (
+		mockCtrl  = gomock.NewController(t)
+		mockStore = store.NewMockStore(mockCtrl)
+		query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+	)
+	defer mockCtrl.Finish()
+
+	t.Run("dep.Store#Closeを呼ぶこと", func(t *testing.T) {
+		mockStore.EXPECT().Close()
+		query.Close()
+	})
+
+	t.Run("dep.Store#Closeがエラーでない場合はnilを返すこと", func(t *testing.T) {
+		mockStore.EXPECT().Close()
+		err := query.Close()
+		if err != nil {
+			t.Errorf("error = %#v, wants = nil", err)
+		}
+	})
+
+	t.Run("dep.Store#Closeがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		mockStore.EXPECT().Close().Return(someErr)
+		err := query.Close()
+		if err != someErr {
+			t.Errorf("error = %#v, wants = %#v", err, someErr)
+		}
+	})
+}
