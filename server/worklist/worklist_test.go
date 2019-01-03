@@ -1,6 +1,7 @@
 package worklist_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -14,10 +15,7 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	t.Run("取得OK", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-
+	t.Run("Get#OK", func(t *testing.T) {
 		var (
 			fixture = model.WorkList{
 				Works: []model.WorkListItem{
@@ -30,10 +28,12 @@ func TestGet(t *testing.T) {
 				NextPageToken: util.NewUUID(),
 			}
 
+			mockCtrl  = gomock.NewController(t)
 			mockStore = store.NewMockStore(mockCtrl)
-			q         = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
 			param     = worklist.Param{PageSize: 30, PageToken: "sometoken"}
 		)
+		defer mockCtrl.Finish()
 
 		mockStore.EXPECT().GetWorks(param.PageSize, param.PageToken, gomock.Any()).DoAndReturn(func(_ int, _ string, dst *[]model.WorkListItem) (string, error) {
 			*dst = make([]model.WorkListItem, len(fixture.Works))
@@ -41,25 +41,51 @@ func TestGet(t *testing.T) {
 			return fixture.NextPageToken, nil
 		})
 
-		list, err := q.Get(param)
-		if err != nil {
-			t.Fatalf("Get error: %s", err.Error())
-		}
+		list, err := query.Get(param)
 
-		if !cmp.Equal(list.Works, fixture.Works) {
-			t.Errorf("Works = %#v, wants = %#v", list.Works, fixture.Works)
-		}
-		if list.NextPageToken != fixture.NextPageToken {
-			t.Errorf("NextPageToken = %s, wants = %s", list.NextPageToken, fixture.NextPageToken)
-		}
+		t.Run("errorがnilであること", func(t *testing.T) {
+			if err != nil {
+				t.Fatalf("Get error: %s", err.Error())
+			}
+		})
+
+		t.Run("WorksにStore#GetWorksから取得したWorkのリストがセットされること", func(t *testing.T) {
+			if !cmp.Equal(list.Works, fixture.Works) {
+				t.Errorf("Works = %#v, wants = %#v", list.Works, fixture.Works)
+			}
+		})
+
+		t.Run("NextPageTokenにStore#GetWorksから取得したNextPageTokenがセットされること", func(t *testing.T) {
+			if list.NextPageToken != fixture.NextPageToken {
+				t.Errorf("NextPageToken = %s, wants = %s", list.NextPageToken, fixture.NextPageToken)
+			}
+		})
+	})
+
+	t.Run("Get#Error", func(t *testing.T) {
+		var (
+			mockCtrl  = gomock.NewController(t)
+			mockStore = store.NewMockStore(mockCtrl)
+			query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			param     = worklist.Param{}
+		)
+		defer mockCtrl.Finish()
+
+		someErr := errors.New("Some Error")
+		mockStore.EXPECT().GetWorks(gomock.Any(), gomock.Any(), gomock.Any()).Return("", someErr)
+
+		_, err := query.Get(param)
+
+		t.Run("Store#GetWorksがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
 	})
 }
 
 func TestConstructWorks(t *testing.T) {
-	t.Run("生成OK", func(t *testing.T) {
-		mockCtrl := gomock.NewController(t)
-		defer mockCtrl.Finish()
-
+	t.Run("ConstructWorks#OK", func(t *testing.T) {
 		var (
 			eventTime01 = time.Now().Add(1 + time.Second)
 			eventTime02 = time.Now().Add(2 + time.Second)
@@ -77,9 +103,12 @@ func TestConstructWorks(t *testing.T) {
 
 			fixtureLastConstructedAt = time.Now()
 			pageSize                 = 100
-			mockStore                = store.NewMockStore(mockCtrl)
-			q                        = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+
+			mockCtrl  = gomock.NewController(t)
+			mockStore = store.NewMockStore(mockCtrl)
+			query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
 		)
+		defer mockCtrl.Finish()
 
 		mockStore.EXPECT().GetLastConstructedAt(model.LastConstructedAtID, gomock.Any()).DoAndReturn(func(id string, dst *model.LastConstructedAt) error {
 			*dst = model.LastConstructedAt{ID: id, Time: fixtureLastConstructedAt}
@@ -92,6 +121,8 @@ func TestConstructWorks(t *testing.T) {
 			return "", nil
 		})
 
+		// Assert
+
 		mockStore.EXPECT().GetWork(fixtureWork1.ID, gomock.Any())
 		mockStore.EXPECT().PutWork(fixtureWork1)
 
@@ -103,6 +134,127 @@ func TestConstructWorks(t *testing.T) {
 			Time: fixtureEvents[len(fixtureEvents)-1].CreatedAt,
 		})
 
-		q.ConstructWorks()
+		// Act
+		query.ConstructWorks()
+	})
+
+	t.Run("ConstructWorks#Error", func(t *testing.T) {
+		someErr := errors.New("Some Error")
+
+		t.Run("Store#GetLastConstructedAtがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			var (
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			)
+			defer mockCtrl.Finish()
+
+			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any()).Return(someErr)
+
+			err := query.ConstructWorks()
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#GetEventsがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			var (
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			)
+			defer mockCtrl.Finish()
+
+			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return("", someErr)
+
+			err := query.ConstructWorks()
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#GetWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			var (
+				fixtureEvents = []event.Event{
+					{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: time.Now()},
+				}
+
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			)
+			defer mockCtrl.Finish()
+
+			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+				*dst = make([]event.Event, len(fixtureEvents))
+				copy(*dst, fixtureEvents)
+				return "", nil
+			})
+
+			mockStore.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(someErr)
+
+			err := query.ConstructWorks()
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
+
+		t.Run("Store#GetWorkがErrNotfoundを返した場合は処理を続行すること", func(t *testing.T) {
+			var (
+				fixtureEvents = []event.Event{
+					{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: time.Now()},
+				}
+
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			)
+			defer mockCtrl.Finish()
+
+			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+				*dst = make([]event.Event, len(fixtureEvents))
+				copy(*dst, fixtureEvents)
+				return "", nil
+			})
+
+			mockStore.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(store.ErrNotfound)
+			mockStore.EXPECT().PutWork(gomock.Any())
+			mockStore.EXPECT().PutLastConstructedAt(gomock.Any())
+
+			err := query.ConstructWorks()
+			if err != nil {
+				t.Errorf("error = %#v, wants = nil", err)
+			}
+		})
+
+		t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			var (
+				fixtureEvents = []event.Event{
+					{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: time.Now()},
+				}
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			)
+			defer mockCtrl.Finish()
+
+			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+				*dst = make([]event.Event, len(fixtureEvents))
+				copy(*dst, fixtureEvents)
+				return "", nil
+			})
+			mockStore.EXPECT().GetWork(gomock.Any(), gomock.Any())
+
+			mockStore.EXPECT().PutWork(gomock.Any()).Return(someErr)
+
+			err := query.ConstructWorks()
+			if err != someErr {
+				t.Errorf("error = %#v, wants = %#v", err, someErr)
+			}
+		})
 	})
 }
