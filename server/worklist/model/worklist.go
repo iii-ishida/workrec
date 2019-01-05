@@ -16,9 +16,10 @@ type WorkListItem struct {
 	ID        string
 	Title     string
 	State     WorkState
-	IsDeleted bool
+	StartedAt time.Time
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	IsDeleted bool
 }
 
 // WorkState is a state for a work.

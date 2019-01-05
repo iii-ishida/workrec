@@ -30,6 +30,9 @@ func TestApplyToWork(t *testing.T) {
 		if work.State != model.Unstarted {
 			t.Errorf("State = %s, wants = %s", work.State, model.Unstarted)
 		}
+		if !work.StartedAt.IsZero() {
+			t.Errorf("StartedAt = %s, wants = zero", work.StartedAt)
+		}
 		if !work.CreatedAt.Equal(now) {
 			t.Errorf("CreatedAt = %s, wants = %s", work.CreatedAt, now)
 		}
@@ -73,15 +76,19 @@ func TestApplyToWork(t *testing.T) {
 	})
 
 	t.Run("StartWork", func(t *testing.T) {
+		startTime := now.Add(1 * time.Minute)
 		updatedAt := now.Add(1 * time.Second)
 
 		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: updatedAt},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Started {
 			t.Errorf("State = %s, wants = %s", work.State, model.Started)
+		}
+		if !work.StartedAt.Equal(startTime) {
+			t.Errorf("StartedAt = %s, wants = %s", work.StartedAt, startTime)
 		}
 		if !work.UpdatedAt.Equal(updatedAt) {
 			t.Errorf("UpdatedAt = %s, wants = %s", work.UpdatedAt, updatedAt)

@@ -95,11 +95,11 @@ func TestConstructWorks(t *testing.T) {
 			fixtureEvents = []event.Event{
 				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: eventTime01},
 				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: eventTime02},
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.StartWork, Time: time.Now(), CreatedAt: eventTime03},
+				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.StartWork, Time: eventTime03, CreatedAt: eventTime03},
 				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.UpdateWork, Title: "updated title 02", CreatedAt: eventTime04},
 			}
-			fixtureWork1 = model.WorkListItem{ID: "workid-1", Title: "some title 01", State: model.Started, CreatedAt: eventTime01, UpdatedAt: eventTime03}
-			fixtureWork2 = model.WorkListItem{ID: "workid-2", Title: "updated title 02", State: model.Unstarted, CreatedAt: eventTime02, UpdatedAt: eventTime04}
+			fixtureWork1 = model.WorkListItem{ID: "workid-1", Title: "some title 01", State: model.Started, StartedAt: eventTime03, CreatedAt: eventTime01, UpdatedAt: eventTime03}
+			fixtureWork2 = model.WorkListItem{ID: "workid-2", Title: "updated title 02", State: model.Unstarted, StartedAt: time.Time{}, CreatedAt: eventTime02, UpdatedAt: eventTime04}
 
 			fixtureLastConstructedAt = time.Now()
 			pageSize                 = 100

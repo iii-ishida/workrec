@@ -56,6 +56,11 @@ func UnmarshalWorkListItemPb(buf []byte, dst *WorkListItem) error {
 }
 
 func convertToWorkListItemPb(w WorkListItem) (WorkListItemPb, error) {
+	startedAt, err := ptypes.TimestampProto(w.StartedAt)
+	if err != nil {
+		return WorkListItemPb{}, err
+	}
+
 	createdAt, err := ptypes.TimestampProto(w.CreatedAt)
 	if err != nil {
 		return WorkListItemPb{}, err
@@ -70,16 +75,23 @@ func convertToWorkListItemPb(w WorkListItem) (WorkListItemPb, error) {
 		Id:        string(w.ID),
 		Title:     w.Title,
 		State:     convertToWorkStatePb(w.State),
+		StartedAt: startedAt,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}, nil
 }
 
 func convertToWorkListItem(pb WorkListItemPb) (WorkListItem, error) {
+	startedAt, err := ptypes.Timestamp(pb.StartedAt)
+	if err != nil {
+		return WorkListItem{}, err
+	}
+
 	createdAt, err := ptypes.Timestamp(pb.CreatedAt)
 	if err != nil {
 		return WorkListItem{}, err
 	}
+
 	updatedAt, err := ptypes.Timestamp(pb.UpdatedAt)
 	if err != nil {
 		return WorkListItem{}, err
@@ -89,6 +101,7 @@ func convertToWorkListItem(pb WorkListItemPb) (WorkListItem, error) {
 		ID:        pb.Id,
 		Title:     pb.Title,
 		State:     convertToWorkState(pb.State),
+		StartedAt: startedAt,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}, nil

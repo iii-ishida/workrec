@@ -16,6 +16,8 @@ func TestMarshalWorkPb(t *testing.T) {
 		workState      = model.Started
 		workStatePb    = model.WorkListItemPb_STARTED
 		title          = "a title"
+		startedAt      = time.Now().Add(-1 * time.Hour)
+		startedAtPb, _ = ptypes.TimestampProto(startedAt)
 		createdAt      = time.Now().Add(-2 * time.Hour)
 		createdAtPb, _ = ptypes.TimestampProto(createdAt)
 		updatedAt      = time.Now()
@@ -25,6 +27,7 @@ func TestMarshalWorkPb(t *testing.T) {
 			ID:        id,
 			Title:     title,
 			State:     workState,
+			StartedAt: startedAt,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		}
@@ -54,6 +57,11 @@ func TestMarshalWorkPb(t *testing.T) {
 				t.Errorf("pb.State = %s, wants = %s", pb.State, workStatePb)
 			}
 		})
+		t.Run("StartedAt", func(t *testing.T) {
+			if pb.StartedAt.String() != startedAtPb.String() {
+				t.Errorf("pb.StartedAt = %s, wants = %s", pb.StartedAt, startedAtPb)
+			}
+		})
 		t.Run("CreatedAt", func(t *testing.T) {
 			if pb.CreatedAt.String() != createdAtPb.String() {
 				t.Errorf("pb.CreatedAt = %s, wants = %s", pb.CreatedAt, createdAtPb)
@@ -73,6 +81,8 @@ func TestUnmarshalWorkPb(t *testing.T) {
 		workState      = model.Started
 		workStatePb    = model.WorkListItemPb_STARTED
 		title          = "a title"
+		startedAt      = time.Now().Add(-1 * time.Hour)
+		startedAtPb, _ = ptypes.TimestampProto(startedAt)
 		createdAt      = time.Now().Add(-2 * time.Hour)
 		createdAtPb, _ = ptypes.TimestampProto(createdAt)
 		updatedAt      = time.Now()
@@ -82,6 +92,7 @@ func TestUnmarshalWorkPb(t *testing.T) {
 			Id:        id,
 			Title:     title,
 			State:     workStatePb,
+			StartedAt: startedAtPb,
 			CreatedAt: createdAtPb,
 			UpdatedAt: updatedAtPb,
 		}
@@ -108,6 +119,11 @@ func TestUnmarshalWorkPb(t *testing.T) {
 		t.Run("State", func(t *testing.T) {
 			if w.State != workState {
 				t.Errorf("w.State = %s, wants = %s", w.State, workState)
+			}
+		})
+		t.Run("StartedAt", func(t *testing.T) {
+			if !w.StartedAt.Equal(startedAt) {
+				t.Errorf("w.StartedAt = %s, wants = %s", w.StartedAt, startedAt)
 			}
 		})
 		t.Run("CreatedAt", func(t *testing.T) {

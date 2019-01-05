@@ -2,6 +2,7 @@ package worklist
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/worklist/model"
@@ -139,6 +140,7 @@ func applyToWork(work model.WorkListItem, events []event.Event) model.WorkListIt
 				ID:        string(e.WorkID),
 				Title:     e.Title,
 				State:     model.Unstarted,
+				StartedAt: time.Time{},
 				CreatedAt: e.CreatedAt,
 				UpdatedAt: e.CreatedAt,
 			}
@@ -152,6 +154,7 @@ func applyToWork(work model.WorkListItem, events []event.Event) model.WorkListIt
 
 		case event.StartWork:
 			work.State = model.Started
+			work.StartedAt = e.Time
 			work.UpdatedAt = e.CreatedAt
 
 		case event.PauseWork:
