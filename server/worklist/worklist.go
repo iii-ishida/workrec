@@ -115,17 +115,14 @@ func (q Query) applyEvents(events []event.Event) error {
 			}
 		}
 
-		applied, err := q.applyToWork(work, eventsForWork)
-		if err != nil {
-			return err
-		}
+		applied := applyToWork(work, eventsForWork)
 
 		if !applied.IsDeleted {
-			if err = q.dep.Store.PutWork(applied); err != nil {
+			if err := q.dep.Store.PutWork(applied); err != nil {
 				return err
 			}
 		} else {
-			if err = q.dep.Store.DeleteWork(applied.ID); err != nil {
+			if err := q.dep.Store.DeleteWork(applied.ID); err != nil {
 				return err
 			}
 		}
@@ -134,7 +131,7 @@ func (q Query) applyEvents(events []event.Event) error {
 	return nil
 }
 
-func (Query) applyToWork(work model.WorkListItem, events []event.Event) (model.WorkListItem, error) {
+func applyToWork(work model.WorkListItem, events []event.Event) model.WorkListItem {
 	for _, e := range events {
 		switch e.Action {
 		case event.CreateWork:
@@ -174,7 +171,7 @@ func (Query) applyToWork(work model.WorkListItem, events []event.Event) (model.W
 			work.UpdatedAt = e.CreatedAt
 		}
 	}
-	return work, nil
+	return work
 }
 
 // Close closes the Store.

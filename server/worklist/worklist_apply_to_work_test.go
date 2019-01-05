@@ -11,14 +11,13 @@ import (
 
 func TestApplyToWork(t *testing.T) {
 	var (
-		query  = NewQuery(Dependency{})
 		now    = time.Now()
 		workID = "workid-1"
 	)
 
 	t.Run("CreateWork", func(t *testing.T) {
 		title := "some title"
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: title, CreatedAt: now},
 		})
 
@@ -46,7 +45,7 @@ func TestApplyToWork(t *testing.T) {
 		updatedTitle := "updated title"
 		updatedAt := now.Add(1 * time.Second)
 
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.UpdateWork, Title: updatedTitle, CreatedAt: updatedAt},
 		})
@@ -63,7 +62,7 @@ func TestApplyToWork(t *testing.T) {
 	})
 
 	t.Run("DeleteWork", func(t *testing.T) {
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.DeleteWork, CreatedAt: now.Add(1 * time.Second)},
 		})
@@ -76,7 +75,7 @@ func TestApplyToWork(t *testing.T) {
 	t.Run("StartWork", func(t *testing.T) {
 		updatedAt := now.Add(1 * time.Second)
 
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: updatedAt},
 		})
@@ -92,7 +91,7 @@ func TestApplyToWork(t *testing.T) {
 	t.Run("PauseWork", func(t *testing.T) {
 		updatedAt := now.Add(2 * time.Second)
 
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: updatedAt},
@@ -109,7 +108,7 @@ func TestApplyToWork(t *testing.T) {
 	t.Run("ResumeWork", func(t *testing.T) {
 		updatedAt := now.Add(3 * time.Second)
 
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: now.Add(2 * time.Second)},
@@ -127,7 +126,7 @@ func TestApplyToWork(t *testing.T) {
 	t.Run("FinishWork", func(t *testing.T) {
 		updatedAt := now.Add(4 * time.Second)
 
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: now.Add(2 * time.Second)},
@@ -146,7 +145,7 @@ func TestApplyToWork(t *testing.T) {
 	t.Run("CancelFinishWork", func(t *testing.T) {
 		updatedAt := now.Add(5 * time.Second)
 
-		work, _ := query.applyToWork(model.WorkListItem{}, []event.Event{
+		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
 			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: now.Add(2 * time.Second)},
