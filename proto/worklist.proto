@@ -21,8 +21,10 @@ message WorkListItemPb {
 
   string id = 1;
   string title = 2;
-  State state = 3;
-  google.protobuf.Timestamp started_at = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp base_working_time = 3;
+  google.protobuf.Timestamp paused_at = 4;
+  State state = 5;
+  google.protobuf.Timestamp started_at = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
