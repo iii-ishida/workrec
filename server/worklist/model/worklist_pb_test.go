@@ -12,24 +12,30 @@ import (
 
 func TestMarshalWorkPb(t *testing.T) {
 	var (
-		id             = util.NewUUID()
-		workState      = model.Started
-		workStatePb    = model.WorkListItemPb_STARTED
-		title          = "a title"
-		startedAt      = time.Now().Add(-1 * time.Hour)
-		startedAtPb, _ = ptypes.TimestampProto(startedAt)
-		createdAt      = time.Now().Add(-2 * time.Hour)
-		createdAtPb, _ = ptypes.TimestampProto(createdAt)
-		updatedAt      = time.Now()
-		updatedAtPb, _ = ptypes.TimestampProto(updatedAt)
+		id                   = util.NewUUID()
+		workState            = model.Started
+		workStatePb          = model.WorkListItemPb_STARTED
+		title                = "a title"
+		baseWorkingTime      = time.Now().Add(-1 * time.Hour)
+		baseWorkingTimePb, _ = ptypes.TimestampProto(baseWorkingTime)
+		pausedAt             = time.Now().Add(-2 * time.Hour)
+		pausedAtPb, _        = ptypes.TimestampProto(pausedAt)
+		startedAt            = time.Now().Add(-3 * time.Hour)
+		startedAtPb, _       = ptypes.TimestampProto(startedAt)
+		createdAt            = time.Now().Add(-4 * time.Hour)
+		createdAtPb, _       = ptypes.TimestampProto(createdAt)
+		updatedAt            = time.Now()
+		updatedAtPb, _       = ptypes.TimestampProto(updatedAt)
 
 		w = model.WorkListItem{
-			ID:        id,
-			Title:     title,
-			State:     workState,
-			StartedAt: startedAt,
-			CreatedAt: createdAt,
-			UpdatedAt: updatedAt,
+			ID:              id,
+			Title:           title,
+			BaseWorkingTime: baseWorkingTime,
+			PausedAt:        pausedAt,
+			State:           workState,
+			StartedAt:       startedAt,
+			CreatedAt:       createdAt,
+			UpdatedAt:       updatedAt,
 		}
 	)
 
@@ -52,6 +58,17 @@ func TestMarshalWorkPb(t *testing.T) {
 				t.Errorf("pb.Title = %s, wants = %s", pb.Title, title)
 			}
 		})
+		t.Run("BaseWorkingTime", func(t *testing.T) {
+			if pb.BaseWorkingTime.String() != baseWorkingTimePb.String() {
+				t.Errorf("pb.BaseWorkingTime = %s, wants = %s", pb.BaseWorkingTime, baseWorkingTimePb)
+			}
+		})
+		t.Run("PausedAt", func(t *testing.T) {
+			if pb.PausedAt.String() != pausedAtPb.String() {
+				t.Errorf("pb.PausedAt = %s, wants = %s", pb.PausedAt, pausedAt)
+			}
+		})
+
 		t.Run("State", func(t *testing.T) {
 			if pb.State != workStatePb {
 				t.Errorf("pb.State = %s, wants = %s", pb.State, workStatePb)
@@ -77,24 +94,30 @@ func TestMarshalWorkPb(t *testing.T) {
 
 func TestUnmarshalWorkPb(t *testing.T) {
 	var (
-		id             = util.NewUUID()
-		workState      = model.Started
-		workStatePb    = model.WorkListItemPb_STARTED
-		title          = "a title"
-		startedAt      = time.Now().Add(-1 * time.Hour)
-		startedAtPb, _ = ptypes.TimestampProto(startedAt)
-		createdAt      = time.Now().Add(-2 * time.Hour)
-		createdAtPb, _ = ptypes.TimestampProto(createdAt)
-		updatedAt      = time.Now()
-		updatedAtPb, _ = ptypes.TimestampProto(updatedAt)
+		id                   = util.NewUUID()
+		workState            = model.Started
+		workStatePb          = model.WorkListItemPb_STARTED
+		title                = "a title"
+		baseWorkingTime      = time.Now().Add(-1 * time.Hour)
+		baseWorkingTimePb, _ = ptypes.TimestampProto(baseWorkingTime)
+		pausedAt             = time.Now().Add(-2 * time.Hour)
+		pausedAtPb, _        = ptypes.TimestampProto(pausedAt)
+		startedAt            = time.Now().Add(-3 * time.Hour)
+		startedAtPb, _       = ptypes.TimestampProto(startedAt)
+		createdAt            = time.Now().Add(-4 * time.Hour)
+		createdAtPb, _       = ptypes.TimestampProto(createdAt)
+		updatedAt            = time.Now()
+		updatedAtPb, _       = ptypes.TimestampProto(updatedAt)
 
 		pb = model.WorkListItemPb{
-			Id:        id,
-			Title:     title,
-			State:     workStatePb,
-			StartedAt: startedAtPb,
-			CreatedAt: createdAtPb,
-			UpdatedAt: updatedAtPb,
+			Id:              id,
+			Title:           title,
+			BaseWorkingTime: baseWorkingTimePb,
+			PausedAt:        pausedAtPb,
+			State:           workStatePb,
+			StartedAt:       startedAtPb,
+			CreatedAt:       createdAtPb,
+			UpdatedAt:       updatedAtPb,
 		}
 	)
 
@@ -114,6 +137,16 @@ func TestUnmarshalWorkPb(t *testing.T) {
 		t.Run("Title", func(t *testing.T) {
 			if w.Title != title {
 				t.Errorf("w.Title = %s, wants = %s", w.Title, title)
+			}
+		})
+		t.Run("BaseWorkingTime", func(t *testing.T) {
+			if !w.BaseWorkingTime.Equal(baseWorkingTime) {
+				t.Errorf("w.BaseWorkingTime = %s, wants = %s", w.BaseWorkingTime, baseWorkingTime)
+			}
+		})
+		t.Run("PausedAt", func(t *testing.T) {
+			if !w.PausedAt.Equal(pausedAt) {
+				t.Errorf("w.PausedAt = %s, wants = %s", w.PausedAt, pausedAt)
 			}
 		})
 		t.Run("State", func(t *testing.T) {

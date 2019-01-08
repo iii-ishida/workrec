@@ -13,13 +13,23 @@ type WorkList struct {
 
 // WorkListItem is a item of WorkList.
 type WorkListItem struct {
-	ID        string
-	Title     string
-	State     WorkState
-	StartedAt time.Time
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IsDeleted bool
+	ID              string
+	Title           string
+	BaseWorkingTime time.Time
+	PausedAt        time.Time
+	State           WorkState
+	StartedAt       time.Time
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	IsDeleted       bool
+}
+
+// CalculateBaseWorkingTime returns a new calculated BaseWorkingTime.
+func (w WorkListItem) CalculateBaseWorkingTime(resumedAt time.Time) time.Time {
+	pausedAt := w.PausedAt
+	pausingTime := resumedAt.Sub(pausedAt)
+
+	return w.BaseWorkingTime.Add(pausingTime)
 }
 
 // WorkState is a state for a work.

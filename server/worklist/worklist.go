@@ -1,12 +1,11 @@
 package worklist
 
 import (
-	"net/http"
-	"time"
-
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/worklist/model"
 	"github.com/iii-ishida/workrec/server/worklist/store"
+	"net/http"
+	"time"
 )
 
 // Dependency is a dependency for the worklist.
@@ -137,12 +136,14 @@ func applyToWork(work model.WorkListItem, events []event.Event) model.WorkListIt
 		switch e.Action {
 		case event.CreateWork:
 			work = model.WorkListItem{
-				ID:        string(e.WorkID),
-				Title:     e.Title,
-				State:     model.Unstarted,
-				StartedAt: time.Time{},
-				CreatedAt: e.CreatedAt,
-				UpdatedAt: e.CreatedAt,
+				ID:              string(e.WorkID),
+				Title:           e.Title,
+				State:           model.Unstarted,
+				BaseWorkingTime: time.Time{},
+				PausedAt:        time.Time{},
+				StartedAt:       time.Time{},
+				CreatedAt:       e.CreatedAt,
+				UpdatedAt:       e.CreatedAt,
 			}
 
 		case event.UpdateWork:
@@ -154,18 +155,26 @@ func applyToWork(work model.WorkListItem, events []event.Event) model.WorkListIt
 
 		case event.StartWork:
 			work.State = model.Started
+			work.BaseWorkingTime = e.Time
 			work.StartedAt = e.Time
 			work.UpdatedAt = e.CreatedAt
 
 		case event.PauseWork:
 			work.State = model.Paused
+			work.PausedAt = e.Time
 			work.UpdatedAt = e.CreatedAt
 
 		case event.ResumeWork:
 			work.State = model.Resumed
+			work.BaseWorkingTime = work.CalculateBaseWorkingTime(e.Time)
+			work.PausedAt = time.Time{}
 			work.UpdatedAt = e.CreatedAt
 
 		case event.FinishWork:
+			if work.State != model.Paused {
+				work.PausedAt = e.Time
+			}
+
 			work.State = model.Finished
 			work.UpdatedAt = e.CreatedAt
 

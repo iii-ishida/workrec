@@ -56,6 +56,16 @@ func UnmarshalWorkListItemPb(buf []byte, dst *WorkListItem) error {
 }
 
 func convertToWorkListItemPb(w WorkListItem) (WorkListItemPb, error) {
+	baseWorkingTime, err := ptypes.TimestampProto(w.BaseWorkingTime)
+	if err != nil {
+		return WorkListItemPb{}, err
+	}
+
+	pausedAt, err := ptypes.TimestampProto(w.PausedAt)
+	if err != nil {
+		return WorkListItemPb{}, err
+	}
+
 	startedAt, err := ptypes.TimestampProto(w.StartedAt)
 	if err != nil {
 		return WorkListItemPb{}, err
@@ -72,16 +82,28 @@ func convertToWorkListItemPb(w WorkListItem) (WorkListItemPb, error) {
 	}
 
 	return WorkListItemPb{
-		Id:        string(w.ID),
-		Title:     w.Title,
-		State:     convertToWorkStatePb(w.State),
-		StartedAt: startedAt,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		Id:              string(w.ID),
+		Title:           w.Title,
+		BaseWorkingTime: baseWorkingTime,
+		PausedAt:        pausedAt,
+		State:           convertToWorkStatePb(w.State),
+		StartedAt:       startedAt,
+		CreatedAt:       createdAt,
+		UpdatedAt:       updatedAt,
 	}, nil
 }
 
 func convertToWorkListItem(pb WorkListItemPb) (WorkListItem, error) {
+	baseWorkingTime, err := ptypes.Timestamp(pb.BaseWorkingTime)
+	if err != nil {
+		return WorkListItem{}, err
+	}
+
+	pausedAt, err := ptypes.Timestamp(pb.PausedAt)
+	if err != nil {
+		return WorkListItem{}, err
+	}
+
 	startedAt, err := ptypes.Timestamp(pb.StartedAt)
 	if err != nil {
 		return WorkListItem{}, err
@@ -98,12 +120,14 @@ func convertToWorkListItem(pb WorkListItemPb) (WorkListItem, error) {
 	}
 
 	return WorkListItem{
-		ID:        pb.Id,
-		Title:     pb.Title,
-		State:     convertToWorkState(pb.State),
-		StartedAt: startedAt,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		ID:              pb.Id,
+		Title:           pb.Title,
+		BaseWorkingTime: baseWorkingTime,
+		PausedAt:        pausedAt,
+		State:           convertToWorkState(pb.State),
+		StartedAt:       startedAt,
+		CreatedAt:       createdAt,
+		UpdatedAt:       updatedAt,
 	}, nil
 }
 

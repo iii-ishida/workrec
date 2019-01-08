@@ -27,6 +27,12 @@ func TestApplyToWork(t *testing.T) {
 		if work.Title != title {
 			t.Errorf("Title = %s, wants = %s", work.Title, title)
 		}
+		if !work.BaseWorkingTime.IsZero() {
+			t.Errorf("BaseWorkingTime = %s, wants = zero", work.BaseWorkingTime)
+		}
+		if !work.PausedAt.IsZero() {
+			t.Errorf("PausedAt = %s, wants = zero", work.PausedAt)
+		}
 		if work.State != model.Unstarted {
 			t.Errorf("State = %s, wants = %s", work.State, model.Unstarted)
 		}
@@ -87,6 +93,12 @@ func TestApplyToWork(t *testing.T) {
 		if work.State != model.Started {
 			t.Errorf("State = %s, wants = %s", work.State, model.Started)
 		}
+		if !work.BaseWorkingTime.Equal(startTime) {
+			t.Errorf("BaseWorkingTime = %s, wants = %s", work.BaseWorkingTime, startTime)
+		}
+		if !work.PausedAt.IsZero() {
+			t.Errorf("PausedAt = %s, wants = zero", work.PausedAt)
+		}
 		if !work.StartedAt.Equal(startTime) {
 			t.Errorf("StartedAt = %s, wants = %s", work.StartedAt, startTime)
 		}
@@ -96,16 +108,25 @@ func TestApplyToWork(t *testing.T) {
 	})
 
 	t.Run("PauseWork", func(t *testing.T) {
+		startTime := now.Add(1 * time.Minute)
+		pauseTime := now.Add(2 * time.Minute)
+
 		updatedAt := now.Add(2 * time.Second)
 
 		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: updatedAt},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Paused {
 			t.Errorf("State = %s, wants = %s", work.State, model.Paused)
+		}
+		if !work.BaseWorkingTime.Equal(startTime) {
+			t.Errorf("BaseWorkingTime = %s, wants = %s", work.BaseWorkingTime, pauseTime)
+		}
+		if !work.PausedAt.Equal(pauseTime) {
+			t.Errorf("PausedAt = %s, wants = %s", work.PausedAt, pauseTime)
 		}
 		if !work.UpdatedAt.Equal(updatedAt) {
 			t.Errorf("UpdatedAt = %s, wants = %s", work.UpdatedAt, updatedAt)
@@ -113,17 +134,28 @@ func TestApplyToWork(t *testing.T) {
 	})
 
 	t.Run("ResumeWork", func(t *testing.T) {
+		startTime := now.Add(1 * time.Minute)
+		pauseTime := now.Add(2 * time.Minute)
+		resumeTime := now.Add(3 * time.Minute)
+		expectedBaseWorkingTime := startTime.Add(1 * time.Minute)
+
 		updatedAt := now.Add(3 * time.Second)
 
 		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: now.Add(3 * time.Minute), CreatedAt: updatedAt},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Resumed {
 			t.Errorf("State = %s, wants = %s", work.State, model.Resumed)
+		}
+		if !work.BaseWorkingTime.Equal(expectedBaseWorkingTime) {
+			t.Errorf("BaseWorkingTime = %s, wants = %s", work.BaseWorkingTime, expectedBaseWorkingTime)
+		}
+		if !work.PausedAt.IsZero() {
+			t.Errorf("PausedAt = %s, wants = zero", work.PausedAt)
 		}
 		if !work.UpdatedAt.Equal(updatedAt) {
 			t.Errorf("UpdatedAt = %s, wants = %s", work.UpdatedAt, updatedAt)
@@ -131,38 +163,99 @@ func TestApplyToWork(t *testing.T) {
 	})
 
 	t.Run("FinishWork", func(t *testing.T) {
+		startTime := now.Add(1 * time.Minute)
+		pauseTime := now.Add(2 * time.Minute)
+		resumeTime := now.Add(3 * time.Minute)
+		finishTime := now.Add(4 * time.Minute)
+		expectedBaseWorkingTime := startTime.Add(1 * time.Minute)
+
 		updatedAt := now.Add(4 * time.Second)
 
 		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: now.Add(3 * time.Minute), CreatedAt: now.Add(3 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: now.Add(4 * time.Minute), CreatedAt: updatedAt},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Finished {
 			t.Errorf("State = %s, wants = %s", work.State, model.Finished)
 		}
+		if !work.BaseWorkingTime.Equal(expectedBaseWorkingTime) {
+			t.Errorf("BaseWorkingTime = %s, wants = %s", work.BaseWorkingTime, expectedBaseWorkingTime)
+		}
 		if !work.UpdatedAt.Equal(updatedAt) {
 			t.Errorf("UpdatedAt = %s, wants = %s", work.UpdatedAt, updatedAt)
 		}
+
+		t.Run("StartからFinishの場合はPausedAtを設定すること", func(t *testing.T) {
+			work := applyToWork(model.WorkListItem{}, []event.Event{
+				{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+			})
+
+			if !work.PausedAt.Equal(finishTime) {
+				t.Errorf("PausedAt = %s, wants = %s", work.PausedAt, finishTime)
+			}
+		})
+
+		t.Run("PauseからFinishの場合はPausedAtを更新しないこと", func(t *testing.T) {
+			work := applyToWork(model.WorkListItem{}, []event.Event{
+				{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+			})
+
+			if !work.PausedAt.Equal(pauseTime) {
+				t.Errorf("PausedAt = %s, wants = %s", work.PausedAt, pauseTime)
+			}
+		})
+
+		t.Run("ResumeからFinishの場合はPausedAtを設定すること", func(t *testing.T) {
+			work := applyToWork(model.WorkListItem{}, []event.Event{
+				{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+			})
+
+			if !work.PausedAt.Equal(finishTime) {
+				t.Errorf("PausedAt = %s, wants = %s", work.PausedAt, finishTime)
+			}
+		})
 	})
 
 	t.Run("CancelFinishWork", func(t *testing.T) {
+		startTime := now.Add(1 * time.Minute)
+		pauseTime := now.Add(2 * time.Minute)
+		resumeTime := now.Add(3 * time.Minute)
+		finishTime := now.Add(4 * time.Minute)
+		cancelFinishTime := now.Add(5 * time.Minute)
+		expectedBaseWorkingTime := startTime.Add(1 * time.Minute)
+
 		updatedAt := now.Add(5 * time.Second)
 
 		work := applyToWork(model.WorkListItem{}, []event.Event{
 			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: now.Add(1 * time.Minute), CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: now.Add(2 * time.Minute), CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: now.Add(3 * time.Minute), CreatedAt: now.Add(3 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: now.Add(4 * time.Minute), CreatedAt: now.Add(4 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CancelFinishWork, Time: now.Add(5 * time.Minute), CreatedAt: updatedAt},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: now.Add(4 * time.Second)},
+			{ID: util.NewUUID(), WorkID: workID, Action: event.CancelFinishWork, Time: cancelFinishTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Paused {
 			t.Errorf("State = %s, wants = %s", work.State, model.Paused)
+		}
+		if !work.BaseWorkingTime.Equal(expectedBaseWorkingTime) {
+			t.Errorf("BaseWorkingTime = %s, wants = %s", work.BaseWorkingTime, expectedBaseWorkingTime)
+		}
+		if !work.PausedAt.Equal(finishTime) {
+			t.Errorf("PausedAt = %s, wants = %s", work.PausedAt, finishTime)
 		}
 		if !work.UpdatedAt.Equal(updatedAt) {
 			t.Errorf("UpdatedAt = %s, wants = %s", work.UpdatedAt, updatedAt)
