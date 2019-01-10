@@ -33,7 +33,7 @@ func NewCloudDataStore(r *http.Request) (CloudDataStore, error) {
 func (s CloudDataStore) GetWorks(pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
 	var ws []model.WorkListItem
 
-	q := datastore.NewQuery(model.KindNameWork).Order("-UpdatedAt").Limit(pageSize)
+	q := datastore.NewQuery(model.KindNameWork).Order("-CreatedAt").Limit(pageSize)
 	if cursor, err := datastore.DecodeCursor(pageToken); err == nil {
 		q = q.Start(cursor)
 	}

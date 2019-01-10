@@ -251,17 +251,18 @@ func TestGetWorks(t *testing.T) {
 	)
 	defer s.Close()
 
-	t.Run("UpdatedAtの降順で取得すること", func(t *testing.T) {
+	t.Run("CreatedAtの降順で取得すること", func(t *testing.T) {
 		defer clearStore(r)
 
 		var (
-			now = time.Now().Truncate(time.Millisecond)
+			now       = time.Now().Truncate(time.Millisecond)
+			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: "workid-1", Title: "number-3", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(1 * time.Second)},
-				{ID: "workid-2", Title: "number-1", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(3 * time.Second)},
-				{ID: "workid-3", Title: "number-2", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(2 * time.Second)},
-				{ID: "workid-4", Title: "number-4", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(0 * time.Second)},
+				{ID: "workid-1", Title: "number-3", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{ID: "workid-2", Title: "number-1", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{ID: "workid-3", Title: "number-2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{ID: "workid-4", Title: "number-4", State: model.Started, CreatedAt: now.Add(0 * time.Second), UpdatedAt: updatedAt},
 			}
 			latestWork = fixtureWorks[1]
 			pageSize   = len(fixtureWorks)
@@ -271,7 +272,7 @@ func TestGetWorks(t *testing.T) {
 		var gotWorks []model.WorkListItem
 		s.GetWorks(pageSize, "", &gotWorks)
 
-		if !gotWorks[0].UpdatedAt.Equal(latestWork.UpdatedAt) {
+		if !gotWorks[0].CreatedAt.Equal(latestWork.CreatedAt) {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, latestWork.Title)
 		}
 
@@ -279,8 +280,8 @@ func TestGetWorks(t *testing.T) {
 			if i == 0 {
 				continue
 			}
-			if !gotWorks[i-1].UpdatedAt.After(gotWork.UpdatedAt) {
-				t.Errorf("gotWorks[%d].UpdatedAt < gotWorks[%d].UpdatedAt", i-1, i)
+			if !gotWorks[i-1].CreatedAt.After(gotWork.CreatedAt) {
+				t.Errorf("gotWorks[%d].CreatedAt < gotWorks[%d].CreatedAt", i-1, i)
 			}
 		}
 	})
@@ -289,13 +290,14 @@ func TestGetWorks(t *testing.T) {
 		defer clearStore(r)
 
 		var (
-			now = time.Now().Truncate(time.Millisecond)
+			now       = time.Now().Truncate(time.Millisecond)
+			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize   = len(fixtureWorks)
 			latestWork = fixtureWorks[pageSize-1]
@@ -314,13 +316,14 @@ func TestGetWorks(t *testing.T) {
 		defer clearStore(r)
 
 		var (
-			now = time.Now().Truncate(time.Millisecond)
+			now       = time.Now().Truncate(time.Millisecond)
+			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize       = 2
 			secondPageWork = fixtureWorks[1]
@@ -342,13 +345,14 @@ func TestGetWorks(t *testing.T) {
 		defer clearStore(r)
 
 		var (
-			now = time.Now().Truncate(time.Millisecond)
+			now       = time.Now().Truncate(time.Millisecond)
+			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize = len(fixtureWorks) - 1
 		)
@@ -374,13 +378,14 @@ func TestGetWorks(t *testing.T) {
 		defer clearStore(r)
 
 		var (
-			now = time.Now().Truncate(time.Millisecond)
+			now       = time.Now().Truncate(time.Millisecond)
+			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize = len(fixtureWorks)
 		)
@@ -406,13 +411,14 @@ func TestGetWorks(t *testing.T) {
 		defer clearStore(r)
 
 		var (
-			now = time.Now().Truncate(time.Millisecond)
+			now       = time.Now().Truncate(time.Millisecond)
+			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now, UpdatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize = len(fixtureWorks) + 1
 		)
