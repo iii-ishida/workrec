@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 	"time"
+
+	"github.com/iii-ishida/workrec/server/event"
 )
 
 // WorkList is a work list.
@@ -24,8 +26,64 @@ type WorkListItem struct {
 	IsDeleted       bool
 }
 
-// CalculateBaseWorkingTime returns a new calculated BaseWorkingTime.
-func (w WorkListItem) CalculateBaseWorkingTime(resumedAt time.Time) time.Time {
+// ApplyEventsToWork applies events to work and returns the work.
+func ApplyEventsToWork(work WorkListItem, events []event.Event) WorkListItem {
+	for _, e := range events {
+		switch e.Action {
+		case event.CreateWork:
+			work = WorkListItem{
+				ID:              string(e.WorkID),
+				Title:           e.Title,
+				State:           Unstarted,
+				BaseWorkingTime: time.Time{},
+				PausedAt:        time.Time{},
+				StartedAt:       time.Time{},
+				CreatedAt:       e.CreatedAt,
+				UpdatedAt:       e.CreatedAt,
+			}
+
+		case event.UpdateWork:
+			work.Title = e.Title
+			work.UpdatedAt = e.CreatedAt
+
+		case event.DeleteWork:
+			work.IsDeleted = true
+
+		case event.StartWork:
+			work.State = Started
+			work.BaseWorkingTime = e.Time
+			work.StartedAt = e.Time
+			work.UpdatedAt = e.CreatedAt
+
+		case event.PauseWork:
+			work.State = Paused
+			work.PausedAt = e.Time
+			work.UpdatedAt = e.CreatedAt
+
+		case event.ResumeWork:
+			work.State = Resumed
+			work.BaseWorkingTime = work.calculateBaseWorkingTime(e.Time)
+			work.PausedAt = time.Time{}
+			work.UpdatedAt = e.CreatedAt
+
+		case event.FinishWork:
+			if work.State != Paused {
+				work.PausedAt = e.Time
+			}
+
+			work.State = Finished
+			work.UpdatedAt = e.CreatedAt
+
+		case event.CancelFinishWork:
+			work.State = Paused
+			work.UpdatedAt = e.CreatedAt
+		}
+	}
+
+	return work
+}
+
+func (w WorkListItem) calculateBaseWorkingTime(resumedAt time.Time) time.Time {
 	pausedAt := w.PausedAt
 	pausingTime := resumedAt.Sub(pausedAt)
 
