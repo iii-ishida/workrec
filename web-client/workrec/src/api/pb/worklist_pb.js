@@ -261,7 +261,10 @@ proto.WorkListItemPb.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: jspb.Message.getFieldWithDefault(msg, 1, ""),
     title: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    state: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    baseWorkingTime: (f = msg.getBaseWorkingTime()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+    pausedAt: (f = msg.getPausedAt()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+    state: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    startedAt: (f = msg.getStartedAt()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
     createdAt: (f = msg.getCreatedAt()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
     updatedAt: (f = msg.getUpdatedAt()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
   };
@@ -309,15 +312,30 @@ proto.WorkListItemPb.deserializeBinaryFromReader = function(msg, reader) {
       msg.setTitle(value);
       break;
     case 3:
-      var value = /** @type {!proto.WorkListItemPb.State} */ (reader.readEnum());
-      msg.setState(value);
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setBaseWorkingTime(value);
       break;
     case 4:
       var value = new google_protobuf_timestamp_pb.Timestamp;
       reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setCreatedAt(value);
+      msg.setPausedAt(value);
       break;
     case 5:
+      var value = /** @type {!proto.WorkListItemPb.State} */ (reader.readEnum());
+      msg.setState(value);
+      break;
+    case 6:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setStartedAt(value);
+      break;
+    case 7:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setCreatedAt(value);
+      break;
+    case 8:
       var value = new google_protobuf_timestamp_pb.Timestamp;
       reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
       msg.setUpdatedAt(value);
@@ -365,14 +383,15 @@ proto.WorkListItemPb.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getState();
-  if (f !== 0.0) {
-    writer.writeEnum(
+  f = message.getBaseWorkingTime();
+  if (f != null) {
+    writer.writeMessage(
       3,
-      f
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
-  f = message.getCreatedAt();
+  f = message.getPausedAt();
   if (f != null) {
     writer.writeMessage(
       4,
@@ -380,10 +399,33 @@ proto.WorkListItemPb.serializeBinaryToWriter = function(message, writer) {
       google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
+  f = message.getState();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      5,
+      f
+    );
+  }
+  f = message.getStartedAt();
+  if (f != null) {
+    writer.writeMessage(
+      6,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+    );
+  }
+  f = message.getCreatedAt();
+  if (f != null) {
+    writer.writeMessage(
+      7,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+    );
+  }
   f = message.getUpdatedAt();
   if (f != null) {
     writer.writeMessage(
-      5,
+      8,
       f,
       google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
@@ -434,33 +476,123 @@ proto.WorkListItemPb.prototype.setTitle = function(value) {
 
 
 /**
- * optional State state = 3;
- * @return {!proto.WorkListItemPb.State}
+ * optional google.protobuf.Timestamp base_working_time = 3;
+ * @return {?proto.google.protobuf.Timestamp}
  */
-proto.WorkListItemPb.prototype.getState = function() {
-  return /** @type {!proto.WorkListItemPb.State} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+proto.WorkListItemPb.prototype.getBaseWorkingTime = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 3));
 };
 
 
-/** @param {!proto.WorkListItemPb.State} value */
-proto.WorkListItemPb.prototype.setState = function(value) {
-  jspb.Message.setProto3EnumField(this, 3, value);
+/** @param {?proto.google.protobuf.Timestamp|undefined} value */
+proto.WorkListItemPb.prototype.setBaseWorkingTime = function(value) {
+  jspb.Message.setWrapperField(this, 3, value);
+};
+
+
+proto.WorkListItemPb.prototype.clearBaseWorkingTime = function() {
+  this.setBaseWorkingTime(undefined);
 };
 
 
 /**
- * optional google.protobuf.Timestamp created_at = 4;
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.WorkListItemPb.prototype.hasBaseWorkingTime = function() {
+  return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional google.protobuf.Timestamp paused_at = 4;
  * @return {?proto.google.protobuf.Timestamp}
  */
-proto.WorkListItemPb.prototype.getCreatedAt = function() {
+proto.WorkListItemPb.prototype.getPausedAt = function() {
   return /** @type{?proto.google.protobuf.Timestamp} */ (
     jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 4));
 };
 
 
 /** @param {?proto.google.protobuf.Timestamp|undefined} value */
-proto.WorkListItemPb.prototype.setCreatedAt = function(value) {
+proto.WorkListItemPb.prototype.setPausedAt = function(value) {
   jspb.Message.setWrapperField(this, 4, value);
+};
+
+
+proto.WorkListItemPb.prototype.clearPausedAt = function() {
+  this.setPausedAt(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.WorkListItemPb.prototype.hasPausedAt = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional State state = 5;
+ * @return {!proto.WorkListItemPb.State}
+ */
+proto.WorkListItemPb.prototype.getState = function() {
+  return /** @type {!proto.WorkListItemPb.State} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/** @param {!proto.WorkListItemPb.State} value */
+proto.WorkListItemPb.prototype.setState = function(value) {
+  jspb.Message.setProto3EnumField(this, 5, value);
+};
+
+
+/**
+ * optional google.protobuf.Timestamp started_at = 6;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.WorkListItemPb.prototype.getStartedAt = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 6));
+};
+
+
+/** @param {?proto.google.protobuf.Timestamp|undefined} value */
+proto.WorkListItemPb.prototype.setStartedAt = function(value) {
+  jspb.Message.setWrapperField(this, 6, value);
+};
+
+
+proto.WorkListItemPb.prototype.clearStartedAt = function() {
+  this.setStartedAt(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.WorkListItemPb.prototype.hasStartedAt = function() {
+  return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional google.protobuf.Timestamp created_at = 7;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.WorkListItemPb.prototype.getCreatedAt = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 7));
+};
+
+
+/** @param {?proto.google.protobuf.Timestamp|undefined} value */
+proto.WorkListItemPb.prototype.setCreatedAt = function(value) {
+  jspb.Message.setWrapperField(this, 7, value);
 };
 
 
@@ -474,23 +606,23 @@ proto.WorkListItemPb.prototype.clearCreatedAt = function() {
  * @return {!boolean}
  */
 proto.WorkListItemPb.prototype.hasCreatedAt = function() {
-  return jspb.Message.getField(this, 4) != null;
+  return jspb.Message.getField(this, 7) != null;
 };
 
 
 /**
- * optional google.protobuf.Timestamp updated_at = 5;
+ * optional google.protobuf.Timestamp updated_at = 8;
  * @return {?proto.google.protobuf.Timestamp}
  */
 proto.WorkListItemPb.prototype.getUpdatedAt = function() {
   return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 5));
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 8));
 };
 
 
 /** @param {?proto.google.protobuf.Timestamp|undefined} value */
 proto.WorkListItemPb.prototype.setUpdatedAt = function(value) {
-  jspb.Message.setWrapperField(this, 5, value);
+  jspb.Message.setWrapperField(this, 8, value);
 };
 
 
@@ -504,7 +636,7 @@ proto.WorkListItemPb.prototype.clearUpdatedAt = function() {
  * @return {!boolean}
  */
 proto.WorkListItemPb.prototype.hasUpdatedAt = function() {
-  return jspb.Message.getField(this, 5) != null;
+  return jspb.Message.getField(this, 8) != null;
 };
 
 

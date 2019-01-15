@@ -1,6 +1,7 @@
 import { API_ORIGIN } from '../env';
 const worklist_pb = require('./pb/worklist_pb');
 const command_request_pb = require('./pb/command_request_pb');
+const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 
 export default class API {
   static getWorkList() {
@@ -23,6 +24,40 @@ export default class API {
     });
   }
 
+  static startWork(id, time) {
+    return this._changeWorkState('start', id, time)
+  }
+
+  static pauseWork(id, time) {
+    return this._changeWorkState('pause', id, time)
+  }
+
+  static resumeWork(id, time) {
+    return this._changeWorkState('resume', id, time)
+  }
+
+  static finishWork(id, time) {
+    return this._changeWorkState('finish', id, time)
+  }
+
+  static cancelFinishWork(id, time) {
+    return this._changeWorkState('cancelFinish', id, time)
+  }
+
+  static _changeWorkState(method, id, time) {
+    const timestamp = new google_protobuf_timestamp_pb.Timestamp();
+    timestamp.fromDate(time);
+
+    const param = new command_request_pb.ChangeWorkStateRequestPb();
+    param.setTime(timestamp)
+
+    return fetch(`${API_ORIGIN}/v1/works/${id}:${method}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/octet-stream'},
+      body: param.serializeBinary()
+    });
+  }
+
   static deleteWork(id) {
     return fetch(`${API_ORIGIN}/v1/works/${id}`, {
       method: 'DELETE'
@@ -32,14 +67,25 @@ export default class API {
   static worklistPbToObject(pb) {
     const pbObj = pb.toObject();
 
+    const toDate = (t) => {
+      if (!t) {
+        return null
+      }
+      return new Date((t.seconds * 1000) + (t.nanos / 1000000))
+    }
+
+
     return {
       works: (pbObj.worksList || []).map(work => {
         return {
           id: work.id,
           title: work.title,
           state: work.state,
-          createdAt: work.createdAt,
-          updatedAt: work.updatedAt,
+          baseWorkingTime: toDate(work.baseWorkingTime),
+          startedAt: toDate(work.startedAt),
+          pausedAt: toDate(work.pausedAt),
+          createdAt: toDate(work.createdAt),
+          updatedAt: toDate(work.updatedAt),
         };
       }),
       nextPageToken: pbObj.nextPageToken
