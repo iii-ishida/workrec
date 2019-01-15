@@ -7,6 +7,11 @@ export default class WorkList extends Component {
   static propTypes = {
     works: PropTypes.instanceOf(Immutable.Iterable).isRequired,
     fetchWorks: PropTypes.func.isRequired,
+    startWork: PropTypes.func.isRequired,
+    pauseWork: PropTypes.func.isRequired,
+    resumeWork: PropTypes.func.isRequired,
+    finishWork: PropTypes.func.isRequired,
+    cancelFinishWork: PropTypes.func.isRequired,
     deleteWork: PropTypes.func.isRequired
   }
 
@@ -15,17 +20,30 @@ export default class WorkList extends Component {
   }
 
   render() {
-    const { works = [], deleteWork } = this.props
+    const {
+      works = [],
+      startWork,
+      pauseWork,
+      resumeWork,
+      finishWork,
+      cancelFinishWork,
+      deleteWork
+    } = this.props
 
     return (
       <ul>
         {works.map(work => {
-          const workId = work.get('id')
-
           return (
-            <li key={workId}>
-              <WorkListItem work={work} deleteWork={deleteWork} />
-              <button onClick={() => deleteWork(workId)}>Delete</button>
+            <li key={work.get('id')}>
+              <WorkListItem
+                work={work}
+                startWork={startWork}
+                pauseWork={pauseWork}
+                resumeWork={resumeWork}
+                finishWork={finishWork}
+                cancelFinishWork={cancelFinishWork}
+                deleteWork={deleteWork}
+              />
             </li>
           )
         })}
