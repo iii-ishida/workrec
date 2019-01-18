@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "firebase": "^5.7.3",
     "google-protobuf": "^3.6.1",
     "immutable": "^4.0.0-rc.12",
     "react": "^16.6.3",

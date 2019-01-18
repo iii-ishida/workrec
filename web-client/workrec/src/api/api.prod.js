@@ -1,23 +1,34 @@
 import { API_ORIGIN } from '../env';
+import { getIdToken } from '../auth';
 const worklist_pb = require('./pb/worklist_pb');
 const command_request_pb = require('./pb/command_request_pb');
 const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 
+const fetchRequest = (url, req = {}) => {
+  return getIdToken().then(idToken => {
+    if (idToken) {
+      req.headers = {...req.headers,  ...{'Authorization': 'Bearer ' + idToken}};
+    }
+
+    return fetch(url, req)
+  })
+}
+
 export default class API {
   static getWorkList() {
-    return fetch(`${API_ORIGIN}/v1/works`)
+    return fetchRequest(`${API_ORIGIN}/v1/works`)
       .then(res => res.arrayBuffer())
       .then(data => {
         const pb = worklist_pb.WorkListPb.deserializeBinary(new Uint8Array(data));
         return this.worklistPbToObject(pb);
-      });
+      })
   }
 
   static addWork(title) {
     const param = new command_request_pb.CreateWorkRequestPb();
     param.setTitle(title);
 
-    return fetch(`${API_ORIGIN}/v1/works`, {
+    return fetchRequest(`${API_ORIGIN}/v1/works`, {
       method: 'POST',
       headers: {'Content-Type': 'application/octet-stream'},
       body: param.serializeBinary()
@@ -51,7 +62,7 @@ export default class API {
     const param = new command_request_pb.ChangeWorkStateRequestPb();
     param.setTime(timestamp)
 
-    return fetch(`${API_ORIGIN}/v1/works/${id}:${method}`, {
+    return fetchRequest(`${API_ORIGIN}/v1/works/${id}:${method}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/octet-stream'},
       body: param.serializeBinary()
@@ -59,7 +70,7 @@ export default class API {
   }
 
   static deleteWork(id) {
-    return fetch(`${API_ORIGIN}/v1/works/${id}`, {
+    return fetchRequest(`${API_ORIGIN}/v1/works/${id}`, {
       method: 'DELETE'
     });
   }
