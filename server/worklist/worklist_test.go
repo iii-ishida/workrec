@@ -15,15 +15,17 @@ import (
 )
 
 func TestGet(t *testing.T) {
+	userID := "some-userid"
+
 	t.Run("Get#OK", func(t *testing.T) {
 		var (
 			fixture = model.WorkList{
 				Works: []model.WorkListItem{
-					{ID: util.NewUUID(), Title: "some title 01", State: model.Unstarted, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					{ID: util.NewUUID(), Title: "some title 02", State: model.Started, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					{ID: util.NewUUID(), Title: "some title 03", State: model.Paused, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					{ID: util.NewUUID(), Title: "some title 04", State: model.Resumed, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-					{ID: util.NewUUID(), Title: "some title 05", State: model.Finished, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					{UserID: userID, ID: util.NewUUID(), Title: "some title 01", State: model.Unstarted, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					{UserID: userID, ID: util.NewUUID(), Title: "some title 02", State: model.Started, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					{UserID: userID, ID: util.NewUUID(), Title: "some title 03", State: model.Paused, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					{UserID: userID, ID: util.NewUUID(), Title: "some title 04", State: model.Resumed, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					{UserID: userID, ID: util.NewUUID(), Title: "some title 05", State: model.Finished, CreatedAt: time.Now(), UpdatedAt: time.Now()},
 				},
 				NextPageToken: util.NewUUID(),
 			}
@@ -35,13 +37,13 @@ func TestGet(t *testing.T) {
 		)
 		defer mockCtrl.Finish()
 
-		mockStore.EXPECT().GetWorks(param.PageSize, param.PageToken, gomock.Any()).DoAndReturn(func(_ int, _ string, dst *[]model.WorkListItem) (string, error) {
+		mockStore.EXPECT().GetWorks(userID, param.PageSize, param.PageToken, gomock.Any()).DoAndReturn(func(_ string, _ int, _ string, dst *[]model.WorkListItem) (string, error) {
 			*dst = make([]model.WorkListItem, len(fixture.Works))
 			copy(*dst, fixture.Works)
 			return fixture.NextPageToken, nil
 		})
 
-		list, err := query.Get(param)
+		list, err := query.Get(userID, param)
 
 		t.Run("errorがnilであること", func(t *testing.T) {
 			if err != nil {
@@ -63,20 +65,20 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("Get#Error", func(t *testing.T) {
-		var (
-			mockCtrl  = gomock.NewController(t)
-			mockStore = store.NewMockStore(mockCtrl)
-			query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
-			param     = worklist.Param{}
-		)
-		defer mockCtrl.Finish()
-
-		someErr := errors.New("Some Error")
-		mockStore.EXPECT().GetWorks(gomock.Any(), gomock.Any(), gomock.Any()).Return("", someErr)
-
-		_, err := query.Get(param)
-
 		t.Run("Store#GetWorksがエラーになった場合はerrorを返すこと", func(t *testing.T) {
+			var (
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+				param     = worklist.Param{}
+			)
+			defer mockCtrl.Finish()
+
+			someErr := errors.New("Some Error")
+			mockStore.EXPECT().GetWorks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return("", someErr)
+
+			_, err := query.Get(userID, param)
+
 			if err != someErr {
 				t.Errorf("error = %#v, wants = %#v", err, someErr)
 			}
@@ -85,6 +87,8 @@ func TestGet(t *testing.T) {
 }
 
 func TestConstructWorks(t *testing.T) {
+	userID := "some-userid"
+
 	t.Run("ConstructWorks#OK", func(t *testing.T) {
 		var (
 			eventTime01 = time.Now().Add(1 + time.Second)
@@ -93,12 +97,13 @@ func TestConstructWorks(t *testing.T) {
 			eventTime04 = time.Now().Add(4 + time.Second)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: eventTime01},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: eventTime02},
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.StartWork, Time: eventTime03, CreatedAt: eventTime03},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.UpdateWork, Title: "updated title 02", CreatedAt: eventTime04},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: eventTime01},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: eventTime02},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.StartWork, Time: eventTime03, CreatedAt: eventTime03},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.UpdateWork, Title: "updated title 02", CreatedAt: eventTime04},
 			}
 			fixtureWork1 = model.WorkListItem{
+				UserID:          userID,
 				ID:              "workid-1",
 				Title:           "some title 01",
 				BaseWorkingTime: eventTime03,
@@ -109,6 +114,7 @@ func TestConstructWorks(t *testing.T) {
 				UpdatedAt:       eventTime03,
 			}
 			fixtureWork2 = model.WorkListItem{
+				UserID:          userID,
 				ID:              "workid-2",
 				Title:           "updated title 02",
 				BaseWorkingTime: time.Time{},
@@ -128,12 +134,12 @@ func TestConstructWorks(t *testing.T) {
 		)
 		defer mockCtrl.Finish()
 
-		mockStore.EXPECT().GetLastConstructedAt(model.LastConstructedAtID, gomock.Any()).DoAndReturn(func(id string, dst *model.LastConstructedAt) error {
-			*dst = model.LastConstructedAt{ID: id, Time: fixtureLastConstructedAt}
+		mockStore.EXPECT().GetLastConstructedAt(userID, gomock.Any()).DoAndReturn(func(id string, dst *model.LastConstructedAt) error {
+			*dst = model.LastConstructedAt{ID: userID, Time: fixtureLastConstructedAt}
 			return nil
 		})
 
-		mockStore.EXPECT().GetEvents(fixtureLastConstructedAt, pageSize, "", gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+		mockStore.EXPECT().GetEvents(userID, fixtureLastConstructedAt, pageSize, "", gomock.Any()).DoAndReturn(func(_ string, _ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
 			*dst = make([]event.Event, len(fixtureEvents))
 			copy(*dst, fixtureEvents)
 			return "", nil
@@ -148,12 +154,12 @@ func TestConstructWorks(t *testing.T) {
 		mockStore.EXPECT().PutWork(fixtureWork2)
 
 		mockStore.EXPECT().PutLastConstructedAt(model.LastConstructedAt{
-			ID:   model.LastConstructedAtID,
+			ID:   userID,
 			Time: fixtureEvents[len(fixtureEvents)-1].CreatedAt,
 		})
 
 		// Act
-		query.ConstructWorks()
+		query.ConstructWorks(userID)
 	})
 
 	t.Run("ConstructWorks#Error", func(t *testing.T) {
@@ -169,7 +175,7 @@ func TestConstructWorks(t *testing.T) {
 
 			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any()).Return(someErr)
 
-			err := query.ConstructWorks()
+			err := query.ConstructWorks(userID)
 			if err != someErr {
 				t.Errorf("error = %#v, wants = %#v", err, someErr)
 			}
@@ -184,9 +190,9 @@ func TestConstructWorks(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
-			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return("", someErr)
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return("", someErr)
 
-			err := query.ConstructWorks()
+			err := query.ConstructWorks(userID)
 			if err != someErr {
 				t.Errorf("error = %#v, wants = %#v", err, someErr)
 			}
@@ -205,7 +211,7 @@ func TestConstructWorks(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
-			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ string, _ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
 				*dst = make([]event.Event, len(fixtureEvents))
 				copy(*dst, fixtureEvents)
 				return "", nil
@@ -213,7 +219,7 @@ func TestConstructWorks(t *testing.T) {
 
 			mockStore.EXPECT().GetWork(gomock.Any(), gomock.Any()).Return(someErr)
 
-			err := query.ConstructWorks()
+			err := query.ConstructWorks(userID)
 			if err != someErr {
 				t.Errorf("error = %#v, wants = %#v", err, someErr)
 			}
@@ -232,7 +238,7 @@ func TestConstructWorks(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
-			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ string, _ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
 				*dst = make([]event.Event, len(fixtureEvents))
 				copy(*dst, fixtureEvents)
 				return "", nil
@@ -242,7 +248,7 @@ func TestConstructWorks(t *testing.T) {
 			mockStore.EXPECT().PutWork(gomock.Any())
 			mockStore.EXPECT().PutLastConstructedAt(gomock.Any())
 
-			err := query.ConstructWorks()
+			err := query.ConstructWorks(userID)
 			if err != nil {
 				t.Errorf("error = %#v, wants = nil", err)
 			}
@@ -260,7 +266,7 @@ func TestConstructWorks(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			mockStore.EXPECT().GetLastConstructedAt(gomock.Any(), gomock.Any())
-			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
+			mockStore.EXPECT().GetEvents(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(_ string, _ time.Time, _ int, _ string, dst *[]event.Event) (string, error) {
 				*dst = make([]event.Event, len(fixtureEvents))
 				copy(*dst, fixtureEvents)
 				return "", nil
@@ -269,7 +275,7 @@ func TestConstructWorks(t *testing.T) {
 
 			mockStore.EXPECT().PutWork(gomock.Any()).Return(someErr)
 
-			err := query.ConstructWorks()
+			err := query.ConstructWorks(userID)
 			if err != someErr {
 				t.Errorf("error = %#v, wants = %#v", err, someErr)
 			}

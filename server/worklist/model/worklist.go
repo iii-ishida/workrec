@@ -15,6 +15,7 @@ type WorkList struct {
 
 // WorkListItem is a item of WorkList.
 type WorkListItem struct {
+	UserID          string
 	ID              string
 	Title           string
 	BaseWorkingTime time.Time
@@ -32,6 +33,7 @@ func ApplyEventsToWork(work WorkListItem, events []event.Event) WorkListItem {
 		switch e.Action {
 		case event.CreateWork:
 			work = WorkListItem{
+				UserID:          e.UserID,
 				ID:              string(e.WorkID),
 				Title:           e.Title,
 				State:           Unstarted,

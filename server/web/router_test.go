@@ -11,8 +11,10 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/iii-ishida/workrec/server/auth"
 	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/event"
@@ -21,14 +23,23 @@ import (
 )
 
 func TestCreateWork(t *testing.T) {
+	userID := "some-userid"
+
 	t.Run("正常時", func(t *testing.T) {
 		defer clearStore()
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		title := "some title"
-		req, _ := http.NewRequest("POST", server.URL+"/v1/works", newCreateWorkRequest(title))
+		req := newRequestWithLogin(userID, "POST", server.URL+"/v1/works", newCreateWorkRequest(title))
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -56,11 +67,18 @@ func TestCreateWork(t *testing.T) {
 	t.Run("パラメータ不正", func(t *testing.T) {
 		defer clearStore()
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		invalidParam := bytes.NewReader([]byte("invalid"))
-		req, _ := http.NewRequest("POST", server.URL+"/v1/works", invalidParam)
+		req := newRequestWithLogin(userID, "POST", server.URL+"/v1/works", invalidParam)
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -80,7 +98,10 @@ func TestCreateWork(t *testing.T) {
 }
 
 func TestUpdateWork(t *testing.T) {
+	userID := "some-userid"
+
 	source := model.Work{
+		UserID:    userID,
 		ID:        util.NewUUID(),
 		Title:     "some title",
 		UpdatedAt: time.Now().Add(-1 * time.Hour),
@@ -90,12 +111,19 @@ func TestUpdateWork(t *testing.T) {
 		defer clearStore()
 		createWork(source)
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/%s", server.URL, source.ID)
 		title := "updated title"
-		req, _ := http.NewRequest("PATCH", url, newUpdateWorkRequest(title))
+		req := newRequestWithLogin(userID, "PATCH", url, newUpdateWorkRequest(title))
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -116,12 +144,19 @@ func TestUpdateWork(t *testing.T) {
 	t.Run("存在しないid", func(t *testing.T) {
 		defer clearStore()
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/notfoundid", server.URL)
 		title := "updated title"
-		req, _ := http.NewRequest("PATCH", url, newUpdateWorkRequest(title))
+		req := newRequestWithLogin(userID, "PATCH", url, newUpdateWorkRequest(title))
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -143,12 +178,19 @@ func TestUpdateWork(t *testing.T) {
 		defer clearStore()
 		createWork(source)
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/%s", server.URL, source.ID)
 		invalidParam := bytes.NewReader([]byte("invalid"))
-		req, _ := http.NewRequest("PATCH", url, invalidParam)
+		req := newRequestWithLogin(userID, "PATCH", url, invalidParam)
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -167,7 +209,10 @@ func TestUpdateWork(t *testing.T) {
 }
 
 func TestDeleteWork(t *testing.T) {
+	userID := "some-userid"
+
 	source := model.Work{
+		UserID:    userID,
 		ID:        util.NewUUID(),
 		UpdatedAt: time.Now().Add(-1 * time.Hour),
 	}
@@ -176,11 +221,18 @@ func TestDeleteWork(t *testing.T) {
 		defer clearStore()
 		createWork(source)
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/%s", server.URL, source.ID)
-		req, _ := http.NewRequest("DELETE", url, nil)
+		req := newRequestWithLogin(userID, "DELETE", url, nil)
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -201,11 +253,18 @@ func TestDeleteWork(t *testing.T) {
 	t.Run("存在しないid", func(t *testing.T) {
 		defer clearStore()
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/notfoundid", server.URL)
-		req, _ := http.NewRequest("DELETE", url, nil)
+		req := newRequestWithLogin(userID, "DELETE", url, nil)
 		res, _ := http.DefaultClient.Do(req)
 
 		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
@@ -237,7 +296,10 @@ func TestCancelFinishWork(t *testing.T) {
 }
 
 func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
+	userID := "some-userid"
+
 	source := model.Work{
+		UserID:    userID,
 		ID:        util.NewUUID(),
 		State:     sourceState,
 		Time:      time.Now().Add(-1 * time.Hour),
@@ -248,12 +310,19 @@ func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsSt
 		defer clearStore()
 		createWork(source)
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/%s:%s", server.URL, source.ID, customMethod)
 		workTime := source.Time.Add(10 * time.Minute)
-		req, _ := http.NewRequest("POST", url, newChangeWorkStateRequest(workTime))
+		req := newRequestWithLogin(userID, "POST", url, newChangeWorkStateRequest(workTime))
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -280,12 +349,19 @@ func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsSt
 	t.Run("存在しないid", func(t *testing.T) {
 		defer clearStore()
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/notfoundid:%s", server.URL, customMethod)
 		workTime := source.Time.Add(10 * time.Minute)
-		req, _ := http.NewRequest("POST", url, newChangeWorkStateRequest(workTime))
+		req := newRequestWithLogin(userID, "POST", url, newChangeWorkStateRequest(workTime))
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -306,12 +382,19 @@ func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsSt
 		defer clearStore()
 		createWork(source)
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/%s:%s", server.URL, source.ID, customMethod)
 		invalidParam := bytes.NewReader([]byte("invalid"))
-		req, _ := http.NewRequest("POST", url, invalidParam)
+		req := newRequestWithLogin(userID, "POST", url, invalidParam)
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -336,12 +419,19 @@ func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsSt
 		sameStateWork.State = wantsState
 		createWork(sameStateWork)
 
-		server := httptest.NewServer(main.NewRouter())
+		var (
+			mockCtrl         = gomock.NewController(t)
+			mockUserIDGetter = auth.NewMockUserIDGetter(mockCtrl)
+		)
+		defer mockCtrl.Finish()
+		getUserID(mockUserIDGetter, userID)
+
+		server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
 		defer server.Close()
 
 		url := fmt.Sprintf("%s/v1/works/%s:%s", server.URL, source.ID, customMethod)
 		workTime := source.Time.Add(10 * time.Minute)
-		req, _ := http.NewRequest("POST", url, newChangeWorkStateRequest(workTime))
+		req := newRequestWithLogin(userID, "POST", url, newChangeWorkStateRequest(workTime))
 		res, _ := http.DefaultClient.Do(req)
 
 		work := getLatestWork()
@@ -398,6 +488,17 @@ func getLatestWork() *model.Work {
 		return nil
 	}
 	return &ws[0]
+}
+
+func getUserID(mockUserIDGetter *auth.MockUserIDGetter, userID string) {
+	mockUserIDGetter.EXPECT().GetUserID(gomock.Any()).Return(userID, nil)
+}
+
+func newRequestWithLogin(userID, method, url string, body io.Reader) *http.Request {
+	req, _ := http.NewRequest(method, url, body)
+	req.Header.Add("Authorization", "Bearer someidtoken")
+	ctx := auth.ContextWithUserID(req.Context(), userID)
+	return req.WithContext(ctx)
 }
 
 func clearStore() {

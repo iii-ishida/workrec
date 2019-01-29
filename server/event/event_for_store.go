@@ -12,6 +12,7 @@ const KindName = "Event"
 type eventForStore struct {
 	ID                string
 	PrevID            string
+	UserID            string
 	WorkID            string
 	Action            Action
 	CreatedAt         time.Time
@@ -23,6 +24,7 @@ func (es eventForStore) toEvent() (Event, error) {
 	if err := UnmarshalPb(es.PbSerializedValue, &e); err != nil {
 		return Event{}, err
 	}
+	e.UserID = es.UserID
 	return e, nil
 }
 
@@ -52,6 +54,7 @@ func (e *Event) Save() ([]datastore.Property, error) {
 	return []datastore.Property{
 		{Name: "ID", Value: e.ID},
 		{Name: "PrevID", Value: e.PrevID},
+		{Name: "UserID", Value: e.UserID},
 		{Name: "WorkID", Value: e.WorkID},
 		{Name: "Action", Value: int64(e.Action)},
 		{Name: "CreatedAt", Value: e.CreatedAt},

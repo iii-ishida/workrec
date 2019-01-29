@@ -36,18 +36,18 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // GetWorks mocks base method
-func (m *MockStore) GetWorks(pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
+func (m *MockStore) GetWorks(userID string, pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWorks", pageSize, pageToken, dst)
+	ret := m.ctrl.Call(m, "GetWorks", userID, pageSize, pageToken, dst)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetWorks indicates an expected call of GetWorks
-func (mr *MockStoreMockRecorder) GetWorks(pageSize, pageToken, dst interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) GetWorks(userID, pageSize, pageToken, dst interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorks", reflect.TypeOf((*MockStore)(nil).GetWorks), pageSize, pageToken, dst)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorks", reflect.TypeOf((*MockStore)(nil).GetWorks), userID, pageSize, pageToken, dst)
 }
 
 // GetWork mocks base method
@@ -121,18 +121,18 @@ func (mr *MockStoreMockRecorder) PutLastConstructedAt(l interface{}) *gomock.Cal
 }
 
 // GetEvents mocks base method
-func (m *MockStore) GetEvents(lastConstructedAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (string, error) {
+func (m *MockStore) GetEvents(userID string, lastConstructedAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetEvents", lastConstructedAt, pageSize, pageToken, dst)
+	ret := m.ctrl.Call(m, "GetEvents", userID, lastConstructedAt, pageSize, pageToken, dst)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetEvents indicates an expected call of GetEvents
-func (mr *MockStoreMockRecorder) GetEvents(lastConstructedAt, pageSize, pageToken, dst interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) GetEvents(userID, lastConstructedAt, pageSize, pageToken, dst interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEvents", reflect.TypeOf((*MockStore)(nil).GetEvents), lastConstructedAt, pageSize, pageToken, dst)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEvents", reflect.TypeOf((*MockStore)(nil).GetEvents), userID, lastConstructedAt, pageSize, pageToken, dst)
 }
 
 // Close mocks base method

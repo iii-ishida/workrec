@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/iii-ishida/workrec/server/auth"
 	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/util"
 	"github.com/iii-ishida/workrec/server/worklist"
@@ -19,15 +20,18 @@ import (
 const defaultPageSize = 50
 
 // NewRouter returns the command http handler.
-func NewRouter() http.Handler {
+func NewRouter(userIDGetter auth.UserIDGetter) http.Handler {
 	r := chi.NewRouter()
 
 	cors := cors.New(cors.Options{
 		AllowedOrigins: []string{util.GetClientOrigin()},
 		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "X-CSRF-Token"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 	r.Use(cors.Handler)
+
+	a := auth.New(auth.Dependency{UserIDGetter: userIDGetter})
+	r.Use(a.Handler)
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/works", getWorkList)
@@ -53,7 +57,9 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	}
 	defer q.Close()
 
-	if err := q.ConstructWorks(); err != nil {
+	userID := auth.GetUserID(r.Context())
+
+	if err := q.ConstructWorks(userID); err != nil {
 		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -65,7 +71,8 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	}
 	pageToken := r.URL.Query().Get("page_token")
 
-	list, err := q.Get(worklist.Param{PageSize: pageSize, PageToken: pageToken})
+	list, err := q.Get(userID, worklist.Param{PageSize: pageSize, PageToken: pageToken})
+
 	if err != nil {
 		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -101,7 +108,9 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := cmd.CreateWork(command.CreateWorkParam{Title: param.Title})
+	userID := auth.GetUserID(r.Context())
+	id, err := cmd.CreateWork(userID, command.CreateWorkParam{Title: param.Title})
+
 	if err != nil {
 		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -129,8 +138,9 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := auth.GetUserID(r.Context())
 	workID := chi.URLParam(r, "workID")
-	err = cmd.UpdateWork(workID, command.UpdateWorkParam{Title: param.Title})
+	err = cmd.UpdateWork(userID, workID, command.UpdateWorkParam{Title: param.Title})
 
 	if _, ok := err.(command.ValidationError); ok {
 		log.Printf("error: %s", err.Error())
@@ -158,8 +168,9 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 	}
 	defer cmd.Close()
 
+	userID := auth.GetUserID(r.Context())
 	workID := chi.URLParam(r, "workID")
-	err = cmd.DeleteWork(workID)
+	err = cmd.DeleteWork(userID, workID)
 
 	if err == command.ErrNotfound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -193,7 +204,7 @@ func cancelFinishWork(w http.ResponseWriter, r *http.Request) {
 	changeWorkState(w, r, command.Command.CancelFinishWork)
 }
 
-type changeWorkStateFunc func(command.Command, string, command.ChangeWorkStateParam) error
+type changeWorkStateFunc func(command.Command, string, string, command.ChangeWorkStateParam) error
 
 func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateFunc) {
 	cmd, err := newCmd(r)
@@ -219,8 +230,9 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 		return
 	}
 
+	userID := auth.GetUserID(r.Context())
 	workID := chi.URLParam(r, "workID")
-	err = fn(cmd, workID, command.ChangeWorkStateParam{Time: paramTime})
+	err = fn(cmd, userID, workID, command.ChangeWorkStateParam{Time: paramTime})
 
 	if _, ok := err.(command.ValidationError); ok {
 		log.Printf("error: %s", err.Error())

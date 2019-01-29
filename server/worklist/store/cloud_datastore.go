@@ -30,10 +30,10 @@ func NewCloudDataStore(r *http.Request) (CloudDataStore, error) {
 }
 
 // GetWorks loads the works stored into dst.
-func (s CloudDataStore) GetWorks(pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
+func (s CloudDataStore) GetWorks(userID string, pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
 	var ws []model.WorkListItem
 
-	q := datastore.NewQuery(model.KindNameWork).Order("-CreatedAt").Limit(pageSize)
+	q := datastore.NewQuery(model.KindNameWork).Order("UserID").Order("-CreatedAt").Filter("UserID=", userID).Limit(pageSize)
 	if cursor, err := datastore.DecodeCursor(pageToken); err == nil {
 		q = q.Start(cursor)
 	}
@@ -92,10 +92,10 @@ func (s CloudDataStore) DeleteWork(id string) error {
 }
 
 // GetEvents loads the events stored into dst.
-func (s CloudDataStore) GetEvents(createdAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (string, error) {
+func (s CloudDataStore) GetEvents(userID string, createdAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (string, error) {
 	var events []event.Event
 
-	q := datastore.NewQuery(event.KindName).Order("CreatedAt").Filter("CreatedAt>", createdAt).Limit(pageSize)
+	q := datastore.NewQuery(event.KindName).Order("UserID").Order("CreatedAt").Filter("UserID=", userID).Filter("CreatedAt>", createdAt).Limit(pageSize)
 	if cursor, err := datastore.DecodeCursor(pageToken); err == nil {
 		q = q.Start(cursor)
 	}

@@ -16,7 +16,7 @@ var DefaultPageSize = 50
 
 // Store is a repository for the worklist.
 type Store interface {
-	GetWorks(pageSize int, pageToken string, dst *[]model.WorkListItem) (nextPageToken string, err error)
+	GetWorks(userID string, pageSize int, pageToken string, dst *[]model.WorkListItem) (nextPageToken string, err error)
 	GetWork(id string, dst *model.WorkListItem) error
 	PutWork(w model.WorkListItem) error
 	DeleteWork(id string) error
@@ -24,7 +24,7 @@ type Store interface {
 	GetLastConstructedAt(id string, dst *model.LastConstructedAt) error
 	PutLastConstructedAt(l model.LastConstructedAt) error
 
-	GetEvents(lastConstructedAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (nextPageToken string, err error)
+	GetEvents(userID string, lastConstructedAt time.Time, pageSize int, pageToken string, dst *[]event.Event) (nextPageToken string, err error)
 
 	Close() error
 }

@@ -40,9 +40,9 @@ type Param struct {
 }
 
 // Get returns a work list.
-func (q Query) Get(param Param) (model.WorkList, error) {
+func (q Query) Get(userID string, param Param) (model.WorkList, error) {
 	var works []model.WorkListItem
-	nextPageToken, err := q.dep.Store.GetWorks(param.PageSize, param.PageToken, &works)
+	nextPageToken, err := q.dep.Store.GetWorks(userID, param.PageSize, param.PageToken, &works)
 
 	if err != nil {
 		return model.WorkList{}, err
@@ -55,9 +55,9 @@ func (q Query) Get(param Param) (model.WorkList, error) {
 }
 
 // ConstructWorks constructs works from events.
-func (q Query) ConstructWorks() error {
+func (q Query) ConstructWorks(userID string) error {
 	var lastConstructedAt model.LastConstructedAt
-	if err := q.dep.Store.GetLastConstructedAt(model.LastConstructedAtID, &lastConstructedAt); err != nil {
+	if err := q.dep.Store.GetLastConstructedAt(userID, &lastConstructedAt); err != nil {
 		if err != store.ErrNotfound {
 			return err
 		}
@@ -70,7 +70,7 @@ func (q Query) ConstructWorks() error {
 	)
 	for {
 		var events []event.Event
-		pageToken, err = q.dep.Store.GetEvents(lastConstructedAt.Time, pageSize, pageToken, &events)
+		pageToken, err = q.dep.Store.GetEvents(userID, lastConstructedAt.Time, pageSize, pageToken, &events)
 
 		if err != nil {
 			return err
@@ -82,7 +82,7 @@ func (q Query) ConstructWorks() error {
 
 		if pageToken == "" {
 			if len(events) != 0 {
-				lastConstructedAt.ID = model.LastConstructedAtID
+				lastConstructedAt.ID = userID
 				lastConstructedAt.Time = events[len(events)-1].CreatedAt
 				err = q.dep.Store.PutLastConstructedAt(lastConstructedAt)
 				if err != nil {

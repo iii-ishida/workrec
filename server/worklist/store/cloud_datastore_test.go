@@ -15,8 +15,9 @@ import (
 
 func TestGetEvents(t *testing.T) {
 	var (
-		r, _ = http.NewRequest("GET", "/", nil)
-		s, _ = store.NewCloudDataStore(r)
+		r, _   = http.NewRequest("GET", "/", nil)
+		s, _   = store.NewCloudDataStore(r)
+		userID = "some-userid"
 	)
 	defer s.Close()
 
@@ -27,10 +28,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
 			}
 
 			lastConstructedAt = fixtureEvents[1].CreatedAt
@@ -39,7 +40,7 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var gotEvents []event.Event
-		s.GetEvents(lastConstructedAt, pageSize, "", &gotEvents)
+		s.GetEvents(userID, lastConstructedAt, pageSize, "", &gotEvents)
 
 		if l := len(gotEvents); l != 2 {
 			t.Errorf("len(gotEvents) = %d, wants = 2", l)
@@ -58,10 +59,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "number-3", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "number-1", CreatedAt: now.Add(0 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "number-2", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "number-4", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "number-3", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "number-1", CreatedAt: now.Add(0 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "number-2", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "number-4", CreatedAt: now.Add(3 * time.Second)},
 			}
 
 			oldestEvent       = fixtureEvents[1]
@@ -71,7 +72,7 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var gotEvents []event.Event
-		s.GetEvents(lastConstructedAt, pageSize, "", &gotEvents)
+		s.GetEvents(userID, lastConstructedAt, pageSize, "", &gotEvents)
 
 		if !gotEvents[0].CreatedAt.Equal(oldestEvent.CreatedAt) {
 			t.Errorf("gotEvents[0] = %s, wants = %s", gotEvents[0].Title, oldestEvent.Title)
@@ -95,10 +96,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
 			}
 			oldestEvent       = fixtureEvents[0]
 			lastConstructedAt = now.Add(-1 * time.Second)
@@ -107,7 +108,7 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var gotEvents []event.Event
-		s.GetEvents(lastConstructedAt, pageSize, "", &gotEvents)
+		s.GetEvents(userID, lastConstructedAt, pageSize, "", &gotEvents)
 
 		if gotEvents[0].ID != oldestEvent.ID {
 			t.Errorf("gotEvents[0] = %s, wants = %s", gotEvents[0].Title, oldestEvent.Title)
@@ -121,10 +122,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
 			}
 			secondPageEvent   = fixtureEvents[2]
 			lastConstructedAt = now.Add(-1 * time.Second)
@@ -133,10 +134,10 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var tmp []event.Event
-		pageToken, _ := s.GetEvents(lastConstructedAt, pageSize, "", &tmp)
+		pageToken, _ := s.GetEvents(userID, lastConstructedAt, pageSize, "", &tmp)
 
 		var gotEvents []event.Event
-		s.GetEvents(lastConstructedAt, pageSize, pageToken, &gotEvents)
+		s.GetEvents(userID, lastConstructedAt, pageSize, pageToken, &gotEvents)
 
 		if gotEvents[0].ID != secondPageEvent.ID {
 			t.Errorf("gotEvents[0] = %s, wants = %s", gotEvents[0].Title, secondPageEvent.Title)
@@ -150,10 +151,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
 			}
 			lastConstructedAt = now.Add(-1 * time.Second)
 			pageSize          = len(fixtureEvents) - 1
@@ -161,7 +162,7 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var gotEvents []event.Event
-		pageToken, _ := s.GetEvents(lastConstructedAt, pageSize, "", &gotEvents)
+		pageToken, _ := s.GetEvents(userID, lastConstructedAt, pageSize, "", &gotEvents)
 
 		t.Run("pageSizeと同じ件数取得されること", func(t *testing.T) {
 			if l := len(gotEvents); l != pageSize {
@@ -183,10 +184,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
 			}
 			lastConstructedAt = now.Add(-1 * time.Second)
 			pageSize          = len(fixtureEvents)
@@ -194,7 +195,7 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var gotEvents []event.Event
-		pageToken, _ := s.GetEvents(lastConstructedAt, pageSize, "", &gotEvents)
+		pageToken, _ := s.GetEvents(userID, lastConstructedAt, pageSize, "", &gotEvents)
 
 		t.Run("pageSizeと同じ件数取得されること", func(t *testing.T) {
 			if l := len(gotEvents); l != pageSize {
@@ -216,10 +217,10 @@ func TestGetEvents(t *testing.T) {
 			now = time.Now().Truncate(time.Millisecond)
 
 			fixtureEvents = []event.Event{
-				{ID: util.NewUUID(), WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-1", Action: event.CreateWork, Title: "some title 01", CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-2", Action: event.CreateWork, Title: "some title 02", CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-3", Action: event.CreateWork, Title: "some title 03", CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: "workid-4", Action: event.CreateWork, Title: "some title 04", CreatedAt: now.Add(4 * time.Second)},
 			}
 			lastConstructedAt = now.Add(-1 * time.Second)
 			pageSize          = len(fixtureEvents) + 1
@@ -227,7 +228,7 @@ func TestGetEvents(t *testing.T) {
 		putEvents(r, fixtureEvents)
 
 		var gotEvents []event.Event
-		pageToken, _ := s.GetEvents(lastConstructedAt, pageSize, "", &gotEvents)
+		pageToken, _ := s.GetEvents(userID, lastConstructedAt, pageSize, "", &gotEvents)
 
 		t.Run("データ件数と同じ件数取得されること", func(t *testing.T) {
 			eventSize := len(fixtureEvents)
@@ -246,8 +247,9 @@ func TestGetEvents(t *testing.T) {
 
 func TestGetWorks(t *testing.T) {
 	var (
-		r, _ = http.NewRequest("GET", "/", nil)
-		s, _ = store.NewCloudDataStore(r)
+		r, _   = http.NewRequest("GET", "/", nil)
+		s, _   = store.NewCloudDataStore(r)
+		userID = "some-userid"
 	)
 	defer s.Close()
 
@@ -259,10 +261,10 @@ func TestGetWorks(t *testing.T) {
 			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: "workid-1", Title: "number-3", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
-				{ID: "workid-2", Title: "number-1", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
-				{ID: "workid-3", Title: "number-2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
-				{ID: "workid-4", Title: "number-4", State: model.Started, CreatedAt: now.Add(0 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: "workid-1", Title: "number-3", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: "workid-2", Title: "number-1", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: "workid-3", Title: "number-2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: "workid-4", Title: "number-4", State: model.Started, CreatedAt: now.Add(0 * time.Second), UpdatedAt: updatedAt},
 			}
 			latestWork = fixtureWorks[1]
 			pageSize   = len(fixtureWorks)
@@ -270,7 +272,7 @@ func TestGetWorks(t *testing.T) {
 		putWorks(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		s.GetWorks(pageSize, "", &gotWorks)
+		s.GetWorks(userID, pageSize, "", &gotWorks)
 
 		if !gotWorks[0].CreatedAt.Equal(latestWork.CreatedAt) {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, latestWork.Title)
@@ -294,10 +296,10 @@ func TestGetWorks(t *testing.T) {
 			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize   = len(fixtureWorks)
 			latestWork = fixtureWorks[pageSize-1]
@@ -305,7 +307,7 @@ func TestGetWorks(t *testing.T) {
 		putWorks(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		s.GetWorks(pageSize, "", &gotWorks)
+		s.GetWorks(userID, pageSize, "", &gotWorks)
 
 		if gotWorks[0].ID != latestWork.ID {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, latestWork.Title)
@@ -320,10 +322,10 @@ func TestGetWorks(t *testing.T) {
 			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize       = 2
 			secondPageWork = fixtureWorks[1]
@@ -331,10 +333,10 @@ func TestGetWorks(t *testing.T) {
 		putWorks(r, fixtureWorks)
 
 		var tmp []model.WorkListItem
-		pageToken, _ := s.GetWorks(pageSize, "", &tmp)
+		pageToken, _ := s.GetWorks(userID, pageSize, "", &tmp)
 
 		var gotWorks []model.WorkListItem
-		s.GetWorks(pageSize, pageToken, &gotWorks)
+		s.GetWorks(userID, pageSize, pageToken, &gotWorks)
 
 		if gotWorks[0].ID != secondPageWork.ID {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, secondPageWork.Title)
@@ -349,17 +351,17 @@ func TestGetWorks(t *testing.T) {
 			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize = len(fixtureWorks) - 1
 		)
 		putWorks(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		pageToken, _ := s.GetWorks(pageSize, "", &gotWorks)
+		pageToken, _ := s.GetWorks(userID, pageSize, "", &gotWorks)
 
 		t.Run("pageSizeと同じ件数取得されること", func(t *testing.T) {
 			if l := len(gotWorks); l != pageSize {
@@ -382,17 +384,17 @@ func TestGetWorks(t *testing.T) {
 			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize = len(fixtureWorks)
 		)
 		putWorks(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		pageToken, _ := s.GetWorks(pageSize, "", &gotWorks)
+		pageToken, _ := s.GetWorks(userID, pageSize, "", &gotWorks)
 
 		t.Run("pageSizeと同じ件数取得されること", func(t *testing.T) {
 			if l := len(gotWorks); l != pageSize {
@@ -415,17 +417,17 @@ func TestGetWorks(t *testing.T) {
 			updatedAt = now.Add(5 * time.Second)
 
 			fixtureWorks = []model.WorkListItem{
-				{ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
-				{ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 1", State: model.Started, CreatedAt: now.Add(1 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 2", State: model.Started, CreatedAt: now.Add(2 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 3", State: model.Started, CreatedAt: now.Add(3 * time.Second), UpdatedAt: updatedAt},
+				{UserID: userID, ID: util.NewUUID(), Title: "some title 4", State: model.Started, CreatedAt: now.Add(4 * time.Second), UpdatedAt: updatedAt},
 			}
 			pageSize = len(fixtureWorks) + 1
 		)
 		putWorks(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		pageToken, _ := s.GetWorks(pageSize, "", &gotWorks)
+		pageToken, _ := s.GetWorks(userID, pageSize, "", &gotWorks)
 
 		t.Run("データ件数と同じ件数取得されること", func(t *testing.T) {
 			workSize := len(fixtureWorks)
@@ -586,6 +588,7 @@ func getWork(r *http.Request, id string) model.WorkListItem {
 
 func newWork() model.WorkListItem {
 	return model.WorkListItem{
+		UserID:    util.NewUUID(),
 		ID:        util.NewUUID(),
 		Title:     "Some Title",
 		State:     model.Unstarted,

@@ -10,6 +10,7 @@ import (
 const KindNameWork = "WorkListItem"
 
 type workForStore struct {
+	UserID            string
 	ID                string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
@@ -21,6 +22,7 @@ func (w workForStore) toWork() (WorkListItem, error) {
 	if err := UnmarshalWorkListItemPb(w.PbSerializedValue, &work); err != nil {
 		return WorkListItem{}, err
 	}
+	work.UserID = w.UserID
 	return work, nil
 }
 
@@ -48,6 +50,7 @@ func (w *WorkListItem) Save() ([]datastore.Property, error) {
 	}
 
 	return []datastore.Property{
+		{Name: "UserID", Value: w.UserID},
 		{Name: "ID", Value: w.ID},
 		{Name: "CreatedAt", Value: w.CreatedAt},
 		{Name: "UpdatedAt", Value: w.UpdatedAt},

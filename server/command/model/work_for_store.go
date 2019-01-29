@@ -11,6 +11,7 @@ const KindNameWork = "CommandWork"
 
 type workForStore struct {
 	ID                string
+	UserID            string
 	UpdatedAt         time.Time
 	PbSerializedValue []byte `datastore:",noindex"`
 }
@@ -20,6 +21,7 @@ func (w workForStore) toWork() (Work, error) {
 	if err := UnmarshalWorkPb(w.PbSerializedValue, &work); err != nil {
 		return Work{}, err
 	}
+	work.UserID = w.UserID
 	return work, nil
 }
 
@@ -48,6 +50,7 @@ func (w *Work) Save() ([]datastore.Property, error) {
 
 	return []datastore.Property{
 		{Name: "ID", Value: w.ID},
+		{Name: "UserID", Value: w.UserID},
 		{Name: "UpdatedAt", Value: w.UpdatedAt},
 		{Name: "PbSerializedValue", Value: pbSerializedValue, NoIndex: true},
 	}, nil

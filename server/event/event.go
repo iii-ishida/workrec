@@ -9,6 +9,7 @@ import (
 type Event struct {
 	ID        string
 	PrevID    string
+	UserID    string
 	WorkID    string
 	Action    Action
 	Title     string

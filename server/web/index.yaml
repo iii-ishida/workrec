@@ -1,0 +1,12 @@
+indexes:
+
+- kind: Event
+  properties:
+  - name: UserID
+  - name: CreatedAt
+
+- kind: WorkListItem
+  properties:
+  - name: UserID
+  - name: CreatedAt
+    direction: desc

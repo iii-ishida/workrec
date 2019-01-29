@@ -13,15 +13,19 @@ import (
 func TestApplyEventsToWork(t *testing.T) {
 	var (
 		now    = time.Now()
+		userID = "some-userid"
 		workID = "workid-1"
 	)
 
 	t.Run("CreateWork", func(t *testing.T) {
 		title := "some title"
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: title, CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: title, CreatedAt: now},
 		})
 
+		if work.UserID != userID {
+			t.Errorf("UserID = %s, wants = %s", work.UserID, userID)
+		}
 		if work.ID != workID {
 			t.Errorf("ID = %s, wants = %s", work.ID, workID)
 		}
@@ -56,8 +60,8 @@ func TestApplyEventsToWork(t *testing.T) {
 		updatedAt := now.Add(1 * time.Second)
 
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.UpdateWork, Title: updatedTitle, CreatedAt: updatedAt},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.UpdateWork, Title: updatedTitle, CreatedAt: updatedAt},
 		})
 
 		if work.Title != updatedTitle {
@@ -73,8 +77,8 @@ func TestApplyEventsToWork(t *testing.T) {
 
 	t.Run("DeleteWork", func(t *testing.T) {
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.DeleteWork, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.DeleteWork, CreatedAt: now.Add(1 * time.Second)},
 		})
 
 		if !work.IsDeleted {
@@ -87,8 +91,8 @@ func TestApplyEventsToWork(t *testing.T) {
 		updatedAt := now.Add(1 * time.Second)
 
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: updatedAt},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Started {
@@ -115,9 +119,9 @@ func TestApplyEventsToWork(t *testing.T) {
 		updatedAt := now.Add(2 * time.Second)
 
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: updatedAt},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Paused {
@@ -143,10 +147,10 @@ func TestApplyEventsToWork(t *testing.T) {
 		updatedAt := now.Add(3 * time.Second)
 
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: updatedAt},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Resumed {
@@ -173,11 +177,11 @@ func TestApplyEventsToWork(t *testing.T) {
 		updatedAt := now.Add(4 * time.Second)
 
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Finished {
@@ -192,9 +196,9 @@ func TestApplyEventsToWork(t *testing.T) {
 
 		t.Run("StartからFinishの場合はPausedAtを設定すること", func(t *testing.T) {
 			work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-				{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
 			})
 
 			if !work.PausedAt.Equal(finishTime) {
@@ -204,10 +208,10 @@ func TestApplyEventsToWork(t *testing.T) {
 
 		t.Run("PauseからFinishの場合はPausedAtを更新しないこと", func(t *testing.T) {
 			work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-				{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
 			})
 
 			if !work.PausedAt.Equal(pauseTime) {
@@ -217,11 +221,11 @@ func TestApplyEventsToWork(t *testing.T) {
 
 		t.Run("ResumeからFinishの場合はPausedAtを設定すること", func(t *testing.T) {
 			work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-				{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
-				{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+				{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: updatedAt},
 			})
 
 			if !work.PausedAt.Equal(finishTime) {
@@ -241,12 +245,12 @@ func TestApplyEventsToWork(t *testing.T) {
 		updatedAt := now.Add(5 * time.Second)
 
 		work := model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: now.Add(4 * time.Second)},
-			{ID: util.NewUUID(), WorkID: workID, Action: event.CancelFinishWork, Time: cancelFinishTime, CreatedAt: updatedAt},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.FinishWork, Time: finishTime, CreatedAt: now.Add(4 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: workID, Action: event.CancelFinishWork, Time: cancelFinishTime, CreatedAt: updatedAt},
 		})
 
 		if work.State != model.Paused {
@@ -267,6 +271,7 @@ func TestApplyEventsToWork(t *testing.T) {
 func TestCalculateBaseWorkingTime(t *testing.T) {
 	var (
 		now           = time.Now()
+		userID        = "some-userid"
 		startTime, _  = time.Parse(time.RFC3339, "2019-01-08T09:30:00Z")
 		pauseTime, _  = time.Parse(time.RFC3339, "2019-01-08T12:00:00Z")
 		resumeTime, _ = time.Parse(time.RFC3339, "2019-01-08T13:00:00Z")
@@ -276,10 +281,10 @@ func TestCalculateBaseWorkingTime(t *testing.T) {
 		expectedWorkingTimeInMinute = 7.5 * 60.0
 
 		work = model.ApplyEventsToWork(model.WorkListItem{}, []event.Event{
-			{ID: util.NewUUID(), WorkID: "workID", Action: event.CreateWork, Title: "some title", CreatedAt: now},
-			{ID: util.NewUUID(), WorkID: "workID", Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
-			{ID: util.NewUUID(), WorkID: "workID", Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
-			{ID: util.NewUUID(), WorkID: "workID", Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: "workID", Action: event.CreateWork, Title: "some title", CreatedAt: now},
+			{ID: util.NewUUID(), UserID: userID, WorkID: "workID", Action: event.StartWork, Time: startTime, CreatedAt: now.Add(1 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: "workID", Action: event.PauseWork, Time: pauseTime, CreatedAt: now.Add(2 * time.Second)},
+			{ID: util.NewUUID(), UserID: userID, WorkID: "workID", Action: event.ResumeWork, Time: resumeTime, CreatedAt: now.Add(3 * time.Second)},
 		})
 
 		workingTimeInMinute = observedAt.Sub(work.BaseWorkingTime).Minutes()

@@ -39,8 +39,13 @@ func (v ValidationError) Error() string {
 	return string(v)
 }
 
-// ErrNotfound is error for the notfound.
-var ErrNotfound = errors.New("not found")
+var (
+	// ErrNotfound is error for the notfound.
+	ErrNotfound = errors.New("not found")
+
+	// ErrUnauthorized is error for the Unauthorized.
+	ErrUnauthorized = errors.New("unauthorized")
+)
 
 // CreateWorkParam is a param for CreateWork.
 type CreateWorkParam struct {
@@ -48,7 +53,11 @@ type CreateWorkParam struct {
 }
 
 // CreateWork creates a work and returns the created work id.
-func (c Command) CreateWork(param CreateWorkParam) (string, error) {
+func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error) {
+	if userID == "" {
+		return "", ErrUnauthorized
+	}
+
 	now := time.Now()
 
 	var ret string
@@ -59,6 +68,7 @@ func (c Command) CreateWork(param CreateWorkParam) (string, error) {
 		e := event.Event{
 			ID:        eventID,
 			PrevID:    "",
+			UserID:    userID,
 			WorkID:    workID,
 			Action:    event.CreateWork,
 			Title:     param.Title,
@@ -71,6 +81,7 @@ func (c Command) CreateWork(param CreateWorkParam) (string, error) {
 		w := model.Work{
 			ID:        workID,
 			EventID:   eventID,
+			UserID:    userID,
 			Title:     param.Title,
 			Time:      time.Time{},
 			State:     model.Unstarted,
@@ -97,7 +108,7 @@ type UpdateWorkParam struct {
 }
 
 // UpdateWork updates the work.
-func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
+func (c Command) UpdateWork(userID, workID string, param UpdateWorkParam) error {
 	now := time.Now()
 
 	return c.dep.Store.RunInTransaction(func(s store.Store) error {
@@ -109,11 +120,16 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 			return err
 		}
 
+		if source.UserID != userID {
+			return ErrUnauthorized
+		}
+
 		eventID := util.NewUUID()
 
 		e := event.Event{
 			ID:        eventID,
 			PrevID:    source.EventID,
+			UserID:    userID,
 			WorkID:    source.ID,
 			Action:    event.UpdateWork,
 			Title:     param.Title,
@@ -126,6 +142,7 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 		w := model.Work{
 			ID:        source.ID,
 			EventID:   eventID,
+			UserID:    source.UserID,
 			Title:     param.Title,
 			Time:      source.Time,
 			State:     source.State,
@@ -140,7 +157,7 @@ func (c Command) UpdateWork(workID string, param UpdateWorkParam) error {
 }
 
 // DeleteWork deletes the work.
-func (c Command) DeleteWork(workID string) error {
+func (c Command) DeleteWork(userID, workID string) error {
 	now := time.Now()
 
 	return c.dep.Store.RunInTransaction(func(s store.Store) error {
@@ -152,11 +169,16 @@ func (c Command) DeleteWork(workID string) error {
 			return err
 		}
 
+		if source.UserID != userID {
+			return ErrUnauthorized
+		}
+
 		eventID := util.NewUUID()
 
 		e := event.Event{
 			ID:        eventID,
 			PrevID:    source.EventID,
+			UserID:    userID,
 			WorkID:    source.ID,
 			Action:    event.DeleteWork,
 			CreatedAt: now,
@@ -180,8 +202,8 @@ type ChangeWorkStateParam struct {
 }
 
 // StartWork starts the work.
-func (c Command) StartWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, event.StartWork, func(source model.Work) error {
+func (c Command) StartWork(userID, workID string, param ChangeWorkStateParam) error {
+	return c.changeWorkState(userID, workID, param, event.StartWork, func(source model.Work) error {
 		switch source.State {
 		case model.Unstarted:
 			return nil
@@ -192,8 +214,8 @@ func (c Command) StartWork(workID string, param ChangeWorkStateParam) error {
 }
 
 // PauseWork pauses the work.
-func (c Command) PauseWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, event.PauseWork, func(source model.Work) error {
+func (c Command) PauseWork(userID, workID string, param ChangeWorkStateParam) error {
+	return c.changeWorkState(userID, workID, param, event.PauseWork, func(source model.Work) error {
 		switch source.State {
 		case model.Started, model.Resumed:
 			return nil
@@ -204,8 +226,8 @@ func (c Command) PauseWork(workID string, param ChangeWorkStateParam) error {
 }
 
 // ResumeWork resumes the work.
-func (c Command) ResumeWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, event.ResumeWork, func(source model.Work) error {
+func (c Command) ResumeWork(userID, workID string, param ChangeWorkStateParam) error {
+	return c.changeWorkState(userID, workID, param, event.ResumeWork, func(source model.Work) error {
 		switch source.State {
 		case model.Paused:
 			return nil
@@ -216,8 +238,8 @@ func (c Command) ResumeWork(workID string, param ChangeWorkStateParam) error {
 }
 
 // FinishWork finishes the work.
-func (c Command) FinishWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, event.FinishWork, func(source model.Work) error {
+func (c Command) FinishWork(userID, workID string, param ChangeWorkStateParam) error {
+	return c.changeWorkState(userID, workID, param, event.FinishWork, func(source model.Work) error {
 		switch source.State {
 		case model.Started, model.Paused, model.Resumed:
 			return nil
@@ -228,8 +250,8 @@ func (c Command) FinishWork(workID string, param ChangeWorkStateParam) error {
 }
 
 // CancelFinishWork cancels the finish state for the work.
-func (c Command) CancelFinishWork(workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(workID, param, event.CancelFinishWork, func(source model.Work) error {
+func (c Command) CancelFinishWork(userID, workID string, param ChangeWorkStateParam) error {
+	return c.changeWorkState(userID, workID, param, event.CancelFinishWork, func(source model.Work) error {
 		switch source.State {
 		case model.Finished:
 			return nil
@@ -239,7 +261,7 @@ func (c Command) CancelFinishWork(workID string, param ChangeWorkStateParam) err
 	})
 }
 
-func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, eventAction event.Action, validationFunc func(model.Work) error) error {
+func (c Command) changeWorkState(userID, workID string, param ChangeWorkStateParam, eventAction event.Action, validationFunc func(model.Work) error) error {
 	now := time.Now()
 
 	return c.dep.Store.RunInTransaction(func(s store.Store) error {
@@ -249,6 +271,10 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 				return ErrNotfound
 			}
 			return err
+		}
+
+		if source.UserID != userID {
+			return ErrUnauthorized
 		}
 
 		if source.Time.After(param.Time) {
@@ -264,6 +290,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 		e := event.Event{
 			ID:        eventID,
 			PrevID:    source.EventID,
+			UserID:    userID,
 			WorkID:    source.ID,
 			Action:    eventAction,
 			Time:      param.Time,
@@ -276,6 +303,7 @@ func (c Command) changeWorkState(workID string, param ChangeWorkStateParam, even
 		w := model.Work{
 			ID:        source.ID,
 			EventID:   eventID,
+			UserID:    source.UserID,
 			Title:     source.Title,
 			Time:      param.Time,
 			State:     workStateFromEventAction(eventAction),

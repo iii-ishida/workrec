@@ -9,6 +9,7 @@ import (
 type Work struct {
 	ID        string
 	EventID   string
+	UserID    string
 	Title     string
 	Time      time.Time
 	State     WorkState
