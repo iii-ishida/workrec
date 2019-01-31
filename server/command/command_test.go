@@ -141,7 +141,7 @@ func TestCreateWork(t *testing.T) {
 	t.Run("登録エラー", func(t *testing.T) {
 		someErr := errors.New("Some Error")
 
-		t.Run("userIDが空文字の場合はErrUnauthorizedを返すこと", func(t *testing.T) {
+		t.Run("userIDが空文字の場合はErrForbiddenを返すこと", func(t *testing.T) {
 			var (
 				mockCtrl  = gomock.NewController(t)
 				mockStore = store.NewMockStore(mockCtrl)
@@ -150,8 +150,8 @@ func TestCreateWork(t *testing.T) {
 			defer mockCtrl.Finish()
 
 			_, err := cmd.CreateWork("", command.CreateWorkParam{Title: "Some Title"})
-			if err != command.ErrUnauthorized {
-				t.Errorf("error = %#v, wants = %#v", err, command.ErrUnauthorized)
+			if err != command.ErrForbidden {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
 			}
 		})
 
@@ -314,7 +314,7 @@ func TestUpdateWork(t *testing.T) {
 	t.Run("更新エラー", func(t *testing.T) {
 		someErr := errors.New("Some Error")
 
-		t.Run("userIDが更新前と異なる場合はErrUnauthorizedを返すこと", func(t *testing.T) {
+		t.Run("userIDが更新前と異なる場合はErrForbiddenを返すこと", func(t *testing.T) {
 			cmd, mockStoreInTran, mockCtrl := setupForCommandTesting(t)
 			defer mockCtrl.Finish()
 
@@ -323,8 +323,8 @@ func TestUpdateWork(t *testing.T) {
 			})
 
 			err := cmd.UpdateWork("anotherUserID", source.ID, command.UpdateWorkParam{Title: "Updated Title"})
-			if err != command.ErrUnauthorized {
-				t.Errorf("error = %#v, wants = %#v", err, command.ErrUnauthorized)
+			if err != command.ErrForbidden {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
 			}
 		})
 
@@ -452,7 +452,7 @@ func TestDeleteWork(t *testing.T) {
 	t.Run("削除エラー", func(t *testing.T) {
 		someErr := errors.New("Some Error")
 
-		t.Run("userIDが更新前と異なる場合はErrUnauthorizedを返すこと", func(t *testing.T) {
+		t.Run("userIDが更新前と異なる場合はErrForbiddenを返すこと", func(t *testing.T) {
 			cmd, mockStoreInTran, mockCtrl := setupForCommandTesting(t)
 			defer mockCtrl.Finish()
 
@@ -461,8 +461,8 @@ func TestDeleteWork(t *testing.T) {
 			})
 
 			err := cmd.DeleteWork("anotherUserID", source.ID)
-			if err != command.ErrUnauthorized {
-				t.Errorf("error = %#v, wants = %#v", err, command.ErrUnauthorized)
+			if err != command.ErrForbidden {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
 			}
 		})
 
@@ -800,7 +800,7 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 	t.Run(fmt.Sprintf("%sエラー", testTitle), func(t *testing.T) {
 		someErr := errors.New("Some Error")
 
-		t.Run("userIDが更新前と異なる場合はErrUnauthorizedを返すこと", func(t *testing.T) {
+		t.Run("userIDが更新前と異なる場合はErrForbiddenを返すこと", func(t *testing.T) {
 			cmd, mockStoreInTran, mockCtrl := setupForCommandTesting(t)
 			defer mockCtrl.Finish()
 
@@ -810,8 +810,8 @@ func testChangeWorkState(t *testing.T, testTitle string, testFunc changeWorkStat
 
 			err := testFunc(cmd, "anotherUserID", source.ID, command.ChangeWorkStateParam{Time: now})
 
-			if err != command.ErrUnauthorized {
-				t.Errorf("error = %#v, wants = %#v", err, command.ErrUnauthorized)
+			if err != command.ErrForbidden {
+				t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
 			}
 		})
 

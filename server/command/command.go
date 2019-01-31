@@ -43,8 +43,8 @@ var (
 	// ErrNotfound is error for the notfound.
 	ErrNotfound = errors.New("not found")
 
-	// ErrUnauthorized is error for the Unauthorized.
-	ErrUnauthorized = errors.New("unauthorized")
+	// ErrForbidden is error for the Forbidden.
+	ErrForbidden = errors.New("forbidden")
 )
 
 // CreateWorkParam is a param for CreateWork.
@@ -55,7 +55,7 @@ type CreateWorkParam struct {
 // CreateWork creates a work and returns the created work id.
 func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error) {
 	if userID == "" {
-		return "", ErrUnauthorized
+		return "", ErrForbidden
 	}
 
 	now := time.Now()
@@ -121,7 +121,7 @@ func (c Command) UpdateWork(userID, workID string, param UpdateWorkParam) error 
 		}
 
 		if source.UserID != userID {
-			return ErrUnauthorized
+			return ErrForbidden
 		}
 
 		eventID := util.NewUUID()
@@ -170,7 +170,7 @@ func (c Command) DeleteWork(userID, workID string) error {
 		}
 
 		if source.UserID != userID {
-			return ErrUnauthorized
+			return ErrForbidden
 		}
 
 		eventID := util.NewUUID()
@@ -274,7 +274,7 @@ func (c Command) changeWorkState(userID, workID string, param ChangeWorkStatePar
 		}
 
 		if source.UserID != userID {
-			return ErrUnauthorized
+			return ErrForbidden
 		}
 
 		if source.Time.After(param.Time) {
