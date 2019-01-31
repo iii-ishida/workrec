@@ -109,6 +109,11 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := auth.GetUserID(r.Context())
+	if userID == "" {
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	id, err := cmd.CreateWork(userID, command.CreateWorkParam{Title: param.Title})
 
 	if err != nil {
@@ -146,6 +151,9 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	} else if err == command.ErrForbidden {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	} else if err == command.ErrNotfound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
@@ -172,7 +180,13 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 	workID := chi.URLParam(r, "workID")
 	err = cmd.DeleteWork(userID, workID)
 
-	if err == command.ErrNotfound {
+	if err == command.ErrForbidden {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	} else if err == command.ErrForbidden {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	} else if err == command.ErrNotfound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -237,6 +251,9 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	if _, ok := err.(command.ValidationError); ok {
 		log.Printf("error: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	} else if err == command.ErrForbidden {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	} else if err == command.ErrNotfound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
