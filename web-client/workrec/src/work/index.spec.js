@@ -1,5 +1,5 @@
 import Immutable from 'immutable'
-import { WorkState } from '../api'
+import { WorkState } from 'src/api'
 import * as Work from './index.js'
 
 describe('stateText', () => {

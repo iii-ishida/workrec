@@ -1,7 +1,7 @@
 import React from 'react'
-import WorkList from '../containers/WorkList'
-import AddWork from '../containers/AddWork'
-import Login from '../components/Login'
+import WorkList from 'src/containers/WorkList'
+import AddWork from 'src/containers/AddWork'
+import Login from 'src/components/Login'
 
 const App = () => (
   <div>

@@ -1,5 +1,5 @@
-import { API_ORIGIN } from '../env';
-import { getIdToken } from '../auth';
+import { API_ORIGIN } from 'src/env';
+import { getIdToken } from 'src/auth';
 const worklist_pb = require('./pb/worklist_pb');
 const command_request_pb = require('./pb/command_request_pb');
 const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');

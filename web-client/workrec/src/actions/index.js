@@ -1,4 +1,4 @@
-import API from '../api'
+import API from 'src/api'
 
 export const RECIEVE_WORKS      = 'RECIEVE_WORKS'
 export const START_WORK         = 'START_WORK'

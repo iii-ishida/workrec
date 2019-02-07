@@ -7,9 +7,9 @@ import {
   finishWork,
   cancelFinishWork,
   deleteWork
-} from '../actions'
+} from 'src/actions'
 
-import WorkList from '../components/WorkList'
+import WorkList from 'src/components/WorkList'
 
 const mapStateToProps = state => ({
   works: state.works.get('works')

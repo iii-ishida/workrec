@@ -1,4 +1,4 @@
-import { WorkState } from '../api'
+import { WorkState } from 'src/api'
 
 const zeroPad = num => {
   return `0${num}`.slice(-2)

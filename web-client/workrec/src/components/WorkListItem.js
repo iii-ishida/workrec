@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 import Immutable from 'immutable'
 import ToggleStateButton from './ToggleStateButton'
 
-import * as Work from '../work'
-import { WorkState } from '../api'
+import * as Work from 'src/work'
+import { WorkState } from 'src/api'
 
 export default class WorkListItem extends Component {
   static propTypes = {

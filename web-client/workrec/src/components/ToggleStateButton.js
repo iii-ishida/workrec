@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
-import { WorkState } from '../api'
+import { WorkState } from 'src/api'
 
 const nextWorkState = (state) => {
   switch (state) {
