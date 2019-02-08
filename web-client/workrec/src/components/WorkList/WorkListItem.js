@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
-import ToggleStateButton from './ToggleStateButton'
+import ToggleStateButton from 'src/components/ToggleStateButton'
 
 import * as Work from 'src/work'
 import { WorkState } from 'src/api'
