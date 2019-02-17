@@ -65,6 +65,21 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("Get#Error", func(t *testing.T) {
+		t.Run("userIDが空文字の場合はErrForbiddenを返すこと", func(t *testing.T) {
+			var (
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+				param     = worklist.Param{}
+			)
+			defer mockCtrl.Finish()
+
+			_, err := query.Get("", param)
+			if err != worklist.ErrForbidden {
+				t.Errorf("error = %#v, wants = %#v", err, worklist.ErrForbidden)
+			}
+		})
+
 		t.Run("Store#GetWorksがエラーになった場合はerrorを返すこと", func(t *testing.T) {
 			var (
 				mockCtrl  = gomock.NewController(t)
@@ -164,6 +179,20 @@ func TestConstructWorks(t *testing.T) {
 
 	t.Run("ConstructWorks#Error", func(t *testing.T) {
 		someErr := errors.New("Some Error")
+
+		t.Run("userIDが空文字の場合はErrForbiddenを返すこと", func(t *testing.T) {
+			var (
+				mockCtrl  = gomock.NewController(t)
+				mockStore = store.NewMockStore(mockCtrl)
+				query     = worklist.NewQuery(worklist.Dependency{Store: mockStore})
+			)
+			defer mockCtrl.Finish()
+
+			err := query.ConstructWorks("")
+			if err != worklist.ErrForbidden {
+				t.Errorf("error = %#v, wants = %#v", err, worklist.ErrForbidden)
+			}
+		})
 
 		t.Run("Store#GetLastConstructedAtがエラーになった場合はerrorを返すこと", func(t *testing.T) {
 			var (

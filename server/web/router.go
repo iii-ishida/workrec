@@ -60,6 +60,11 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	userID := auth.GetUserID(r.Context())
 
 	if err := q.ConstructWorks(userID); err != nil {
+		if err == worklist.ErrForbidden {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+
 		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -74,6 +79,11 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	list, err := q.Get(userID, worklist.Param{PageSize: pageSize, PageToken: pageToken})
 
 	if err != nil {
+		if err == worklist.ErrForbidden {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+
 		log.Printf("error: %s", err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

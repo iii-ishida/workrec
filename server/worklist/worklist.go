@@ -1,12 +1,16 @@
 package worklist
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/worklist/model"
 	"github.com/iii-ishida/workrec/server/worklist/store"
 )
+
+// ErrForbidden is error for the Forbidden.
+var ErrForbidden = errors.New("forbidden")
 
 // Dependency is a dependency for the worklist.
 type Dependency struct {
@@ -41,6 +45,10 @@ type Param struct {
 
 // Get returns a work list.
 func (q Query) Get(userID string, param Param) (model.WorkList, error) {
+	if userID == "" {
+		return model.WorkList{}, ErrForbidden
+	}
+
 	var works []model.WorkListItem
 	nextPageToken, err := q.dep.Store.GetWorks(userID, param.PageSize, param.PageToken, &works)
 
@@ -56,6 +64,10 @@ func (q Query) Get(userID string, param Param) (model.WorkList, error) {
 
 // ConstructWorks constructs works from events.
 func (q Query) ConstructWorks(userID string) error {
+	if userID == "" {
+		return ErrForbidden
+	}
+
 	var lastConstructedAt model.LastConstructedAt
 	if err := q.dep.Store.GetLastConstructedAt(userID, &lastConstructedAt); err != nil {
 		if err != store.ErrNotfound {
