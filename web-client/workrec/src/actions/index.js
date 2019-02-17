@@ -1,4 +1,4 @@
-import API from 'src/api'
+import API, { WorkState } from 'src/api'
 
 export const RECIEVE_WORKS      = 'RECIEVE_WORKS'
 export const START_WORK         = 'START_WORK'
@@ -27,19 +27,30 @@ export function addWork(title) {
   }
 }
 
-export function startWork(id, time) {
+export function toggleState(id, currentState, time) {
+  switch (currentState) {
+  case WorkState.UNSTARTED: return startWork(id, time)
+  case WorkState.STARTED:   return pauseWork(id, time)
+  case WorkState.PAUSED:    return resumeWork(id, time)
+  case WorkState.RESUMED:   return pauseWork(id, time)
+  default:
+    // nothing to do
+  }
+}
+
+function startWork(id, time) {
   return dispatch => {
     return API.startWork(id, time).then(() => dispatch(fetchWorks()))
   }
 }
 
-export function pauseWork(id, time) {
+function pauseWork(id, time) {
   return dispatch => {
     return API.pauseWork(id, time).then(() => dispatch(fetchWorks()))
   }
 }
 
-export function resumeWork(id, time) {
+function resumeWork(id, time) {
   return dispatch => {
     return API.resumeWork(id, time).then(() => dispatch(fetchWorks()))
   }

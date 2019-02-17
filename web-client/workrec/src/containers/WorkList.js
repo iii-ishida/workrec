@@ -1,9 +1,7 @@
 import { connect } from 'react-redux'
 import {
   fetchWorks,
-  startWork,
-  pauseWork,
-  resumeWork,
+  toggleState,
   finishWork,
   cancelFinishWork,
   deleteWork
@@ -17,9 +15,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchWorks: () => dispatch(fetchWorks()),
-  startWork: (id, time) => dispatch(startWork(id, time)),
-  pauseWork: (id, time) => dispatch(pauseWork(id, time)),
-  resumeWork: (id, time) => dispatch(resumeWork(id, time)),
+  toggleState: (id, currentState, time) => dispatch(toggleState(id, currentState, time)),
   finishWork: (id, time) => dispatch(finishWork(id, time)),
   cancelFinishWork: (id, time) => dispatch(cancelFinishWork(id, time)),
   deleteWork: (id) => dispatch(deleteWork(id))
