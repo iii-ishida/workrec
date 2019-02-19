@@ -81,12 +81,12 @@ jobs:
 
       - restore_cache:
           keys:
-            - yarn-packages-{{ checksum "web-client/workrec/yarn.lock" }}
+            - yarn-packages-{{ checksum "web-client/app/yarn.lock" }}
 
-      - run: cd ./web-client/workrec && yarn install
+      - run: cd ./web-client/app && yarn install
 
       - save_cache:
-          key: yarn-packages-{{ checksum "web-client/workrec/yarn.lock" }}
+          key: yarn-packages-{{ checksum "web-client/app/yarn.lock" }}
           paths:
             - ~/.cache/yarn
 
