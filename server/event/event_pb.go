@@ -50,6 +50,7 @@ func convertToEventPb(e Event) (EventPb, error) {
 	return EventPb{
 		Id:        e.ID,
 		PrevId:    e.PrevID,
+		UserId:    e.UserID,
 		WorkId:    e.WorkID,
 		Action:    convertToActionPb(e.Action),
 		Title:     e.Title,
@@ -59,22 +60,23 @@ func convertToEventPb(e Event) (EventPb, error) {
 }
 
 func convertToEvent(pb EventPb) (Event, error) {
-	time, err := ptypes.Timestamp(pb.Time)
+	time, err := ptypes.Timestamp(pb.GetTime())
 	if err != nil {
 		return Event{}, err
 	}
 
-	createdAt, err := ptypes.Timestamp(pb.CreatedAt)
+	createdAt, err := ptypes.Timestamp(pb.GetCreatedAt())
 	if err != nil {
 		return Event{}, err
 	}
 
 	return Event{
-		ID:        pb.Id,
-		PrevID:    pb.PrevId,
-		WorkID:    pb.WorkId,
-		Action:    convertToAction(pb.Action),
-		Title:     pb.Title,
+		ID:        pb.GetId(),
+		PrevID:    pb.GetPrevId(),
+		UserID:    pb.GetUserId(),
+		WorkID:    pb.GetWorkId(),
+		Action:    convertToAction(pb.GetAction()),
+		Title:     pb.GetTitle(),
 		Time:      time,
 		CreatedAt: createdAt,
 	}, nil

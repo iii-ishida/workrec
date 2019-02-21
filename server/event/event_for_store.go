@@ -24,7 +24,6 @@ func (es eventForStore) toEvent() (Event, error) {
 	if err := UnmarshalPb(es.PbSerializedValue, &e); err != nil {
 		return Event{}, err
 	}
-	e.UserID = es.UserID
 	return e, nil
 }
 

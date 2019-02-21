@@ -14,6 +14,7 @@ func TestMarshalEventPb(t *testing.T) {
 	var (
 		id             = util.NewUUID()
 		prevID         = util.NewUUID()
+		userID         = util.NewUUID()
 		workID         = util.NewUUID()
 		action         = event.CreateWork
 		actionPb       = event.EventPb_CREATE_WORK
@@ -26,6 +27,7 @@ func TestMarshalEventPb(t *testing.T) {
 		e = event.Event{
 			ID:        id,
 			PrevID:    prevID,
+			UserID:    userID,
 			WorkID:    workID,
 			Action:    action,
 			Title:     title,
@@ -51,6 +53,11 @@ func TestMarshalEventPb(t *testing.T) {
 		t.Run("PrevId", func(t *testing.T) {
 			if pb.PrevId != prevID {
 				t.Errorf("pb.PrevId = %s, wants = %s", pb.PrevId, prevID)
+			}
+		})
+		t.Run("UserId", func(t *testing.T) {
+			if pb.UserId != userID {
+				t.Errorf("pb.UserId = %s, wants = %s", pb.UserId, userID)
 			}
 		})
 		t.Run("WorkId", func(t *testing.T) {
@@ -85,6 +92,7 @@ func TestUnmarshalEventPb(t *testing.T) {
 	var (
 		id             = util.NewUUID()
 		prevID         = util.NewUUID()
+		userID         = util.NewUUID()
 		workID         = util.NewUUID()
 		action         = event.CreateWork
 		actionPb       = event.EventPb_CREATE_WORK
@@ -97,6 +105,7 @@ func TestUnmarshalEventPb(t *testing.T) {
 		pb = event.EventPb{
 			Id:        id,
 			PrevId:    prevID,
+			UserId:    userID,
 			WorkId:    workID,
 			Action:    actionPb,
 			Title:     title,
@@ -121,6 +130,11 @@ func TestUnmarshalEventPb(t *testing.T) {
 		t.Run("PrevID", func(t *testing.T) {
 			if e.PrevID != prevID {
 				t.Errorf("e.PrevID = %s, wants = %s", e.PrevID, prevID)
+			}
+		})
+		t.Run("UserID", func(t *testing.T) {
+			if e.UserID != userID {
+				t.Errorf("e.UserID = %s, wants = %s", e.UserID, userID)
 			}
 		})
 		t.Run("WorkID", func(t *testing.T) {

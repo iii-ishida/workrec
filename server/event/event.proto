@@ -19,10 +19,11 @@ message EventPb {
 
   string id = 1;
   string prev_id = 2;
-  string work_id = 3;
-  Action action = 4;
-  string title = 5;
-  google.protobuf.Timestamp time = 6;
-  google.protobuf.Timestamp created_at = 7;
+  string user_id = 3;
+  string work_id = 4;
+  Action action = 5;
+  string title = 6;
+  google.protobuf.Timestamp time = 7;
+  google.protobuf.Timestamp created_at = 8;
 }
 
