@@ -1,6 +1,8 @@
 package model
 
 import (
+	"bytes"
+	"encoding/gob"
 	"time"
 
 	"cloud.google.com/go/datastore"
@@ -10,19 +12,36 @@ import (
 const KindNameWork = "CommandWork"
 
 type workForStore struct {
-	ID                string
-	UserID            string
-	UpdatedAt         time.Time
-	PbSerializedValue []byte `datastore:",noindex"`
+	ID        string
+	EventID   string
+	UserID    string
+	Content   []byte `datastore:",noindex"`
+	UpdatedAt time.Time
+}
+
+type workContentForStore struct {
+	Title string
+	Time  time.Time
+	State WorkState
 }
 
 func (w workForStore) toWork() (Work, error) {
-	var work Work
-	if err := UnmarshalWorkPb(w.PbSerializedValue, &work); err != nil {
+	var c workContentForStore
+
+	dec := gob.NewDecoder(bytes.NewReader(w.Content))
+	if err := dec.Decode(&c); err != nil {
 		return Work{}, err
 	}
-	work.UserID = w.UserID
-	return work, nil
+
+	return Work{
+		ID:        w.ID,
+		EventID:   w.EventID,
+		UserID:    w.UserID,
+		Title:     c.Title,
+		Time:      c.Time,
+		State:     c.State,
+		UpdatedAt: w.UpdatedAt,
+	}, nil
 }
 
 // Load loads a Work from datastore.
@@ -43,15 +62,23 @@ func (w *Work) Load(ps []datastore.Property) error {
 
 // Save saves a Work to datastore.
 func (w *Work) Save() ([]datastore.Property, error) {
-	pbSerializedValue, err := MarshalWorkPb(*w)
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(workContentForStore{
+		Title: w.Title,
+		Time:  w.Time,
+		State: w.State,
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
 	return []datastore.Property{
 		{Name: "ID", Value: w.ID},
+		{Name: "EventID", Value: w.EventID},
 		{Name: "UserID", Value: w.UserID},
 		{Name: "UpdatedAt", Value: w.UpdatedAt},
-		{Name: "PbSerializedValue", Value: pbSerializedValue, NoIndex: true},
+		{Name: "Content", Value: buf.Bytes(), NoIndex: true},
 	}, nil
 }
