@@ -18,395 +18,455 @@ import (
 	main "github.com/iii-ishida/workrec/server/web"
 )
 
-func TestCreateWork(t *testing.T) {
-	userID := "some-userid"
+func TestCreateWork_OK(t *testing.T) {
+	defer clearStore()
 
-	t.Run("正常時", func(t *testing.T) {
-		defer clearStore()
+	var (
+		userID = "some-userid"
+		title  = "some title"
+		req    = newRequestWithLogin(userID, "POST", "/v1/works", newCreateWorkRequest(title))
+	)
 
-		title := "some title"
-		req := newRequestWithLogin(userID, "POST", "/v1/works", newCreateWorkRequest(title))
-		res := doLoggedInRequest(t, userID, req)
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
 
-		work := getLatestWork()
-
-		t.Run("パラメータのTitleを使用してWorkを作成すること", func(t *testing.T) {
-			if work.Title != title {
-				t.Errorf("Title = %s, wants = %s", work.Title, title)
-			}
-		})
-
-		t.Run("ステータスコードに201を設定すること", func(t *testing.T) {
-			if res.StatusCode != 201 {
-				t.Errorf("StatusCode = %d, wants = 201", res.StatusCode)
-			}
-		})
-
-		t.Run("Locationヘッダに作成したWorkのURLを設定すること", func(t *testing.T) {
-			wants := fmt.Sprintf("%s/v1/works/%s", util.GetAPIOrigin(), work.ID)
-			if l, _ := res.Location(); l.String() != wants {
-				t.Errorf("Location = %s, wants = %s", l, wants)
-			}
-		})
+	t.Run("ステータスコードに201を設定すること", func(t *testing.T) {
+		if res.StatusCode != 201 {
+			t.Errorf("StatusCode = %d, wants = 201", res.StatusCode)
+		}
 	})
 
-	t.Run("未ログイン", func(t *testing.T) {
-		defer clearStore()
-
-		req, _ := http.NewRequest("POST", "/v1/works", newCreateWorkRequest("some title"))
-		res := doRequest(t, req)
-
-		t.Run("ステータスコードに401を設定すること", func(t *testing.T) {
-			if res.StatusCode != 401 {
-				t.Errorf("StatusCode = %d, wants = 401", res.StatusCode)
-			}
-		})
+	t.Run("パラメータのTitleを使用してWorkを作成すること", func(t *testing.T) {
+		if work.Title != title {
+			t.Errorf("Title = %s, wants = %s", work.Title, title)
+		}
 	})
 
-	t.Run("パラメータ不正", func(t *testing.T) {
-		defer clearStore()
-
-		invalidParam := bytes.NewReader([]byte("invalid"))
-		req := newRequestWithLogin(userID, "POST", "/v1/works", invalidParam)
-		res := doLoggedInRequest(t, userID, req)
-
-		work := getLatestWork()
-
-		t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
-			if res.StatusCode != 400 {
-				t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
-			}
-		})
-
-		t.Run("Workを作成しないこと", func(t *testing.T) {
-			if work != nil {
-				t.Error("created, wants not created")
-			}
-		})
+	t.Run("Locationヘッダに作成したWorkのURLを設定すること", func(t *testing.T) {
+		wants := fmt.Sprintf("%s/v1/works/%s", util.GetAPIOrigin(), work.ID)
+		if l, _ := res.Location(); l.String() != wants {
+			t.Errorf("Location = %s, wants = %s", l, wants)
+		}
 	})
 }
 
-func TestUpdateWork(t *testing.T) {
-	userID := "some-userid"
+func TestCreateWork_NotLoggedIn(t *testing.T) {
+	defer clearStore()
 
-	source := model.Work{
-		UserID:    userID,
-		ID:        util.NewUUID(),
-		Title:     "some title",
-		UpdatedAt: time.Now().Add(-1 * time.Hour),
+	var (
+		req, _ = http.NewRequest("POST", "/v1/works", newCreateWorkRequest("some title"))
+	)
+
+	res := doRequest(t, req)
+
+	t.Run("ステータスコードに401を設定すること", func(t *testing.T) {
+		if res.StatusCode != 401 {
+			t.Errorf("StatusCode = %d, wants = 401", res.StatusCode)
+		}
+	})
+}
+
+func TestCreateWork_InvalidParam(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID       = "some-userid"
+		invalidParam = bytes.NewReader([]byte("invalid"))
+		req          = newRequestWithLogin(userID, "POST", "/v1/works", invalidParam)
+	)
+
+	res := doLoggedInRequest(t, userID, req)
+
+	t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
+		if res.StatusCode != 400 {
+			t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
+		}
+	})
+
+	t.Run("Workを作成しないこと", func(t *testing.T) {
+		work := getLatestWork()
+		if work != nil {
+			t.Error("created, wants not created")
+		}
+	})
+}
+
+func TestUpdateWork_OK(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWork(userID)
+	)
+	putWork(source)
+
+	var (
+		title = "updated title"
+		req   = newRequestWithLogin(userID, "PATCH", fmt.Sprintf("/v1/works/%s", source.ID), newUpdateWorkRequest(title))
+	)
+
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
+		if res.StatusCode != 200 {
+			t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
+		}
+	})
+
+	t.Run("対象WorkのTitleをパラメータのTitleで更新すること", func(t *testing.T) {
+		if work.Title != title {
+			t.Errorf("Title = %s, wants = %s", work.Title, title)
+		}
+	})
+}
+
+func TestUpdateWork_InvalidWorkID(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		title  = "updated title"
+		req    = newRequestWithLogin(userID, "PATCH", "/v1/works/notfoundid", newUpdateWorkRequest(title))
+	)
+
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
+		if res.StatusCode != 404 {
+			t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
+		}
+	})
+
+	t.Run("Workを作成しないこと", func(t *testing.T) {
+		if work != nil {
+			t.Error("created, wants not created")
+		}
+	})
+}
+
+func TestUpdateWork_InvalidUserID(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWork(userID)
+	)
+	putWork(source)
+
+	var (
+		anotherUserID = "another-user-id"
+		req           = newRequestWithLogin(anotherUserID, "PATCH", fmt.Sprintf("/v1/works/%s", source.ID), newUpdateWorkRequest("updated title"))
+	)
+
+	res := doLoggedInRequest(t, anotherUserID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
+		if res.StatusCode != 404 {
+			t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
+		}
+	})
+
+	t.Run("Workを更新しないこと", func(t *testing.T) {
+		if work.Title != source.Title {
+			t.Errorf("Title = %s, wants = %s", work.Title, source.Title)
+		}
+	})
+}
+
+func TestUpdateWork_InvalidParam(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWork(userID)
+	)
+	putWork(source)
+
+	var (
+		invalidParam = bytes.NewReader([]byte("invalid"))
+		req          = newRequestWithLogin(userID, "PATCH", fmt.Sprintf("/v1/works/%s", source.ID), invalidParam)
+	)
+
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
+		if res.StatusCode != 400 {
+			t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
+		}
+	})
+
+	t.Run("Workを更新しないこと", func(t *testing.T) {
+		if work.Title != source.Title {
+			t.Errorf("Title = %s, wants = %s", work.Title, source.Title)
+		}
+	})
+}
+
+func TestDeleteWork_OK(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWork(userID)
+	)
+	putWork(source)
+
+	var (
+		req = newRequestWithLogin(userID, "DELETE", fmt.Sprintf("/v1/works/%s", source.ID), nil)
+	)
+
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
+		if res.StatusCode != 200 {
+			t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
+		}
+	})
+
+	t.Run("対象Workを削除すること", func(t *testing.T) {
+		if work != nil {
+			t.Error("not deleted, wants deleted")
+		}
+	})
+}
+
+func TestDeleteWork_InvalidWorkID(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWork(userID)
+	)
+	putWork(source)
+
+	var (
+		req = newRequestWithLogin(userID, "DELETE", "/v1/works/notfoundid", nil)
+	)
+
+	res := doLoggedInRequest(t, userID, req)
+
+	t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
+		if res.StatusCode != 404 {
+			t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
+		}
+	})
+}
+
+func TestDeleteWork_InvalidUserID(t *testing.T) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWork(userID)
+	)
+	putWork(source)
+
+	var (
+		anotherUserID = "another-user-id"
+		req           = newRequestWithLogin(anotherUserID, "DELETE", fmt.Sprintf("/v1/works/%s", source.ID), nil)
+	)
+
+	res := doLoggedInRequest(t, anotherUserID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
+		if res.StatusCode != 404 {
+			t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
+		}
+	})
+
+	t.Run("Workを削除しないこと", func(t *testing.T) {
+		if work == nil {
+			t.Error("Work deleted, wants not deleted")
+		}
+	})
+}
+
+func TestChangeStateWork(t *testing.T) {
+	var tests = []struct {
+		customMethod string
+		sourceState  model.WorkState
+		wantsState   model.WorkState
+	}{
+		{"start", model.Unstarted, model.Started},
+		{"pause", model.Started, model.Paused},
+		{"resume", model.Paused, model.Resumed},
+		{"finish", model.Resumed, model.Finished},
+		{"cancelFinish", model.Finished, model.Paused},
 	}
-
-	t.Run("正常時", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
-
-		title := "updated title"
-		req := newRequestWithLogin(userID, "PATCH", fmt.Sprintf("/v1/works/%s", source.ID), newUpdateWorkRequest(title))
-		res := doLoggedInRequest(t, userID, req)
-
-		work := getLatestWork()
-
-		t.Run("対象WorkのTitleをパラメータのTitleで更新すること", func(t *testing.T) {
-			if work.Title != title {
-				t.Errorf("Title = %s, wants = %s", work.Title, title)
-			}
+	for _, tc := range tests {
+		t.Run(fmt.Sprintf("%s_OK", tc.customMethod), func(t *testing.T) {
+			testChangeWorkState_OK(t, tc.customMethod, tc.sourceState, tc.wantsState)
 		})
-
-		t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
-			if res.StatusCode != 200 {
-				t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
-			}
+		t.Run(fmt.Sprintf("%s_InvalidWorkID", tc.customMethod), func(t *testing.T) {
+			testChangeWorkState_InvalidWorkID(t, tc.customMethod, tc.sourceState, tc.wantsState)
 		})
-	})
-
-	t.Run("存在しないid", func(t *testing.T) {
-		defer clearStore()
-
-		title := "updated title"
-		req := newRequestWithLogin(userID, "PATCH", "/v1/works/notfoundid", newUpdateWorkRequest(title))
-		res := doLoggedInRequest(t, userID, req)
-
-		work := getLatestWork()
-
-		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
-			if res.StatusCode != 404 {
-				t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
-			}
+		t.Run(fmt.Sprintf("%s_InvalidUserID", tc.customMethod), func(t *testing.T) {
+			testChangeWorkState_InvalidUserID(t, tc.customMethod, tc.sourceState, tc.wantsState)
 		})
-
-		t.Run("Workを作成しないこと", func(t *testing.T) {
-			if work != nil {
-				t.Error("created, wants not created")
-			}
+		t.Run(fmt.Sprintf("%s_InvalidParam", tc.customMethod), func(t *testing.T) {
+			testChangeWorkState_InvalidParam(t, tc.customMethod, tc.sourceState, tc.wantsState)
 		})
-	})
-
-	t.Run("userID不正", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
-
-		anotherUserID := "another-user-id"
-		req := newRequestWithLogin(anotherUserID, "PATCH", fmt.Sprintf("/v1/works/%s", source.ID), newUpdateWorkRequest("updated title"))
-		res := doLoggedInRequest(t, anotherUserID, req)
-
-		work := getLatestWork()
-
-		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
-			if res.StatusCode != 404 {
-				t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
-			}
+		t.Run(fmt.Sprintf("%s_InvalidState", tc.customMethod), func(t *testing.T) {
+			testChangeWorkState_InvalidState(t, tc.customMethod, tc.sourceState, tc.wantsState)
 		})
-		t.Run("Workを更新しないこと", func(t *testing.T) {
-			if work.Title != source.Title {
-				t.Errorf("Title = %s, wants = %s", work.Title, source.Title)
-			}
-		})
-	})
-
-	t.Run("パラメータ不正", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
-
-		invalidParam := bytes.NewReader([]byte("invalid"))
-		req := newRequestWithLogin(userID, "PATCH", fmt.Sprintf("/v1/works/%s", source.ID), invalidParam)
-		res := doLoggedInRequest(t, userID, req)
-
-		work := getLatestWork()
-
-		t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
-			if res.StatusCode != 400 {
-				t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
-			}
-		})
-		t.Run("Workを更新しないこと", func(t *testing.T) {
-			if work.Title != source.Title {
-				t.Errorf("Title = %s, wants = %s", work.Title, source.Title)
-			}
-		})
-	})
-}
-
-func TestDeleteWork(t *testing.T) {
-	userID := "some-userid"
-
-	source := model.Work{
-		UserID:    userID,
-		ID:        util.NewUUID(),
-		UpdatedAt: time.Now().Add(-1 * time.Hour),
 	}
+}
 
-	t.Run("正常時", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
+func testChangeWorkState_OK(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
+	defer clearStore()
 
-		req := newRequestWithLogin(userID, "DELETE", fmt.Sprintf("/v1/works/%s", source.ID), nil)
-		res := doLoggedInRequest(t, userID, req)
+	var (
+		userID = "some-userid"
+		source = newWorkWithState(userID, sourceState)
+	)
+	putWork(source)
 
-		work := getLatestWork()
+	var (
+		workTime = source.Time.Add(10 * time.Minute)
+		req      = newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), newChangeWorkStateRequest(workTime))
+	)
 
-		t.Run("対象Workを削除すること", func(t *testing.T) {
-			if work != nil {
-				t.Error("not deleted, wants deleted")
-			}
-		})
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
 
-		t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
-			if res.StatusCode != 200 {
-				t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
-			}
-		})
+	t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
+		if res.StatusCode != 200 {
+			t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
+		}
 	})
 
-	t.Run("存在しないid", func(t *testing.T) {
-		defer clearStore()
-
-		req := newRequestWithLogin(userID, "DELETE", "/v1/works/notfoundid", nil)
-		res := doLoggedInRequest(t, userID, req)
-
-		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
-			if res.StatusCode != 404 {
-				t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
-			}
-		})
+	t.Run(fmt.Sprintf("対象WorkのStateを%sに更新すること", wantsState), func(t *testing.T) {
+		if work.State != wantsState {
+			t.Errorf("State = %s, wants = %s", work.State, wantsState)
+		}
 	})
 
-	t.Run("userID不正", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
-
-		anotherUserID := "another-user-id"
-		req := newRequestWithLogin(anotherUserID, "DELETE", fmt.Sprintf("/v1/works/%s", source.ID), nil)
-		res := doLoggedInRequest(t, anotherUserID, req)
-
-		work := getLatestWork()
-
-		t.Run("Workを削除しないこと", func(t *testing.T) {
-			if work == nil {
-				t.Error("Work deleted, wants not deleted")
-			}
-		})
-
-		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
-			if res.StatusCode != 404 {
-				t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
-			}
-		})
+	t.Run("対象WorkのTimeをパラメータのTimeで更新すること", func(t *testing.T) {
+		if !work.Time.Equal(workTime) {
+			t.Errorf("Time = %s, wants = %s", work.Time, workTime)
+		}
 	})
 }
 
-func TestStartWork(t *testing.T) {
-	testChangeWorkState(t, "start", model.Unstarted, model.Started)
-}
+func testChangeWorkState_InvalidWorkID(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
+	defer clearStore()
 
-func TestPauseWork(t *testing.T) {
-	testChangeWorkState(t, "pause", model.Started, model.Paused)
-}
+	var (
+		userID   = "some-userid"
+		workTime = time.Now()
+		req      = newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/notfoundid:%s", customMethod), newChangeWorkStateRequest(workTime))
+	)
 
-func TestResumeWork(t *testing.T) {
-	testChangeWorkState(t, "resume", model.Paused, model.Resumed)
-}
+	res := doLoggedInRequest(t, userID, req)
 
-func TestFinishWork(t *testing.T) {
-	testChangeWorkState(t, "finish", model.Resumed, model.Finished)
-}
-
-func TestCancelFinishWork(t *testing.T) {
-	testChangeWorkState(t, "cancelFinish", model.Finished, model.Paused)
-}
-
-func testChangeWorkState(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
-	userID := "some-userid"
-
-	source := model.Work{
-		UserID:    userID,
-		ID:        util.NewUUID(),
-		State:     sourceState,
-		Time:      time.Now().Add(-1 * time.Hour),
-		UpdatedAt: time.Now().Add(-1 * time.Hour),
-	}
-
-	t.Run("正常時", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
-
-		workTime := source.Time.Add(10 * time.Minute)
-		req := newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), newChangeWorkStateRequest(workTime))
-		res := doLoggedInRequest(t, userID, req)
-
-		work := getLatestWork()
-
-		t.Run(fmt.Sprintf("対象WorkのStateを%sに更新すること", wantsState), func(t *testing.T) {
-			if work.State != wantsState {
-				t.Errorf("State = %s, wants = %s", work.State, wantsState)
-			}
-		})
-
-		t.Run("対象WorkのTimeをパラメータのTimeで更新すること", func(t *testing.T) {
-			if !work.Time.Equal(workTime) {
-				t.Errorf("Time = %s, wants = %s", work.Time, workTime)
-			}
-		})
-
-		t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
-			if res.StatusCode != 200 {
-				t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
-			}
-		})
+	t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
+		if res.StatusCode != 404 {
+			t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
+		}
 	})
 
-	t.Run("存在しないid", func(t *testing.T) {
-		defer clearStore()
-
-		workTime := source.Time.Add(10 * time.Minute)
-		req := newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/notfoundid:%s", customMethod), newChangeWorkStateRequest(workTime))
-		res := doLoggedInRequest(t, userID, req)
-
+	t.Run("Workを作成しないこと", func(t *testing.T) {
 		work := getLatestWork()
+		if work != nil {
+			t.Error("created, wants not created")
+		}
+	})
+}
 
-		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
-			if res.StatusCode != 404 {
-				t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
-			}
-		})
-		t.Run("Workを作成しないこと", func(t *testing.T) {
-			if work != nil {
-				t.Error("created, wants not created")
-			}
-		})
+func testChangeWorkState_InvalidUserID(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
+	defer clearStore()
+
+	var (
+		userID = "some-userid"
+		source = newWorkWithState(userID, sourceState)
+	)
+	putWork(source)
+
+	var (
+		anotherUserID = "another-user-id"
+		workTime      = source.Time.Add(10 * time.Minute)
+		req           = newRequestWithLogin(anotherUserID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), newChangeWorkStateRequest(workTime))
+	)
+
+	res := doLoggedInRequest(t, anotherUserID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
+		if res.StatusCode != 404 {
+			t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
+		}
 	})
 
-	t.Run("userID不正", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
+	t.Run("Workを更新しないこと", func(t *testing.T) {
+		if work.State != source.State {
+			t.Errorf("State = %s, wants = %s", work.State, source.State)
+		}
+	})
+}
 
-		anotherUserID := "another-user-id"
-		workTime := source.Time.Add(10 * time.Minute)
+func testChangeWorkState_InvalidParam(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
+	defer clearStore()
 
-		req := newRequestWithLogin(anotherUserID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), newChangeWorkStateRequest(workTime))
-		res := doLoggedInRequest(t, anotherUserID, req)
+	var (
+		userID = "some-userid"
+		source = newWorkWithState(userID, sourceState)
+	)
+	putWork(source)
 
-		t.Run("ステータスコードに404を設定すること", func(t *testing.T) {
-			if res.StatusCode != 404 {
-				t.Errorf("StatusCode = %d, wants = 404", res.StatusCode)
-			}
-		})
+	var (
+		invalidParam = bytes.NewReader([]byte("invalid"))
+		req          = newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), invalidParam)
+	)
 
-		work := getLatestWork()
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
 
-		t.Run("Workを更新しないこと", func(t *testing.T) {
-			if work.State != source.State {
-				t.Errorf("State = %s, wants = %s", work.State, source.State)
-			}
-		})
+	t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
+		if res.StatusCode != 400 {
+			t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
+		}
 	})
 
-	t.Run("パラメータ不正", func(t *testing.T) {
-		defer clearStore()
-		createWork(source)
+	t.Run("Workを更新しないこと", func(t *testing.T) {
+		if work.State != source.State {
+			t.Errorf("State = %s, wants = %s", work.State, source.State)
+		}
+	})
+}
 
-		invalidParam := bytes.NewReader([]byte("invalid"))
-		req := newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), invalidParam)
-		res := doLoggedInRequest(t, userID, req)
+func testChangeWorkState_InvalidState(t *testing.T, customMethod string, sourceState, wantsState model.WorkState) {
+	defer clearStore()
 
-		work := getLatestWork()
+	var (
+		userID        = "some-userid"
+		sameStateWork = newWorkWithState(userID, wantsState)
+	)
+	putWork(sameStateWork)
 
-		t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
-			if res.StatusCode != 400 {
-				t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
-			}
-		})
+	var (
+		workTime = sameStateWork.Time.Add(10 * time.Minute)
+		req      = newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/%s:%s", sameStateWork.ID, customMethod), newChangeWorkStateRequest(workTime))
+	)
 
-		t.Run("Workを更新しないこと", func(t *testing.T) {
-			if work.State != source.State {
-				t.Errorf("State = %s, wants = %s", work.State, source.State)
-			}
-		})
+	res := doLoggedInRequest(t, userID, req)
+	work := getLatestWork()
+
+	t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
+		if res.StatusCode != 400 {
+			t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
+		}
 	})
 
-	t.Run("State不正", func(t *testing.T) {
-		defer clearStore()
-
-		sameStateWork := source
-		sameStateWork.State = wantsState
-		createWork(sameStateWork)
-
-		workTime := source.Time.Add(10 * time.Minute)
-		req := newRequestWithLogin(userID, "POST", fmt.Sprintf("/v1/works/%s:%s", source.ID, customMethod), newChangeWorkStateRequest(workTime))
-		res := doLoggedInRequest(t, userID, req)
-
-		work := getLatestWork()
-
-		t.Run("ステータスコードに400を設定すること", func(t *testing.T) {
-			if res.StatusCode != 400 {
-				t.Errorf("StatusCode = %d, wants = 400", res.StatusCode)
-			}
-		})
-
-		t.Run("Workを更新しないこと", func(t *testing.T) {
-			if !work.Time.Equal(source.Time) {
-				t.Errorf("Time = %s, wants = %s", work.Time, source.Time)
-			}
-		})
+	t.Run("Workを更新しないこと", func(t *testing.T) {
+		if !work.Time.Equal(sameStateWork.Time) {
+			t.Errorf("Time = %s, wants = %s", work.Time, sameStateWork.Time)
+		}
 	})
 }
 
@@ -429,15 +489,32 @@ func newChangeWorkStateRequest(tm time.Time) io.Reader {
 	return bytes.NewReader(b)
 }
 
-func createWork(w model.Work) {
+func newWork(userID string) model.Work {
+	return newWorkWithState(userID, model.Unstarted)
+}
+
+func newWorkWithState(userID string, state model.WorkState) model.Work {
+	return model.Work{
+		UserID:    userID,
+		ID:        util.NewUUID(),
+		Title:     "some title",
+		State:     state,
+		UpdatedAt: time.Now().Add(-1 * time.Hour),
+	}
+}
+
+func putWork(w model.Work) {
 	r, _ := http.NewRequest("GET", "/", nil)
 	s, _ := command.NewCloudDataStore(r)
+	defer s.Close()
+
 	s.PutWork(w)
 }
 
 func getLatestWork() *model.Work {
 	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	defer client.Close()
 
 	var ws []model.Work
 

@@ -10,43 +10,51 @@ import (
 	"github.com/iii-ishida/workrec/server/worklist/model"
 )
 
-func TestListWork(t *testing.T) {
-	userID := "some-userid"
+func TestListWork_OK(t *testing.T) {
+	defer clearStore()
 
-	fixture := []model.WorkListItem{
-		{UserID: userID, ID: util.NewUUID(), Title: "some title 01", State: model.Unstarted, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-		{UserID: userID, ID: util.NewUUID(), Title: "some title 02", State: model.Started, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-		{UserID: userID, ID: util.NewUUID(), Title: "some title 03", State: model.Paused, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-		{UserID: userID, ID: util.NewUUID(), Title: "some title 04", State: model.Resumed, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-		{UserID: userID, ID: util.NewUUID(), Title: "some title 05", State: model.Finished, CreatedAt: time.Now(), UpdatedAt: time.Now()},
-	}
+	var (
+		userID  = "some-userid"
+		fixture = []model.WorkListItem{
+			{UserID: userID, ID: util.NewUUID(), Title: "some title 01", State: model.Unstarted, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			{UserID: userID, ID: util.NewUUID(), Title: "some title 02", State: model.Started, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			{UserID: userID, ID: util.NewUUID(), Title: "some title 03", State: model.Paused, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			{UserID: userID, ID: util.NewUUID(), Title: "some title 04", State: model.Resumed, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			{UserID: userID, ID: util.NewUUID(), Title: "some title 05", State: model.Finished, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		}
 
-	t.Run("正常時", func(t *testing.T) {
-		defer clearStore()
-		createWorkListItems(fixture)
+		req = newRequestWithLogin(userID, "GET", "/v1/works", nil)
+	)
+	createWorkListItems(fixture)
 
-		req := newRequestWithLogin(userID, "GET", "/v1/works", nil)
-		res := doLoggedInRequest(t, userID, req)
+	res := doLoggedInRequest(t, userID, req)
 
-		t.Run("ステータスコードにStatusOKを設定すること", func(t *testing.T) {
-			if res.StatusCode != http.StatusOK {
-				t.Errorf("StatusCode = %d, wants = %d", res.StatusCode, http.StatusOK)
-			}
-		})
+	t.Run("ステータスコードに200を設定すること", func(t *testing.T) {
+		if res.StatusCode != 200 {
+			t.Errorf("StatusCode = %d, wants = 200", res.StatusCode)
+		}
 	})
+}
 
-	t.Run("未ログイン", func(t *testing.T) {
-		defer clearStore()
-		createWorkListItems(fixture)
+func TestListWork_NotLoggedIn(t *testing.T) {
+	defer clearStore()
 
-		req, _ := http.NewRequest("GET", "/v1/works", nil)
-		res := doRequest(t, req)
+	var (
+		userID  = "some-userid"
+		fixture = []model.WorkListItem{
+			{UserID: userID, ID: util.NewUUID(), Title: "some title 01", State: model.Unstarted, CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		}
 
-		t.Run("ステータスコードにStatusForbiddenを設定すること", func(t *testing.T) {
-			if res.StatusCode != http.StatusForbidden {
-				t.Errorf("StatusCode = %d, wants = %d", res.StatusCode, http.StatusForbidden)
-			}
-		})
+		req, _ = http.NewRequest("GET", "/v1/works", nil)
+	)
+	createWorkListItems(fixture)
+
+	res := doRequest(t, req)
+
+	t.Run("ステータスコードに403を設定すること", func(t *testing.T) {
+		if res.StatusCode != 403 {
+			t.Errorf("StatusCode = %d, wants = 403", res.StatusCode)
+		}
 	})
 }
 
