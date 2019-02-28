@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -51,8 +50,7 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	q, err := newWorkListQuery(r)
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 	defer q.Close()
@@ -61,12 +59,11 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 
 	if err := q.ConstructWorks(userID); err != nil {
 		if err == worklist.ErrForbidden {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			util.RespondError(w, http.StatusForbidden)
 			return
 		}
 
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 
@@ -80,19 +77,16 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if err == worklist.ErrForbidden {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
+			util.RespondError(w, http.StatusForbidden)
+		} else {
+			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		}
-
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	b, err := worklist.MarshalWorkListPb(list)
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 
@@ -105,30 +99,27 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 	cmd, err := newCmd(r)
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 	defer cmd.Close()
 
 	var param CreateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		return
 	}
 
 	userID := auth.GetUserID(r.Context())
 	if userID == "" {
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		util.RespondError(w, http.StatusUnauthorized)
 		return
 	}
 
 	id, err := cmd.CreateWork(userID, command.CreateWorkParam{Title: param.Title})
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 
@@ -140,16 +131,14 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 	cmd, err := newCmd(r)
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 	defer cmd.Close()
 
 	var param UpdateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		return
 	}
 
@@ -157,19 +146,14 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 	workID := chi.URLParam(r, "workID")
 	err = cmd.UpdateWork(userID, workID, command.UpdateWorkParam{Title: param.Title})
 
-	if _, ok := err.(command.ValidationError); ok {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	} else if err == command.ErrForbidden {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err == command.ErrNotfound {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	if err != nil {
+		if _, ok := err.(command.ValidationError); ok {
+			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
+		} else if err == command.ErrForbidden || err == command.ErrNotfound {
+			util.RespondError(w, http.StatusNotFound)
+		} else {
+			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
+		}
 		return
 	}
 
@@ -180,8 +164,7 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 	cmd, err := newCmd(r)
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 	defer cmd.Close()
@@ -190,18 +173,14 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 	workID := chi.URLParam(r, "workID")
 	err = cmd.DeleteWork(userID, workID)
 
-	if err == command.ErrForbidden {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err == command.ErrForbidden {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err == command.ErrNotfound {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	if err != nil {
+		if _, ok := err.(command.ValidationError); ok {
+			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
+		} else if err == command.ErrForbidden || err == command.ErrNotfound {
+			util.RespondError(w, http.StatusNotFound)
+		} else {
+			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
+		}
 		return
 	}
 
@@ -234,23 +213,20 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	cmd, err := newCmd(r)
 
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
 	defer cmd.Close()
 
 	var param ChangeWorkStateRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		return
 	}
 
 	paramTime, err := ptypes.Timestamp(param.Time)
 	if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		return
 	}
 
@@ -258,19 +234,14 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	workID := chi.URLParam(r, "workID")
 	err = fn(cmd, userID, workID, command.ChangeWorkStateParam{Time: paramTime})
 
-	if _, ok := err.(command.ValidationError); ok {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	} else if err == command.ErrForbidden {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err == command.ErrNotfound {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		return
-	} else if err != nil {
-		log.Printf("error: %s", err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	if err != nil {
+		if _, ok := err.(command.ValidationError); ok {
+			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
+		} else if err == command.ErrForbidden || err == command.ErrNotfound {
+			util.RespondError(w, http.StatusNotFound)
+		} else {
+			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
+		}
 		return
 	}
 
