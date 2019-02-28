@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/iii-ishida/workrec/server/auth"
 )
 
 func main() {
@@ -17,6 +15,6 @@ func main() {
 		port = "8080"
 	}
 
-	r := NewRouter(auth.NewFirebaseUserIDGetter())
+	r := NewRouter()
 	http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 }

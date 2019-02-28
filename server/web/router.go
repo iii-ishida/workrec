@@ -20,7 +20,7 @@ import (
 const defaultPageSize = 50
 
 // NewRouter returns the command http handler.
-func NewRouter(userIDGetter auth.UserIDGetter) http.Handler {
+func NewRouter() http.Handler {
 	r := chi.NewRouter()
 
 	cors := cors.New(cors.Options{
@@ -30,7 +30,7 @@ func NewRouter(userIDGetter auth.UserIDGetter) http.Handler {
 	})
 	r.Use(cors.Handler)
 
-	a := auth.New(auth.Dependency{UserIDGetter: userIDGetter})
+	a := newAuth()
 	r.Use(a.Handler)
 
 	r.Route("/v1", func(r chi.Router) {
@@ -275,6 +275,11 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+// テスト時はモックに差し替える
+var newAuth = func() auth.Auth {
+	return auth.New(auth.Dependency{UserIDGetter: auth.NewFirebaseUserIDGetter()})
 }
 
 func newWorkListQuery(r *http.Request) (worklist.Query, error) {

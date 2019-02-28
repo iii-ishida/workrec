@@ -22,7 +22,8 @@ func doRequest(t *testing.T, req *http.Request) *http.Response {
 	)
 	defer mockCtrl.Finish()
 
-	server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
+	main.SetMockUserIDGetter(mockUserIDGetter)
+	server := httptest.NewServer(main.NewRouter())
 	defer server.Close()
 
 	req.URL, _ = url.Parse(server.URL + req.URL.Path)
@@ -41,7 +42,8 @@ func doLoggedInRequest(t *testing.T, userID string, req *http.Request) *http.Res
 
 	mockUserIDGetter.EXPECT().GetUserID(gomock.Any()).Return(userID, nil)
 
-	server := httptest.NewServer(main.NewRouter(mockUserIDGetter))
+	main.SetMockUserIDGetter(mockUserIDGetter)
+	server := httptest.NewServer(main.NewRouter())
 	defer server.Close()
 
 	req.URL, _ = url.Parse(server.URL + req.URL.Path)
