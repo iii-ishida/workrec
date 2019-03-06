@@ -62,7 +62,7 @@ func newRequestWithLogin(userID, method, url string, body io.Reader) *http.Reque
 
 func clearStore() {
 	ctx := context.Background()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	kindQuery := datastore.NewQuery("__kind__").KeysOnly()

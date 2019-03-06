@@ -23,7 +23,7 @@ func NewRouter() http.Handler {
 	r := chi.NewRouter()
 
 	cors := cors.New(cors.Options{
-		AllowedOrigins: []string{util.GetClientOrigin()},
+		AllowedOrigins: []string{util.ClientOrigin()},
 		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
@@ -123,7 +123,7 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Location", fmt.Sprintf("%s/v1/works/%s", util.GetAPIOrigin(), id))
+	w.Header().Set("Location", fmt.Sprintf("%s/v1/works/%s", util.APIOrigin(), id))
 	w.WriteHeader(http.StatusCreated)
 }
 

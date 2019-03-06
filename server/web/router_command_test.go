@@ -43,7 +43,7 @@ func TestCreateWork_OK(t *testing.T) {
 	})
 
 	t.Run("Locationヘッダに作成したWorkのURLを設定すること", func(t *testing.T) {
-		wants := fmt.Sprintf("%s/v1/works/%s", util.GetAPIOrigin(), work.ID)
+		wants := fmt.Sprintf("%s/v1/works/%s", util.APIOrigin(), work.ID)
 		if l, _ := res.Location(); l.String() != wants {
 			t.Errorf("Location = %s, wants = %s", l, wants)
 		}
@@ -513,7 +513,7 @@ func putWork(w model.Work) {
 
 func getLatestWork() *model.Work {
 	ctx := context.Background()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	var ws []model.Work

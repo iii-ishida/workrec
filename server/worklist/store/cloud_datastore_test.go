@@ -575,7 +575,7 @@ func TestDeleteWork(t *testing.T) {
 
 func getWork(r *http.Request, id string) model.WorkListItem {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	key := datastore.NameKey(model.KindNameWork, id, nil)
@@ -599,7 +599,7 @@ func newWork() model.WorkListItem {
 
 func putWorks(r *http.Request, works []model.WorkListItem) {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	for _, w := range works {
@@ -611,7 +611,7 @@ func putWorks(r *http.Request, works []model.WorkListItem) {
 
 func putWork(r *http.Request, w model.WorkListItem) {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	key := datastore.NameKey(model.KindNameWork, w.ID, nil)
@@ -621,7 +621,7 @@ func putWork(r *http.Request, w model.WorkListItem) {
 
 func putEvents(r *http.Request, events []event.Event) {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	for _, e := range events {
@@ -633,7 +633,7 @@ func putEvents(r *http.Request, events []event.Event) {
 
 func clearStore(r *http.Request) {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	for _, kind := range []string{model.KindNameWork, model.KindNameLastConstructedAt, event.KindName} {

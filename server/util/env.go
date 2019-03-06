@@ -2,25 +2,25 @@ package util
 
 import "os"
 
-// GetProjectID returns the GCP Project ID.
-func GetProjectID() string {
+// ProjectID returns the GCP Project ID.
+func ProjectID() string {
 	return os.Getenv("GOOGLE_CLOUD_PROJECT")
 }
 
-// GetClientOrigin returns the origin for client.
-func GetClientOrigin() string {
+// ClientOrigin returns the origin for client.
+func ClientOrigin() string {
 	origin := os.Getenv("CLIENT_ORIGIN")
 	if origin != "" {
 		return origin
 	}
-	return "https://" + GetProjectID() + ".appspot.com"
+	return "https://" + ProjectID() + ".appspot.com"
 }
 
-// GetAPIOrigin returns the origin for api.
-func GetAPIOrigin() string {
+// APIOrigin returns the origin for api.
+func APIOrigin() string {
 	origin := os.Getenv("API_ORIGIN")
 	if origin != "" {
 		return origin
 	}
-	return "https://api-dot-" + GetProjectID() + ".appspot.com"
+	return "https://api-dot-" + ProjectID() + ".appspot.com"
 }

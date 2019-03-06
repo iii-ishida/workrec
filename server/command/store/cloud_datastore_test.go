@@ -254,7 +254,7 @@ func TestPutEvent(t *testing.T) {
 
 func getWork(r *http.Request, id string) model.Work {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	key := datastore.NameKey(model.KindNameWork, id, nil)
@@ -267,7 +267,7 @@ func getWork(r *http.Request, id string) model.Work {
 
 func getEvent(r *http.Request, id string) event.Event {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	key := datastore.NameKey(event.KindName, id, nil)
@@ -280,7 +280,7 @@ func getEvent(r *http.Request, id string) event.Event {
 
 func putWork(r *http.Request, w model.Work) {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	key := datastore.NameKey(model.KindNameWork, w.ID, nil)
@@ -290,7 +290,7 @@ func putWork(r *http.Request, w model.Work) {
 
 func clearStore(r *http.Request) {
 	ctx := r.Context()
-	client, _ := datastore.NewClient(ctx, util.GetProjectID())
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	for _, kind := range []string{model.KindNameWork, event.KindName} {

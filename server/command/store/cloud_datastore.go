@@ -21,7 +21,7 @@ type CloudDataStore struct {
 func NewCloudDataStore(r *http.Request) (CloudDataStore, error) {
 	ctx := r.Context()
 
-	client, err := datastore.NewClient(ctx, util.GetProjectID())
+	client, err := datastore.NewClient(ctx, util.ProjectID())
 	if err != nil {
 		return CloudDataStore{}, err
 	}
