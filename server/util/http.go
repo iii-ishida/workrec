@@ -25,10 +25,3 @@ func RespondErrorAndLog(w http.ResponseWriter, status int, format string, v ...i
 
 	RespondError(w, status)
 }
-
-// RespondErrorAndLogWhenPanic responds 500 status and output log when panic.
-func RespondErrorAndLogWhenPanic(w http.ResponseWriter) {
-	if r := recover(); r != nil {
-		RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", r)
-	}
-}

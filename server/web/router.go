@@ -47,8 +47,6 @@ func NewRouter() http.Handler {
 }
 
 func getWorkList(w http.ResponseWriter, r *http.Request) {
-	defer util.RespondErrorAndLogWhenPanic(w)
-
 	q, err := newWorkListQuery(r)
 
 	if err != nil {
@@ -98,8 +96,6 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 }
 
 func createWork(w http.ResponseWriter, r *http.Request) {
-	defer util.RespondErrorAndLogWhenPanic(w)
-
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -132,8 +128,6 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateWork(w http.ResponseWriter, r *http.Request) {
-	defer util.RespondErrorAndLogWhenPanic(w)
-
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -167,8 +161,6 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteWork(w http.ResponseWriter, r *http.Request) {
-	defer util.RespondErrorAndLogWhenPanic(w)
-
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -218,8 +210,6 @@ func cancelFinishWork(w http.ResponseWriter, r *http.Request) {
 type changeWorkStateFunc func(command.Command, string, string, command.ChangeWorkStateParam) error
 
 func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateFunc) {
-	defer util.RespondErrorAndLogWhenPanic(w)
-
 	cmd, err := newCmd(r)
 
 	if err != nil {
