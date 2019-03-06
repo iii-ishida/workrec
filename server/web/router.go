@@ -47,6 +47,8 @@ func NewRouter() http.Handler {
 }
 
 func getWorkList(w http.ResponseWriter, r *http.Request) {
+	defer util.RespondErrorAndLogWhenPanic(w)
+
 	q, err := newWorkListQuery(r)
 
 	if err != nil {
@@ -96,6 +98,8 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 }
 
 func createWork(w http.ResponseWriter, r *http.Request) {
+	defer util.RespondErrorAndLogWhenPanic(w)
+
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -128,6 +132,8 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateWork(w http.ResponseWriter, r *http.Request) {
+	defer util.RespondErrorAndLogWhenPanic(w)
+
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -150,7 +156,7 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 		if _, ok := err.(command.ValidationError); ok {
 			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		} else if err == command.ErrForbidden || err == command.ErrNotfound {
-			util.RespondError(w, http.StatusNotFound)
+			util.RespondErrorAndLog(w, http.StatusNotFound, "error: %s", err.Error())
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		}
@@ -161,6 +167,8 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteWork(w http.ResponseWriter, r *http.Request) {
+	defer util.RespondErrorAndLogWhenPanic(w)
+
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -177,7 +185,7 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 		if _, ok := err.(command.ValidationError); ok {
 			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		} else if err == command.ErrForbidden || err == command.ErrNotfound {
-			util.RespondError(w, http.StatusNotFound)
+			util.RespondErrorAndLog(w, http.StatusNotFound, "error: %s", err.Error())
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		}
@@ -210,6 +218,8 @@ func cancelFinishWork(w http.ResponseWriter, r *http.Request) {
 type changeWorkStateFunc func(command.Command, string, string, command.ChangeWorkStateParam) error
 
 func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateFunc) {
+	defer util.RespondErrorAndLogWhenPanic(w)
+
 	cmd, err := newCmd(r)
 
 	if err != nil {
@@ -238,7 +248,7 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 		if _, ok := err.(command.ValidationError); ok {
 			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
 		} else if err == command.ErrForbidden || err == command.ErrNotfound {
-			util.RespondError(w, http.StatusNotFound)
+			util.RespondErrorAndLog(w, http.StatusNotFound, "error: %s", err.Error())
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		}

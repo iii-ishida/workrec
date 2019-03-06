@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"strings"
+
+	"github.com/iii-ishida/workrec/server/util"
 )
 
 type contextKey string
@@ -43,7 +45,7 @@ func (a Auth) Handler(next http.Handler) http.Handler {
 
 		userID, err := a.dep.UserIDGetter.GetUserID(idToken)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 			return
 		}
 
