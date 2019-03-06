@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"cloud.google.com/go/pubsub"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command"
@@ -17,6 +18,13 @@ import (
 	"github.com/iii-ishida/workrec/server/util"
 	main "github.com/iii-ishida/workrec/server/web"
 )
+
+func init() {
+	ctx := context.Background()
+	client, _ := pubsub.NewClient(ctx, util.ProjectID())
+	defer client.Close()
+	client.CreateTopic(ctx, "workrec")
+}
 
 func TestCreateWork_OK(t *testing.T) {
 	defer clearStore()

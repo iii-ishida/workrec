@@ -9,12 +9,14 @@ import (
 	"github.com/iii-ishida/workrec/server/command/model"
 	"github.com/iii-ishida/workrec/server/command/store"
 	"github.com/iii-ishida/workrec/server/event"
+	"github.com/iii-ishida/workrec/server/publisher"
 	"github.com/iii-ishida/workrec/server/util"
 )
 
 // Dependency is a dependency for the command.
 type Dependency struct {
-	Store store.Store
+	store.Store
+	publisher.Publisher
 }
 
 // Command is a workrec command.
@@ -27,9 +29,14 @@ func New(dep Dependency) Command {
 	return Command{dep: dep}
 }
 
-// NewCloudDataStore returns a new CloudDataStore
-func NewCloudDataStore(r *http.Request) (store.CloudDataStore, error) {
+// NewCloudDataStore returns a new CloudDataStore.
+func NewCloudDataStore(r *http.Request) (store.Store, error) {
 	return store.NewCloudDataStore(r)
+}
+
+// NewCloudPublisher returns a new CloudPublisher.
+func NewCloudPublisher(r *http.Request) publisher.Publisher {
+	return publisher.NewCloudPublisher(r)
 }
 
 // ValidationError is a error for the validation.
@@ -88,6 +95,10 @@ func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error
 			UpdatedAt: now,
 		}
 		if err := s.PutWork(w); err != nil {
+			return err
+		}
+
+		if err := c.publishEvent(e); err != nil {
 			return err
 		}
 
@@ -152,7 +163,7 @@ func (c Command) UpdateWork(userID, workID string, param UpdateWorkParam) error 
 			return err
 		}
 
-		return nil
+		return c.publishEvent(e)
 	})
 }
 
@@ -191,7 +202,7 @@ func (c Command) DeleteWork(userID, workID string) error {
 			return err
 		}
 
-		return nil
+		return c.publishEvent(e)
 	})
 }
 
@@ -313,7 +324,7 @@ func (c Command) changeWorkState(userID, workID string, param ChangeWorkStatePar
 			return err
 		}
 
-		return nil
+		return c.publishEvent(e)
 	})
 }
 
@@ -322,8 +333,16 @@ func (c Command) Close() error {
 	if c.dep.Store == nil {
 		return nil
 	}
-
 	return c.dep.Store.Close()
+}
+
+func (c Command) publishEvent(e event.Event) error {
+	b, err := event.MarshalPb(e)
+	if err != nil {
+		return err
+	}
+
+	return c.dep.Publisher.Publish(b)
 }
 
 func workStateFromEventAction(eventAction event.Action) model.WorkState {

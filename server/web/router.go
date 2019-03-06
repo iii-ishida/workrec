@@ -270,8 +270,10 @@ func newCmd(r *http.Request) (command.Command, error) {
 		return command.Command{}, err
 	}
 
+	pub := command.NewCloudPublisher(r)
 	return command.New(command.Dependency{
-		Store: cloudStore,
+		Store:     cloudStore,
+		Publisher: pub,
 	}), nil
 }
 
