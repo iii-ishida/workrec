@@ -1,4 +1,3 @@
-import { API_ORIGIN } from 'src/env';
 import { getIdToken } from 'src/auth';
 const worklist_pb = require('./pb/worklist_pb');
 const command_request_pb = require('./pb/command_request_pb');
@@ -16,7 +15,7 @@ const fetchRequest = (url, req = {}) => {
 
 export default class API {
   static getWorkList() {
-    return fetchRequest(`${API_ORIGIN}/v1/works`)
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works`)
       .then(res => res.arrayBuffer())
       .then(data => {
         const pb = worklist_pb.WorkListPb.deserializeBinary(new Uint8Array(data));
@@ -28,7 +27,7 @@ export default class API {
     const param = new command_request_pb.CreateWorkRequestPb();
     param.setTitle(title);
 
-    return fetchRequest(`${API_ORIGIN}/v1/works`, {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works`, {
       method: 'POST',
       headers: {'Content-Type': 'application/octet-stream'},
       body: param.serializeBinary()
@@ -62,7 +61,7 @@ export default class API {
     const param = new command_request_pb.ChangeWorkStateRequestPb();
     param.setTime(timestamp)
 
-    return fetchRequest(`${API_ORIGIN}/v1/works/${id}:${method}`, {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}:${method}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/octet-stream'},
       body: param.serializeBinary()
@@ -70,7 +69,7 @@ export default class API {
   }
 
   static deleteWork(id) {
-    return fetchRequest(`${API_ORIGIN}/v1/works/${id}`, {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}`, {
       method: 'DELETE'
     });
   }
