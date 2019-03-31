@@ -1,12 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import styles from './AddWork.module.css'
 
 const AddWork = ({ addWork }) => {
   let input
 
   return (
     <div>
-      <form onSubmit={e => {
+      <form className={styles.addWork} onSubmit={e => {
         e.preventDefault()
         if (!input.value.trim()) {
           return
@@ -14,8 +15,8 @@ const AddWork = ({ addWork }) => {
         addWork(input.value)
         input.value = ''
       }}>
-        <input ref={node => input = node} />
-        <button type="submit">
+        <input className={styles.titleText} placeholder='タイトル' ref={node => input = node} />
+        <button className={styles.addButton} type='submit'>
           Add Work
         </button>
       </form>

@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+.normal {
+  line-height: 2;
+  font-size: 12px;
+  border-radius: 0.2em;
+}
+
+.destruction {
+  composes: normal;
+  color: white;
+  background-color: #f44;
+}
+
+.googleSignIn {
+  font-family: 'Roboto-Medium', sans-serif;
+  background-color: white;
+  height: 40px;
+}

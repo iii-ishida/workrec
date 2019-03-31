@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
 import { WorkState } from 'src/api'
+import styles from './ToggleStateButton.module.css'
 
 const nextWorkState = (state) => {
   switch (state) {
@@ -29,7 +30,7 @@ const ToggleStateButton = ({ work, onClick }) => {
   const state = work.get('state')
 
   return (
-    <button onClick={onClick}>
+    <button className={styles.toggleButton} onClick={onClick}>
       {nextWorkState(state)}
     </button>
   )
