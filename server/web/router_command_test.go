@@ -15,6 +15,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/command/model"
+	"github.com/iii-ishida/workrec/server/publisher"
 	"github.com/iii-ishida/workrec/server/util"
 	main "github.com/iii-ishida/workrec/server/web"
 )
@@ -23,7 +24,7 @@ func init() {
 	ctx := context.Background()
 	client, _ := pubsub.NewClient(ctx, util.ProjectID())
 	defer client.Close()
-	client.CreateTopic(ctx, "workrec")
+	client.CreateTopic(ctx, publisher.CloudPublisherTopicID)
 }
 
 func TestCreateWork_OK(t *testing.T) {

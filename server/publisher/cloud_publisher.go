@@ -8,7 +8,8 @@ import (
 	"github.com/iii-ishida/workrec/server/util"
 )
 
-const topicID = "workrec"
+// CloudPublisherTopicID is a Cloud Pub/Sub topic id.
+const CloudPublisherTopicID = "workrec"
 
 // CloudPublisher is a publisher for Cloud Pub/Sub.
 type CloudPublisher struct {
@@ -28,7 +29,7 @@ func (p CloudPublisher) Publish(msg []byte) error {
 	}
 	defer client.Close()
 
-	topic := client.Topic(topicID)
+	topic := client.Topic(CloudPublisherTopicID)
 	_, err = topic.Publish(p.ctx, &pubsub.Message{Data: msg}).Get(p.ctx)
 
 	return err
