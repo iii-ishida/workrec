@@ -1,4 +1,4 @@
-package command_test
+package api_test
 
 import (
 	"errors"
@@ -8,9 +8,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
-	"github.com/iii-ishida/workrec/server/command"
-	"github.com/iii-ishida/workrec/server/command/model"
-	"github.com/iii-ishida/workrec/server/command/store"
+	"github.com/iii-ishida/workrec/server/api"
+	"github.com/iii-ishida/workrec/server/api/model"
+	"github.com/iii-ishida/workrec/server/api/store"
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/publisher"
 	"github.com/iii-ishida/workrec/server/testutil"
@@ -18,7 +18,7 @@ import (
 )
 
 func TestCreateWork_Expectation(t *testing.T) {
-	cmd, mockStore, mockPublisher, mockCtrl := newCommandWithGoMock(t)
+	workAPI, mockStore, mockPublisher, mockCtrl := newAPIWithGoMock(t)
 	defer mockCtrl.Finish()
 
 	gomock.InOrder(
@@ -27,13 +27,13 @@ func TestCreateWork_Expectation(t *testing.T) {
 		mockPublisher.EXPECT().Publish(gomock.Any()),
 	)
 
-	cmd.CreateWork("some-userid", command.CreateWorkParam{Title: "Some Title"})
+	workAPI.CreateWork("some-userid", api.CreateWorkParam{Title: "Some Title"})
 }
 
 func TestCreateWork_OK_ReturnValue(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 
-	id, err := cmd.CreateWork("some-userid", command.CreateWorkParam{Title: "Some Title"})
+	id, err := workAPI.CreateWork("some-userid", api.CreateWorkParam{Title: "Some Title"})
 
 	t.Run("登録したWorkのIDが返却されること", func(t *testing.T) {
 		if id == "" {
@@ -52,14 +52,14 @@ func TestCreateWork_OK_ReturnValue(t *testing.T) {
 }
 
 func TestCreateWork_OK_SaveValue(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 
 	var (
 		userID = "some-userid"
 		title  = "Some Title"
 	)
 
-	cmd.CreateWork(userID, command.CreateWorkParam{Title: title})
+	workAPI.CreateWork(userID, api.CreateWorkParam{Title: title})
 
 	var (
 		e = s.Event
@@ -156,9 +156,9 @@ func TestCreateWork_OK_SaveValue(t *testing.T) {
 }
 
 func TestCreateWork_OK_PublishValue(t *testing.T) {
-	cmd, s, p := newCommandWithInmemory()
+	workAPI, s, p := newAPIWithInmemory()
 
-	cmd.CreateWork("some-userid", command.CreateWorkParam{Title: "Some Title"})
+	workAPI.CreateWork("some-userid", api.CreateWorkParam{Title: "Some Title"})
 
 	t.Run("保存したEventをPublishすること", func(t *testing.T) {
 		b, _ := event.MarshalPb(s.Event)
@@ -169,13 +169,13 @@ func TestCreateWork_OK_PublishValue(t *testing.T) {
 }
 
 func TestCreateWork_InvalidUserID(t *testing.T) {
-	cmd, _, _ := newCommandWithInmemory()
+	workAPI, _, _ := newAPIWithInmemory()
 
-	_, err := cmd.CreateWork("", command.CreateWorkParam{Title: "Some Title"})
+	_, err := workAPI.CreateWork("", api.CreateWorkParam{Title: "Some Title"})
 
 	t.Run("userIDが空文字の場合はErrForbiddenを返すこと", func(t *testing.T) {
-		if err != command.ErrForbidden {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
+		if err != api.ErrForbidden {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrForbidden)
 		}
 	})
 }
@@ -184,10 +184,10 @@ func TestCreateWork_StoreError(t *testing.T) {
 	someErr := errors.New("Some Error")
 
 	t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.PutEventError = someErr
 
-		_, err := cmd.CreateWork("some-userid", command.CreateWorkParam{Title: "Some Title"})
+		_, err := workAPI.CreateWork("some-userid", api.CreateWorkParam{Title: "Some Title"})
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -195,10 +195,10 @@ func TestCreateWork_StoreError(t *testing.T) {
 	})
 
 	t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.PutWorkError = someErr
 
-		_, err := cmd.CreateWork("some-userid", command.CreateWorkParam{Title: "Some Title"})
+		_, err := workAPI.CreateWork("some-userid", api.CreateWorkParam{Title: "Some Title"})
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -207,7 +207,7 @@ func TestCreateWork_StoreError(t *testing.T) {
 }
 
 func TestUpdateWork_Expectation(t *testing.T) {
-	cmd, mockStore, mockPublisher, mockCtrl := newCommandWithGoMock(t)
+	workAPI, mockStore, mockPublisher, mockCtrl := newAPIWithGoMock(t)
 	defer mockCtrl.Finish()
 
 	source := newWork()
@@ -221,15 +221,15 @@ func TestUpdateWork_Expectation(t *testing.T) {
 		mockPublisher.EXPECT().Publish(gomock.Any()),
 	)
 
-	cmd.UpdateWork(source.UserID, source.ID, command.UpdateWorkParam{Title: "Updated Title"})
+	workAPI.UpdateWork(source.UserID, source.ID, api.UpdateWorkParam{Title: "Updated Title"})
 }
 
 func TestUpdateWork_OK_ReturnValue(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	err := cmd.UpdateWork(source.UserID, source.ID, command.UpdateWorkParam{Title: "Updated Title"})
+	err := workAPI.UpdateWork(source.UserID, source.ID, api.UpdateWorkParam{Title: "Updated Title"})
 
 	t.Run("errorがnil であること", func(t *testing.T) {
 		if err != nil {
@@ -239,12 +239,12 @@ func TestUpdateWork_OK_ReturnValue(t *testing.T) {
 }
 
 func TestUpdateWork_OK_SaveValue(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
 	title := "Updated Title"
-	cmd.UpdateWork(source.UserID, source.ID, command.UpdateWorkParam{Title: title})
+	workAPI.UpdateWork(source.UserID, source.ID, api.UpdateWorkParam{Title: title})
 
 	var (
 		e = s.Event
@@ -341,11 +341,11 @@ func TestUpdateWork_OK_SaveValue(t *testing.T) {
 }
 
 func TestUpdateWork_OK_PublishValue(t *testing.T) {
-	cmd, s, p := newCommandWithInmemory()
+	workAPI, s, p := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	cmd.UpdateWork(source.UserID, source.ID, command.UpdateWorkParam{Title: "Updated Title"})
+	workAPI.UpdateWork(source.UserID, source.ID, api.UpdateWorkParam{Title: "Updated Title"})
 
 	t.Run("保存したEventをPublishすること", func(t *testing.T) {
 		b, _ := event.MarshalPb(s.Event)
@@ -356,28 +356,28 @@ func TestUpdateWork_OK_PublishValue(t *testing.T) {
 }
 
 func TestUpdateWork_InvalidUserID(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	err := cmd.UpdateWork("another-userid", source.ID, command.UpdateWorkParam{Title: "Updated Title"})
+	err := workAPI.UpdateWork("another-userid", source.ID, api.UpdateWorkParam{Title: "Updated Title"})
 
 	t.Run("userIDが更新前と異なる場合はErrForbiddenを返すこと", func(t *testing.T) {
-		if err != command.ErrForbidden {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
+		if err != api.ErrForbidden {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrForbidden)
 		}
 	})
 }
 
 func TestUpdateWork_InvalidWorkID(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.GetWorkError = store.ErrNotfound
 
-	err := cmd.UpdateWork("some-userid", "some-workid", command.UpdateWorkParam{Title: "Updated Title"})
+	err := workAPI.UpdateWork("some-userid", "some-workid", api.UpdateWorkParam{Title: "Updated Title"})
 
 	t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
-		if err != command.ErrNotfound {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+		if err != api.ErrNotfound {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrNotfound)
 		}
 	})
 }
@@ -387,11 +387,11 @@ func TestUpdateWork_StoreError(t *testing.T) {
 	source := newWork()
 
 	t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.Work = source
 		s.PutEventError = someErr
 
-		err := cmd.UpdateWork(source.UserID, source.ID, command.UpdateWorkParam{Title: "Updated Title"})
+		err := workAPI.UpdateWork(source.UserID, source.ID, api.UpdateWorkParam{Title: "Updated Title"})
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -399,11 +399,11 @@ func TestUpdateWork_StoreError(t *testing.T) {
 	})
 
 	t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.Work = source
 		s.PutWorkError = someErr
 
-		err := cmd.UpdateWork(source.UserID, source.ID, command.UpdateWorkParam{Title: "Updated Title"})
+		err := workAPI.UpdateWork(source.UserID, source.ID, api.UpdateWorkParam{Title: "Updated Title"})
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -412,7 +412,7 @@ func TestUpdateWork_StoreError(t *testing.T) {
 }
 
 func TestDeleteWork_Expectation(t *testing.T) {
-	cmd, mockStore, mockPublisher, mockCtrl := newCommandWithGoMock(t)
+	workAPI, mockStore, mockPublisher, mockCtrl := newAPIWithGoMock(t)
 	defer mockCtrl.Finish()
 
 	source := newWork()
@@ -426,15 +426,15 @@ func TestDeleteWork_Expectation(t *testing.T) {
 		mockPublisher.EXPECT().Publish(gomock.Any()),
 	)
 
-	cmd.DeleteWork(source.UserID, source.ID)
+	workAPI.DeleteWork(source.UserID, source.ID)
 }
 
 func TestDeleteWork_OK_ReturnValue(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	err := cmd.DeleteWork(source.UserID, source.ID)
+	err := workAPI.DeleteWork(source.UserID, source.ID)
 
 	t.Run("errorがnil であること", func(t *testing.T) {
 		if err != nil {
@@ -444,11 +444,11 @@ func TestDeleteWork_OK_ReturnValue(t *testing.T) {
 }
 
 func TestDeleteWork_OK_PublishValue(t *testing.T) {
-	cmd, s, p := newCommandWithInmemory()
+	workAPI, s, p := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	cmd.DeleteWork(source.UserID, source.ID)
+	workAPI.DeleteWork(source.UserID, source.ID)
 
 	t.Run("保存したEventをPublishすること", func(t *testing.T) {
 		b, _ := event.MarshalPb(s.Event)
@@ -459,11 +459,11 @@ func TestDeleteWork_OK_PublishValue(t *testing.T) {
 }
 
 func TestDeleteWork_OK_SaveValue(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	cmd.DeleteWork(source.UserID, source.ID)
+	workAPI.DeleteWork(source.UserID, source.ID)
 
 	e := s.Event
 
@@ -505,28 +505,28 @@ func TestDeleteWork_OK_SaveValue(t *testing.T) {
 }
 
 func TestDeleteWork_InvalidUserID(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	source := newWork()
 	s.Work = source
 
-	err := cmd.DeleteWork("anotherUserID", source.ID)
+	err := workAPI.DeleteWork("anotherUserID", source.ID)
 
 	t.Run("userIDが更新前と異なる場合はErrForbiddenを返すこと", func(t *testing.T) {
-		if err != command.ErrForbidden {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
+		if err != api.ErrForbidden {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrForbidden)
 		}
 	})
 }
 
 func TestDeleteWork_InvalidWorkID(t *testing.T) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.GetWorkError = store.ErrNotfound
 
-	err := cmd.DeleteWork("some-userid", "some-workid")
+	err := workAPI.DeleteWork("some-userid", "some-workid")
 
 	t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
-		if err != command.ErrNotfound {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+		if err != api.ErrNotfound {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrNotfound)
 		}
 	})
 }
@@ -536,11 +536,11 @@ func TestDeleteWork_StoreError(t *testing.T) {
 	source := newWork()
 
 	t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.Work = source
 		s.PutEventError = someErr
 
-		err := cmd.DeleteWork(source.UserID, source.ID)
+		err := workAPI.DeleteWork(source.UserID, source.ID)
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -548,11 +548,11 @@ func TestDeleteWork_StoreError(t *testing.T) {
 	})
 
 	t.Run("Store#DeleteWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.Work = source
 		s.DeleteWorkError = someErr
 
-		err := cmd.DeleteWork(source.UserID, source.ID)
+		err := workAPI.DeleteWork(source.UserID, source.ID)
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -565,7 +565,7 @@ func TestStartWork(t *testing.T) {
 	source.State = model.Unstarted
 
 	t.Run("開始", func(t *testing.T) {
-		testChangeWorkState(t, command.Command.StartWork, source, event.StartWork, model.Started)
+		testChangeWorkState(t, api.API.StartWork, source, event.StartWork, model.Started)
 	})
 
 	for _, state := range []model.WorkState{
@@ -576,13 +576,13 @@ func TestStartWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			cmd, s, _ := newCommandWithInmemory()
+			workAPI, s, _ := newAPIWithInmemory()
 			s.Work = source
 			s.Work.State = state
 
-			err := cmd.StartWork(source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+			err := workAPI.StartWork(source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
-			if _, ok := err.(command.ValidationError); !ok {
+			if _, ok := err.(api.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
@@ -594,7 +594,7 @@ func TestPauseWork(t *testing.T) {
 	source.State = model.Started
 
 	t.Run("停止", func(t *testing.T) {
-		testChangeWorkState(t, command.Command.PauseWork, source, event.PauseWork, model.Paused)
+		testChangeWorkState(t, api.API.PauseWork, source, event.PauseWork, model.Paused)
 	})
 
 	for _, state := range []model.WorkState{
@@ -604,13 +604,13 @@ func TestPauseWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			cmd, s, _ := newCommandWithInmemory()
+			workAPI, s, _ := newAPIWithInmemory()
 			s.Work = source
 			s.Work.State = state
 
-			err := cmd.PauseWork(source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+			err := workAPI.PauseWork(source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
-			if _, ok := err.(command.ValidationError); !ok {
+			if _, ok := err.(api.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
@@ -622,7 +622,7 @@ func TestResumeWork(t *testing.T) {
 	source.State = model.Paused
 
 	t.Run("再開", func(t *testing.T) {
-		testChangeWorkState(t, command.Command.ResumeWork, source, event.ResumeWork, model.Resumed)
+		testChangeWorkState(t, api.API.ResumeWork, source, event.ResumeWork, model.Resumed)
 	})
 
 	for _, state := range []model.WorkState{
@@ -633,13 +633,13 @@ func TestResumeWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			cmd, s, _ := newCommandWithInmemory()
+			workAPI, s, _ := newAPIWithInmemory()
 			s.Work = source
 			s.Work.State = state
 
-			err := cmd.ResumeWork(source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+			err := workAPI.ResumeWork(source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
-			if _, ok := err.(command.ValidationError); !ok {
+			if _, ok := err.(api.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
@@ -651,7 +651,7 @@ func TestFinishWork(t *testing.T) {
 	source.State = model.Resumed
 
 	t.Run("完了", func(t *testing.T) {
-		testChangeWorkState(t, command.Command.FinishWork, source, event.FinishWork, model.Finished)
+		testChangeWorkState(t, api.API.FinishWork, source, event.FinishWork, model.Finished)
 	})
 
 	for _, state := range []model.WorkState{
@@ -660,13 +660,13 @@ func TestFinishWork(t *testing.T) {
 		model.Finished,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			cmd, s, _ := newCommandWithInmemory()
+			workAPI, s, _ := newAPIWithInmemory()
 			s.Work = source
 			s.Work.State = state
 
-			err := cmd.FinishWork(source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+			err := workAPI.FinishWork(source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
-			if _, ok := err.(command.ValidationError); !ok {
+			if _, ok := err.(api.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
@@ -678,7 +678,7 @@ func TestCancelFinishWork(t *testing.T) {
 	source.State = model.Finished
 
 	t.Run("完了取り消し", func(t *testing.T) {
-		testChangeWorkState(t, command.Command.CancelFinishWork, source, event.CancelFinishWork, model.Paused)
+		testChangeWorkState(t, api.API.CancelFinishWork, source, event.CancelFinishWork, model.Paused)
 	})
 
 	for _, state := range []model.WorkState{
@@ -689,20 +689,20 @@ func TestCancelFinishWork(t *testing.T) {
 		model.Resumed,
 	} {
 		t.Run(fmt.Sprintf("更新前のWork.Stateが%sの場合はValidationErrorになること", state), func(t *testing.T) {
-			cmd, s, _ := newCommandWithInmemory()
+			workAPI, s, _ := newAPIWithInmemory()
 			s.Work = source
 			s.Work.State = state
 
-			err := cmd.CancelFinishWork(source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+			err := workAPI.CancelFinishWork(source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
-			if _, ok := err.(command.ValidationError); !ok {
+			if _, ok := err.(api.ValidationError); !ok {
 				t.Errorf("error = %#v, wants ValidationError", err)
 			}
 		})
 	}
 }
 
-type changeWorkStateFunc func(command.Command, string, string, command.ChangeWorkStateParam) error
+type changeWorkStateFunc func(api.API, string, string, api.ChangeWorkStateParam) error
 
 func testChangeWorkState(t *testing.T, testFunc changeWorkStateFunc, source model.Work, eventAction event.Action, state model.WorkState) {
 	t.Run("Expectation", func(t *testing.T) {
@@ -732,7 +732,7 @@ func testChangeWorkState(t *testing.T, testFunc changeWorkStateFunc, source mode
 }
 
 func testChangeWorkState_Expectation(t *testing.T, testFunc changeWorkStateFunc, source model.Work) {
-	cmd, mockStore, mockPublisher, mockCtrl := newCommandWithGoMock(t)
+	workAPI, mockStore, mockPublisher, mockCtrl := newAPIWithGoMock(t)
 	defer mockCtrl.Finish()
 
 	gomock.InOrder(
@@ -744,14 +744,14 @@ func testChangeWorkState_Expectation(t *testing.T, testFunc changeWorkStateFunc,
 		mockPublisher.EXPECT().Publish(gomock.Any()),
 	)
 
-	testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+	testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 }
 
 func testChangeWorkState_ReturnValue(t *testing.T, testFunc changeWorkStateFunc, source model.Work) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.Work = source
 
-	err := testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+	err := testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
 	t.Run("errorがnil であること", func(t *testing.T) {
 		if err != nil {
@@ -761,11 +761,11 @@ func testChangeWorkState_ReturnValue(t *testing.T, testFunc changeWorkStateFunc,
 }
 
 func testChangeWorkState_SaveValue(t *testing.T, testFunc changeWorkStateFunc, source model.Work, eventAction event.Action, state model.WorkState) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.Work = source
 
 	now := time.Now()
-	testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: now})
+	testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: now})
 
 	var (
 		e = s.Event
@@ -863,10 +863,10 @@ func testChangeWorkState_SaveValue(t *testing.T, testFunc changeWorkStateFunc, s
 }
 
 func testChangeWorkState_OK_PublishValue(t *testing.T, testFunc changeWorkStateFunc, source model.Work) {
-	cmd, s, p := newCommandWithInmemory()
+	workAPI, s, p := newAPIWithInmemory()
 	s.Work = source
 
-	testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+	testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
 	t.Run("保存したEventをPublishすること", func(t *testing.T) {
 		b, _ := event.MarshalPb(s.Event)
@@ -877,27 +877,27 @@ func testChangeWorkState_OK_PublishValue(t *testing.T, testFunc changeWorkStateF
 }
 
 func testChangeWorkState_InvalidUserID(t *testing.T, testFunc changeWorkStateFunc, source model.Work) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.Work = source
 
-	err := testFunc(cmd, "anotherUserID", source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+	err := testFunc(workAPI, "anotherUserID", source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
 	t.Run("userIDが更新前と異なる場合はErrForbiddenを返すこと", func(t *testing.T) {
-		if err != command.ErrForbidden {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrForbidden)
+		if err != api.ErrForbidden {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrForbidden)
 		}
 	})
 }
 
 func testChangeWorkState_InvalidWorkID(t *testing.T, testFunc changeWorkStateFunc, source model.Work) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.GetWorkError = store.ErrNotfound
 
-	err := testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+	err := testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
 	t.Run("Store#GetWorkがErrNotfoundの場合はErrNotfoundを返すこと", func(t *testing.T) {
-		if err != command.ErrNotfound {
-			t.Errorf("error = %#v, wants = %#v", err, command.ErrNotfound)
+		if err != api.ErrNotfound {
+			t.Errorf("error = %#v, wants = %#v", err, api.ErrNotfound)
 		}
 	})
 }
@@ -906,11 +906,11 @@ func testChangeWorkState_StoreError(t *testing.T, testFunc changeWorkStateFunc, 
 	someErr := errors.New("Some Error")
 
 	t.Run("Store#PutEventがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.Work = source
 		s.PutEventError = someErr
 
-		err := testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+		err := testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -918,11 +918,11 @@ func testChangeWorkState_StoreError(t *testing.T, testFunc changeWorkStateFunc, 
 	})
 
 	t.Run("Store#PutWorkがエラーになった場合はerrorを返すこと", func(t *testing.T) {
-		cmd, s, _ := newCommandWithInmemory()
+		workAPI, s, _ := newAPIWithInmemory()
 		s.Work = source
 		s.PutWorkError = someErr
 
-		err := testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: time.Now()})
+		err := testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: time.Now()})
 
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
@@ -931,13 +931,13 @@ func testChangeWorkState_StoreError(t *testing.T, testFunc changeWorkStateFunc, 
 }
 
 func testChangeWorkState_InvalidParam(t *testing.T, testFunc changeWorkStateFunc, source model.Work) {
-	cmd, s, _ := newCommandWithInmemory()
+	workAPI, s, _ := newAPIWithInmemory()
 	s.Work = source
 
-	err := testFunc(cmd, source.UserID, source.ID, command.ChangeWorkStateParam{Time: source.Time.Add(-1 * time.Second)})
+	err := testFunc(workAPI, source.UserID, source.ID, api.ChangeWorkStateParam{Time: source.Time.Add(-1 * time.Second)})
 
 	t.Run("更新前のWork.Timeがparam.Timeより大きい場合はValidationErrorになること", func(t *testing.T) {
-		if _, ok := err.(command.ValidationError); !ok {
+		if _, ok := err.(api.ValidationError); !ok {
 			t.Errorf("error = %#v, wants ValidationError", err)
 		}
 	})
@@ -947,18 +947,18 @@ func TestClose(t *testing.T) {
 	var (
 		mockCtrl  = gomock.NewController(t)
 		mockStore = store.NewMockStore(mockCtrl)
-		cmd       = command.New(command.Dependency{Store: mockStore})
+		workAPI   = api.New(api.Dependency{Store: mockStore})
 	)
 	defer mockCtrl.Finish()
 
 	t.Run("dep.Store#Closeを呼ぶこと", func(t *testing.T) {
 		mockStore.EXPECT().Close()
-		cmd.Close()
+		workAPI.Close()
 	})
 
 	t.Run("dep.Store#Closeがエラーでない場合はnilを返すこと", func(t *testing.T) {
 		mockStore.EXPECT().Close()
-		err := cmd.Close()
+		err := workAPI.Close()
 		if err != nil {
 			t.Errorf("error = %#v, wants = nil", err)
 		}
@@ -968,14 +968,14 @@ func TestClose(t *testing.T) {
 		someErr := errors.New("Some Error")
 
 		mockStore.EXPECT().Close().Return(someErr)
-		err := cmd.Close()
+		err := workAPI.Close()
 		if err != someErr {
 			t.Errorf("error = %#v, wants = %#v", err, someErr)
 		}
 	})
 }
 
-func newCommandWithGoMock(t *testing.T) (command.Command, *store.MockStore, *publisher.MockPublisher, *gomock.Controller) {
+func newAPIWithGoMock(t *testing.T) (api.API, *store.MockStore, *publisher.MockPublisher, *gomock.Controller) {
 	var (
 		mockCtrl        = gomock.NewController(t)
 		mockStore       = store.NewMockStore(mockCtrl)
@@ -987,14 +987,14 @@ func newCommandWithGoMock(t *testing.T) (command.Command, *store.MockStore, *pub
 		return f(mockStoreInTran)
 	})
 
-	cmd := command.New(command.Dependency{Store: mockStore, Publisher: mockPublisher})
-	return cmd, mockStoreInTran, mockPublisher, mockCtrl
+	workAPI := api.New(api.Dependency{Store: mockStore, Publisher: mockPublisher})
+	return workAPI, mockStoreInTran, mockPublisher, mockCtrl
 }
 
-func newCommandWithInmemory() (command.Command, *store.InmemoryStore, *publisher.InmemoryPublisher) {
+func newAPIWithInmemory() (api.API, *store.InmemoryStore, *publisher.InmemoryPublisher) {
 	s := store.NewInmemoryStore()
 	p := publisher.NewInmemoryPublisher()
-	return command.New(command.Dependency{Store: s, Publisher: p}), s, p
+	return api.New(api.Dependency{Store: s, Publisher: p}), s, p
 }
 
 func newWork() model.Work {

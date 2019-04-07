@@ -6,8 +6,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/iii-ishida/workrec/server/api/model"
 	"github.com/iii-ishida/workrec/server/util"
-	"github.com/iii-ishida/workrec/server/worklist/model"
 )
 
 func TestMarshalWorkPb(t *testing.T) {

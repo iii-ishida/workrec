@@ -1,57 +1,13 @@
-package command
+package api
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/iii-ishida/workrec/server/command/model"
-	"github.com/iii-ishida/workrec/server/command/store"
+	"github.com/iii-ishida/workrec/server/api/model"
+	"github.com/iii-ishida/workrec/server/api/store"
 	"github.com/iii-ishida/workrec/server/event"
-	"github.com/iii-ishida/workrec/server/publisher"
 	"github.com/iii-ishida/workrec/server/util"
-)
-
-// Dependency is a dependency for the command.
-type Dependency struct {
-	store.Store
-	publisher.Publisher
-}
-
-// Command is a workrec command.
-type Command struct {
-	dep Dependency
-}
-
-// New returns a new Command.
-func New(dep Dependency) Command {
-	return Command{dep: dep}
-}
-
-// NewCloudDataStore returns a new CloudDataStore.
-func NewCloudDataStore(r *http.Request) (store.Store, error) {
-	return store.NewCloudDataStore(r)
-}
-
-// NewCloudPublisher returns a new CloudPublisher.
-func NewCloudPublisher(r *http.Request) publisher.Publisher {
-	return publisher.NewCloudPublisher(r)
-}
-
-// ValidationError is a error for the validation.
-type ValidationError string
-
-func (v ValidationError) Error() string {
-	return string(v)
-}
-
-var (
-	// ErrNotfound is error for the notfound.
-	ErrNotfound = errors.New("not found")
-
-	// ErrForbidden is error for the Forbidden.
-	ErrForbidden = errors.New("forbidden")
 )
 
 // CreateWorkParam is a param for CreateWork.
@@ -59,8 +15,19 @@ type CreateWorkParam struct {
 	Title string
 }
 
+// UpdateWorkParam is a param for UpdateWork.
+type UpdateWorkParam struct {
+	Title string
+}
+
+// ChangeWorkStateParam is a param for changeWorkState.
+type ChangeWorkStateParam struct {
+	Time  time.Time
+	state model.WorkState
+}
+
 // CreateWork creates a work and returns the created work id.
-func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error) {
+func (a API) CreateWork(userID string, param CreateWorkParam) (string, error) {
 	if userID == "" {
 		return "", ErrForbidden
 	}
@@ -68,7 +35,7 @@ func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error
 	now := time.Now()
 
 	var ret string
-	err := c.dep.Store.RunInTransaction(func(s store.Store) error {
+	err := a.dep.Store.RunInTransaction(func(s store.Store) error {
 		eventID := util.NewUUID()
 		workID := util.NewUUID()
 
@@ -98,7 +65,7 @@ func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error
 			return err
 		}
 
-		if err := c.publishEvent(e); err != nil {
+		if err := a.publishEvent(e); err != nil {
 			return err
 		}
 
@@ -113,16 +80,11 @@ func (c Command) CreateWork(userID string, param CreateWorkParam) (string, error
 	return ret, nil
 }
 
-// UpdateWorkParam is a param for UpdateWork.
-type UpdateWorkParam struct {
-	Title string
-}
-
 // UpdateWork updates the work.
-func (c Command) UpdateWork(userID, workID string, param UpdateWorkParam) error {
+func (a API) UpdateWork(userID, workID string, param UpdateWorkParam) error {
 	now := time.Now()
 
-	return c.dep.Store.RunInTransaction(func(s store.Store) error {
+	return a.dep.Store.RunInTransaction(func(s store.Store) error {
 		var source model.Work
 		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
@@ -163,15 +125,15 @@ func (c Command) UpdateWork(userID, workID string, param UpdateWorkParam) error 
 			return err
 		}
 
-		return c.publishEvent(e)
+		return a.publishEvent(e)
 	})
 }
 
 // DeleteWork deletes the work.
-func (c Command) DeleteWork(userID, workID string) error {
+func (a API) DeleteWork(userID, workID string) error {
 	now := time.Now()
 
-	return c.dep.Store.RunInTransaction(func(s store.Store) error {
+	return a.dep.Store.RunInTransaction(func(s store.Store) error {
 		var source model.Work
 		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
@@ -202,19 +164,13 @@ func (c Command) DeleteWork(userID, workID string) error {
 			return err
 		}
 
-		return c.publishEvent(e)
+		return a.publishEvent(e)
 	})
 }
 
-// ChangeWorkStateParam is a param for changeWorkState.
-type ChangeWorkStateParam struct {
-	Time  time.Time
-	state model.WorkState
-}
-
 // StartWork starts the work.
-func (c Command) StartWork(userID, workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(userID, workID, param, event.StartWork, func(source model.Work) error {
+func (a API) StartWork(userID, workID string, param ChangeWorkStateParam) error {
+	return a.changeWorkState(userID, workID, param, event.StartWork, func(source model.Work) error {
 		switch source.State {
 		case model.Unstarted:
 			return nil
@@ -225,8 +181,8 @@ func (c Command) StartWork(userID, workID string, param ChangeWorkStateParam) er
 }
 
 // PauseWork pauses the work.
-func (c Command) PauseWork(userID, workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(userID, workID, param, event.PauseWork, func(source model.Work) error {
+func (a API) PauseWork(userID, workID string, param ChangeWorkStateParam) error {
+	return a.changeWorkState(userID, workID, param, event.PauseWork, func(source model.Work) error {
 		switch source.State {
 		case model.Started, model.Resumed:
 			return nil
@@ -237,8 +193,8 @@ func (c Command) PauseWork(userID, workID string, param ChangeWorkStateParam) er
 }
 
 // ResumeWork resumes the work.
-func (c Command) ResumeWork(userID, workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(userID, workID, param, event.ResumeWork, func(source model.Work) error {
+func (a API) ResumeWork(userID, workID string, param ChangeWorkStateParam) error {
+	return a.changeWorkState(userID, workID, param, event.ResumeWork, func(source model.Work) error {
 		switch source.State {
 		case model.Paused:
 			return nil
@@ -249,8 +205,8 @@ func (c Command) ResumeWork(userID, workID string, param ChangeWorkStateParam) e
 }
 
 // FinishWork finishes the work.
-func (c Command) FinishWork(userID, workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(userID, workID, param, event.FinishWork, func(source model.Work) error {
+func (a API) FinishWork(userID, workID string, param ChangeWorkStateParam) error {
+	return a.changeWorkState(userID, workID, param, event.FinishWork, func(source model.Work) error {
 		switch source.State {
 		case model.Started, model.Paused, model.Resumed:
 			return nil
@@ -261,8 +217,8 @@ func (c Command) FinishWork(userID, workID string, param ChangeWorkStateParam) e
 }
 
 // CancelFinishWork cancels the finish state for the work.
-func (c Command) CancelFinishWork(userID, workID string, param ChangeWorkStateParam) error {
-	return c.changeWorkState(userID, workID, param, event.CancelFinishWork, func(source model.Work) error {
+func (a API) CancelFinishWork(userID, workID string, param ChangeWorkStateParam) error {
+	return a.changeWorkState(userID, workID, param, event.CancelFinishWork, func(source model.Work) error {
 		switch source.State {
 		case model.Finished:
 			return nil
@@ -272,10 +228,10 @@ func (c Command) CancelFinishWork(userID, workID string, param ChangeWorkStatePa
 	})
 }
 
-func (c Command) changeWorkState(userID, workID string, param ChangeWorkStateParam, eventAction event.Action, validationFunc func(model.Work) error) error {
+func (a API) changeWorkState(userID, workID string, param ChangeWorkStateParam, eventAction event.Action, validationFunc func(model.Work) error) error {
 	now := time.Now()
 
-	return c.dep.Store.RunInTransaction(func(s store.Store) error {
+	return a.dep.Store.RunInTransaction(func(s store.Store) error {
 		var source model.Work
 		if err := s.GetWork(workID, &source); err != nil {
 			if err == store.ErrNotfound {
@@ -324,25 +280,17 @@ func (c Command) changeWorkState(userID, workID string, param ChangeWorkStatePar
 			return err
 		}
 
-		return c.publishEvent(e)
+		return a.publishEvent(e)
 	})
 }
 
-// Close closes the Store.
-func (c Command) Close() error {
-	if c.dep.Store == nil {
-		return nil
-	}
-	return c.dep.Store.Close()
-}
-
-func (c Command) publishEvent(e event.Event) error {
+func (a API) publishEvent(e event.Event) error {
 	b, err := event.MarshalPb(e)
 	if err != nil {
 		return err
 	}
 
-	return c.dep.Publisher.Publish(b)
+	return a.dep.Publisher.Publish(b)
 }
 
 func workStateFromEventAction(eventAction event.Action) model.WorkState {

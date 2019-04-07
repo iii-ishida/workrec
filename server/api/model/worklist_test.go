@@ -5,9 +5,9 @@ import (
 
 	"time"
 
+	"github.com/iii-ishida/workrec/server/api/model"
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
-	"github.com/iii-ishida/workrec/server/worklist/model"
 )
 
 func TestApplyEventsToWork(t *testing.T) {

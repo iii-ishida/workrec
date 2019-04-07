@@ -13,8 +13,8 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/iii-ishida/workrec/server/command"
-	"github.com/iii-ishida/workrec/server/command/model"
+	"github.com/iii-ishida/workrec/server/api"
+	"github.com/iii-ishida/workrec/server/api/model"
 	"github.com/iii-ishida/workrec/server/publisher"
 	"github.com/iii-ishida/workrec/server/util"
 	main "github.com/iii-ishida/workrec/server/web"
@@ -514,7 +514,7 @@ func newWorkWithState(userID string, state model.WorkState) model.Work {
 
 func putWork(w model.Work) {
 	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := command.NewCloudDataStore(r)
+	s, _ := api.NewCloudDataStore(r)
 	defer s.Close()
 
 	s.PutWork(w)

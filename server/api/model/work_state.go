@@ -1,20 +1,6 @@
 package model
 
-import (
-	"fmt"
-	"time"
-)
-
-// Work is a Work.
-type Work struct {
-	ID        string
-	EventID   string
-	UserID    string
-	Title     string
-	Time      time.Time
-	State     WorkState
-	UpdatedAt time.Time
-}
+import "fmt"
 
 // WorkState is a state for a work.
 type WorkState int8

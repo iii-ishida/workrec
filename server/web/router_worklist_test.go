@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/iii-ishida/workrec/server/api"
+	"github.com/iii-ishida/workrec/server/api/model"
 	"github.com/iii-ishida/workrec/server/util"
-	"github.com/iii-ishida/workrec/server/worklist"
-	"github.com/iii-ishida/workrec/server/worklist/model"
 )
 
 func TestListWork_OK(t *testing.T) {
@@ -60,9 +60,9 @@ func TestListWork_NotLoggedIn(t *testing.T) {
 
 func createWorkListItems(items []model.WorkListItem) {
 	r, _ := http.NewRequest("GET", "/", nil)
-	s, _ := worklist.NewCloudDataStore(r)
+	s, _ := api.NewCloudDataStore(r)
 
 	for _, item := range items {
-		s.PutWork(item)
+		s.PutWorkListItem(item)
 	}
 }

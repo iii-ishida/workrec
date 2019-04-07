@@ -10,10 +10,9 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/iii-ishida/workrec/server/api"
 	"github.com/iii-ishida/workrec/server/auth"
-	"github.com/iii-ishida/workrec/server/command"
 	"github.com/iii-ishida/workrec/server/util"
-	"github.com/iii-ishida/workrec/server/worklist"
 )
 
 const defaultPageSize = 50
@@ -47,18 +46,18 @@ func NewRouter() http.Handler {
 }
 
 func getWorkList(w http.ResponseWriter, r *http.Request) {
-	q, err := newWorkListQuery(r)
+	workAPI, err := newAPI(r)
 
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
-	defer q.Close()
+	defer workAPI.Close()
 
 	userID := auth.GetUserID(r.Context())
 
-	if err := q.ConstructWorks(userID); err != nil {
-		if err == worklist.ErrForbidden {
+	if err := workAPI.ConstructWorkList(userID); err != nil {
+		if err == api.ErrForbidden {
 			util.RespondError(w, http.StatusForbidden)
 			return
 		}
@@ -73,10 +72,10 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 	}
 	pageToken := r.URL.Query().Get("page_token")
 
-	list, err := q.Get(userID, worklist.Param{PageSize: pageSize, PageToken: pageToken})
+	list, err := workAPI.GetWorkList(userID, api.GetWorkListParam{PageSize: pageSize, PageToken: pageToken})
 
 	if err != nil {
-		if err == worklist.ErrForbidden {
+		if err == api.ErrForbidden {
 			util.RespondError(w, http.StatusForbidden)
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
@@ -84,7 +83,7 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := worklist.MarshalWorkListPb(list)
+	b, err := api.MarshalWorkListPb(list)
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
@@ -96,13 +95,13 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 }
 
 func createWork(w http.ResponseWriter, r *http.Request) {
-	cmd, err := newCmd(r)
+	workAPI, err := newAPI(r)
 
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
-	defer cmd.Close()
+	defer workAPI.Close()
 
 	var param CreateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
@@ -116,7 +115,7 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := cmd.CreateWork(userID, command.CreateWorkParam{Title: param.Title})
+	id, err := workAPI.CreateWork(userID, api.CreateWorkParam{Title: param.Title})
 
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
@@ -128,13 +127,13 @@ func createWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateWork(w http.ResponseWriter, r *http.Request) {
-	cmd, err := newCmd(r)
+	workAPI, err := newAPI(r)
 
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
-	defer cmd.Close()
+	defer workAPI.Close()
 
 	var param UpdateWorkRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
@@ -144,12 +143,12 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 
 	userID := auth.GetUserID(r.Context())
 	workID := chi.URLParam(r, "workID")
-	err = cmd.UpdateWork(userID, workID, command.UpdateWorkParam{Title: param.Title})
+	err = workAPI.UpdateWork(userID, workID, api.UpdateWorkParam{Title: param.Title})
 
 	if err != nil {
-		if _, ok := err.(command.ValidationError); ok {
+		if _, ok := err.(api.ValidationError); ok {
 			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
-		} else if err == command.ErrForbidden || err == command.ErrNotfound {
+		} else if err == api.ErrForbidden || err == api.ErrNotfound {
 			util.RespondErrorAndLog(w, http.StatusNotFound, "error: %s", err.Error())
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
@@ -161,22 +160,22 @@ func updateWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteWork(w http.ResponseWriter, r *http.Request) {
-	cmd, err := newCmd(r)
+	workAPI, err := newAPI(r)
 
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
-	defer cmd.Close()
+	defer workAPI.Close()
 
 	userID := auth.GetUserID(r.Context())
 	workID := chi.URLParam(r, "workID")
-	err = cmd.DeleteWork(userID, workID)
+	err = workAPI.DeleteWork(userID, workID)
 
 	if err != nil {
-		if _, ok := err.(command.ValidationError); ok {
+		if _, ok := err.(api.ValidationError); ok {
 			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
-		} else if err == command.ErrForbidden || err == command.ErrNotfound {
+		} else if err == api.ErrForbidden || err == api.ErrNotfound {
 			util.RespondErrorAndLog(w, http.StatusNotFound, "error: %s", err.Error())
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
@@ -188,35 +187,35 @@ func deleteWork(w http.ResponseWriter, r *http.Request) {
 }
 
 func startWork(w http.ResponseWriter, r *http.Request) {
-	changeWorkState(w, r, command.Command.StartWork)
+	changeWorkState(w, r, api.API.StartWork)
 }
 
 func pauseWork(w http.ResponseWriter, r *http.Request) {
-	changeWorkState(w, r, command.Command.PauseWork)
+	changeWorkState(w, r, api.API.PauseWork)
 }
 
 func resumeWork(w http.ResponseWriter, r *http.Request) {
-	changeWorkState(w, r, command.Command.ResumeWork)
+	changeWorkState(w, r, api.API.ResumeWork)
 }
 
 func finishWork(w http.ResponseWriter, r *http.Request) {
-	changeWorkState(w, r, command.Command.FinishWork)
+	changeWorkState(w, r, api.API.FinishWork)
 }
 
 func cancelFinishWork(w http.ResponseWriter, r *http.Request) {
-	changeWorkState(w, r, command.Command.CancelFinishWork)
+	changeWorkState(w, r, api.API.CancelFinishWork)
 }
 
-type changeWorkStateFunc func(command.Command, string, string, command.ChangeWorkStateParam) error
+type changeWorkStateFunc func(api.API, string, string, api.ChangeWorkStateParam) error
 
 func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateFunc) {
-	cmd, err := newCmd(r)
+	workAPI, err := newAPI(r)
 
 	if err != nil {
 		util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
 		return
 	}
-	defer cmd.Close()
+	defer workAPI.Close()
 
 	var param ChangeWorkStateRequestPb
 	if err = unmarshalRequestBody(r, &param); err != nil {
@@ -232,12 +231,12 @@ func changeWorkState(w http.ResponseWriter, r *http.Request, fn changeWorkStateF
 
 	userID := auth.GetUserID(r.Context())
 	workID := chi.URLParam(r, "workID")
-	err = fn(cmd, userID, workID, command.ChangeWorkStateParam{Time: paramTime})
+	err = fn(workAPI, userID, workID, api.ChangeWorkStateParam{Time: paramTime})
 
 	if err != nil {
-		if _, ok := err.(command.ValidationError); ok {
+		if _, ok := err.(api.ValidationError); ok {
 			util.RespondErrorAndLog(w, http.StatusBadRequest, "error: %s", err.Error())
-		} else if err == command.ErrForbidden || err == command.ErrNotfound {
+		} else if err == api.ErrForbidden || err == api.ErrNotfound {
 			util.RespondErrorAndLog(w, http.StatusNotFound, "error: %s", err.Error())
 		} else {
 			util.RespondErrorAndLog(w, http.StatusInternalServerError, "error: %s", err.Error())
@@ -253,25 +252,14 @@ var newAuth = func() auth.Auth {
 	return auth.New(auth.Dependency{UserIDGetter: auth.NewFirebaseUserIDGetter()})
 }
 
-func newWorkListQuery(r *http.Request) (worklist.Query, error) {
-	cloudStore, err := worklist.NewCloudDataStore(r)
+func newAPI(r *http.Request) (api.API, error) {
+	cloudStore, err := api.NewCloudDataStore(r)
 	if err != nil {
-		return worklist.Query{}, err
+		return api.API{}, err
 	}
 
-	return worklist.NewQuery(worklist.Dependency{
-		Store: cloudStore,
-	}), nil
-}
-
-func newCmd(r *http.Request) (command.Command, error) {
-	cloudStore, err := command.NewCloudDataStore(r)
-	if err != nil {
-		return command.Command{}, err
-	}
-
-	pub := command.NewCloudPublisher(r)
-	return command.New(command.Dependency{
+	pub := api.NewCloudPublisher(r)
+	return api.New(api.Dependency{
 		Store:     cloudStore,
 		Publisher: pub,
 	}), nil

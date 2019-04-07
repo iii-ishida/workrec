@@ -6,10 +6,10 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
-// KindNameWork is a datastore kind name for Work.
-const KindNameWork = "WorkListItem"
+// KindNameWorkListItem is a datastore kind name for WorkListItem.
+const KindNameWorkListItem = "WorkListItem"
 
-type workForStore struct {
+type workListItemForStore struct {
 	UserID            string
 	ID                string
 	CreatedAt         time.Time
@@ -17,7 +17,7 @@ type workForStore struct {
 	PbSerializedValue []byte `datastore:",noindex"`
 }
 
-func (w workForStore) toWork() (WorkListItem, error) {
+func (w workListItemForStore) toWork() (WorkListItem, error) {
 	var work WorkListItem
 	if err := UnmarshalWorkListItemPb(w.PbSerializedValue, &work); err != nil {
 		return WorkListItem{}, err
@@ -28,7 +28,7 @@ func (w workForStore) toWork() (WorkListItem, error) {
 
 // Load loads a Work from datastore.
 func (w *WorkListItem) Load(ps []datastore.Property) error {
-	var forStore workForStore
+	var forStore workListItemForStore
 	if err := datastore.LoadStruct(&forStore, ps); err != nil {
 		return err
 	}

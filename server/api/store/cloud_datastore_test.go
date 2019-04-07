@@ -1,17 +1,257 @@
 package store_test
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/datastore"
 	"github.com/google/go-cmp/cmp"
+	"github.com/iii-ishida/workrec/server/api/model"
+	"github.com/iii-ishida/workrec/server/api/store"
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
-	"github.com/iii-ishida/workrec/server/worklist/model"
-	"github.com/iii-ishida/workrec/server/worklist/store"
 )
+
+func TestRunInTransaction(t *testing.T) {
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+	)
+	defer s.Close()
+
+	t.Run("errorがnilの場合は全ての変更を適用すること", func(t *testing.T) {
+		defer clearStore()
+
+		s.RunInTransaction(func(s store.Store) error {
+			s.PutWork(model.Work{
+				ID: "some-workid",
+			})
+			s.PutEvent(event.Event{
+				ID: "some-eventid",
+			})
+			return nil
+		})
+
+		if w := getWork(r, "some-workid"); w.ID == "" {
+			t.Fatal("Work is not saved")
+		}
+		if e := getEvent(r, "some-eventid"); e.ID == "" {
+			t.Fatal("Event is not saved")
+		}
+	})
+
+	t.Run("errorがnilでない場合は全ての変更を適用しないこと", func(t *testing.T) {
+		defer clearStore()
+
+		s.RunInTransaction(func(s store.Store) error {
+			s.PutWork(model.Work{
+				ID: "some-workid",
+			})
+			s.PutEvent(event.Event{
+				ID: "some-eventid",
+			})
+			return errors.New("some error")
+		})
+
+		if w := getWork(r, "some-workid"); w.ID != "" {
+			t.Fatal("Work is saved")
+		}
+		if e := getEvent(r, "some-eventid"); e.ID != "" {
+			t.Fatal("Event is saved")
+		}
+	})
+
+	t.Run("トランザクション中の関数で発生したerrorをそのまま返却すること", func(t *testing.T) {
+		defer clearStore()
+
+		someErr := errors.New("some error")
+		err := s.RunInTransaction(func(s store.Store) error {
+			return someErr
+		})
+		if err != someErr {
+			t.Errorf("error = %#v, wants = %#v", err, someErr)
+		}
+	})
+}
+
+func TestGetWork(t *testing.T) {
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+	)
+	defer s.Close()
+
+	t.Run("対象あり", func(t *testing.T) {
+		defer clearStore()
+
+		source := model.Work{
+			ID:        util.NewUUID(),
+			EventID:   util.NewUUID(),
+			Title:     "Some Title",
+			State:     model.Started,
+			UpdatedAt: time.Now().Truncate(time.Millisecond),
+		}
+
+		putWork(r, source)
+
+		var work model.Work
+		err := s.GetWork(source.ID, &work)
+
+		t.Run("Workが取得されること", func(t *testing.T) {
+			if !cmp.Equal(work, source) {
+				t.Errorf("stored != source, diff = %s", cmp.Diff(work, source))
+			}
+		})
+
+		t.Run("errorがnilであること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants = nil", err)
+			}
+		})
+	})
+
+	t.Run("対象が存在しない場合はErrNotfoundが返却されること", func(t *testing.T) {
+		defer clearStore()
+
+		var work model.Work
+		err := s.GetWork("some-workid", &work)
+		if err != store.ErrNotfound {
+			t.Errorf("error = %#v, wants = ErrNotfound", err)
+		}
+	})
+}
+
+func TestPutWork(t *testing.T) {
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+
+		source = model.Work{
+			ID:        util.NewUUID(),
+			EventID:   util.NewUUID(),
+			Title:     "Some Title",
+			State:     model.Started,
+			UpdatedAt: time.Now().Truncate(time.Millisecond),
+		}
+	)
+	defer s.Close()
+
+	t.Run("対象あり", func(t *testing.T) {
+		defer clearStore()
+
+		putWork(r, source)
+
+		work := model.Work{
+			ID:        source.ID,
+			EventID:   "some-eventid",
+			Title:     "Updated Title",
+			State:     model.Finished,
+			UpdatedAt: time.Now().Truncate(time.Millisecond),
+		}
+		err := s.PutWork(work)
+
+		t.Run("Workが更新されること", func(t *testing.T) {
+			if w := getWork(r, source.ID); !cmp.Equal(w, work) {
+				t.Errorf("updated != source, diff = %s", cmp.Diff(w, work))
+			}
+		})
+
+		t.Run("errorがnilであること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants = nil", err)
+			}
+		})
+	})
+
+	t.Run("対象が存在しない場合Workを新規登録すること", func(t *testing.T) {
+		defer clearStore()
+
+		s.PutWork(source)
+
+		if w := getWork(r, source.ID); !cmp.Equal(w, source) {
+			t.Errorf("created != source, diff = %s", cmp.Diff(w, source))
+		}
+	})
+}
+
+func TestDeleteWork(t *testing.T) {
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+
+		source = model.Work{
+			ID:        util.NewUUID(),
+			EventID:   util.NewUUID(),
+			Title:     "Some Title",
+			State:     model.Started,
+			UpdatedAt: time.Now().Truncate(time.Millisecond),
+		}
+	)
+	defer s.Close()
+
+	t.Run("対象あり", func(t *testing.T) {
+		defer clearStore()
+
+		putWork(r, source)
+
+		err := s.DeleteWork(source.ID)
+
+		t.Run("Workが削除されること", func(t *testing.T) {
+			if w := getWork(r, source.ID); w.ID != "" {
+				t.Fatal("Work is not deleted")
+			}
+		})
+		t.Run("errorがnilであること", func(t *testing.T) {
+			if err != nil {
+				t.Errorf("error = %#v, wants = nil", err)
+			}
+		})
+	})
+
+	t.Run("対象が存在しない場合でもerrorがnilであること", func(t *testing.T) {
+		defer clearStore()
+
+		err := s.DeleteWork("some-workid")
+		if err != nil {
+			t.Errorf("error = %#v, wants = nil", err)
+		}
+	})
+}
+
+func TestPutEvent(t *testing.T) {
+	var (
+		r, _ = http.NewRequest("GET", "/", nil)
+		s, _ = store.NewCloudDataStore(r)
+
+		e = event.Event{
+			ID:        util.NewUUID(),
+			PrevID:    util.NewUUID(),
+			WorkID:    util.NewUUID(),
+			Action:    event.UpdateWork,
+			Title:     "Some Title",
+			Time:      time.Now().Truncate(time.Millisecond),
+			CreatedAt: time.Now().Truncate(time.Millisecond),
+		}
+	)
+	defer s.Close()
+	defer clearStore()
+
+	err := s.PutEvent(e)
+
+	t.Run("Eventが登録されること", func(t *testing.T) {
+		if saved := getEvent(r, e.ID); !cmp.Equal(saved, e) {
+			t.Errorf("created != stored, diff = %s", cmp.Diff(saved, e))
+		}
+	})
+	t.Run("errorがnilであること", func(t *testing.T) {
+		if err != nil {
+			t.Errorf("error = %#v, wants = nil", err)
+		}
+	})
+}
 
 func TestGetEvents(t *testing.T) {
 	var (
@@ -22,7 +262,7 @@ func TestGetEvents(t *testing.T) {
 	defer s.Close()
 
 	t.Run("CreatedAt>lastConstructedAtに該当するEventを取得すること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -53,7 +293,7 @@ func TestGetEvents(t *testing.T) {
 	})
 
 	t.Run("結果をCreatedAtの昇順にソートすること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -90,7 +330,7 @@ func TestGetEvents(t *testing.T) {
 	})
 
 	t.Run("pageTokenなしの場合は先頭から取得すること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -116,7 +356,7 @@ func TestGetEvents(t *testing.T) {
 	})
 
 	t.Run("pageTokenありの場合は続きから取得すること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -145,7 +385,7 @@ func TestGetEvents(t *testing.T) {
 	})
 
 	t.Run("データ件数がpageSizeより多い場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -178,7 +418,7 @@ func TestGetEvents(t *testing.T) {
 	})
 
 	t.Run("データ件数がpageSizeと同じ場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -211,7 +451,7 @@ func TestGetEvents(t *testing.T) {
 	})
 
 	t.Run("データ件数がpageSizeより小さい場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now = time.Now().Truncate(time.Millisecond)
@@ -245,7 +485,7 @@ func TestGetEvents(t *testing.T) {
 	})
 }
 
-func TestGetWorks(t *testing.T) {
+func TestGetWorkList(t *testing.T) {
 	var (
 		r, _   = http.NewRequest("GET", "/", nil)
 		s, _   = store.NewCloudDataStore(r)
@@ -254,7 +494,7 @@ func TestGetWorks(t *testing.T) {
 	defer s.Close()
 
 	t.Run("CreatedAtの降順で取得すること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now       = time.Now().Truncate(time.Millisecond)
@@ -269,10 +509,10 @@ func TestGetWorks(t *testing.T) {
 			latestWork = fixtureWorks[1]
 			pageSize   = len(fixtureWorks)
 		)
-		putWorks(r, fixtureWorks)
+		putWorkListItems(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		s.GetWorks(userID, pageSize, "", &gotWorks)
+		s.GetWorkList(userID, pageSize, "", &gotWorks)
 
 		if !gotWorks[0].CreatedAt.Equal(latestWork.CreatedAt) {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, latestWork.Title)
@@ -289,7 +529,7 @@ func TestGetWorks(t *testing.T) {
 	})
 
 	t.Run("pageTokenなしの場合は先頭から取得すること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now       = time.Now().Truncate(time.Millisecond)
@@ -304,10 +544,10 @@ func TestGetWorks(t *testing.T) {
 			pageSize   = len(fixtureWorks)
 			latestWork = fixtureWorks[pageSize-1]
 		)
-		putWorks(r, fixtureWorks)
+		putWorkListItems(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		s.GetWorks(userID, pageSize, "", &gotWorks)
+		s.GetWorkList(userID, pageSize, "", &gotWorks)
 
 		if gotWorks[0].ID != latestWork.ID {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, latestWork.Title)
@@ -315,7 +555,7 @@ func TestGetWorks(t *testing.T) {
 	})
 
 	t.Run("pageTokenありの場合は続きから取得すること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now       = time.Now().Truncate(time.Millisecond)
@@ -330,13 +570,13 @@ func TestGetWorks(t *testing.T) {
 			pageSize       = 2
 			secondPageWork = fixtureWorks[1]
 		)
-		putWorks(r, fixtureWorks)
+		putWorkListItems(r, fixtureWorks)
 
 		var tmp []model.WorkListItem
-		pageToken, _ := s.GetWorks(userID, pageSize, "", &tmp)
+		pageToken, _ := s.GetWorkList(userID, pageSize, "", &tmp)
 
 		var gotWorks []model.WorkListItem
-		s.GetWorks(userID, pageSize, pageToken, &gotWorks)
+		s.GetWorkList(userID, pageSize, pageToken, &gotWorks)
 
 		if gotWorks[0].ID != secondPageWork.ID {
 			t.Errorf("gotWorks[0] = %s, wants = %s", gotWorks[0].Title, secondPageWork.Title)
@@ -344,7 +584,7 @@ func TestGetWorks(t *testing.T) {
 	})
 
 	t.Run("データ件数がpageSizeより多い場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now       = time.Now().Truncate(time.Millisecond)
@@ -358,10 +598,10 @@ func TestGetWorks(t *testing.T) {
 			}
 			pageSize = len(fixtureWorks) - 1
 		)
-		putWorks(r, fixtureWorks)
+		putWorkListItems(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		pageToken, _ := s.GetWorks(userID, pageSize, "", &gotWorks)
+		pageToken, _ := s.GetWorkList(userID, pageSize, "", &gotWorks)
 
 		t.Run("pageSizeと同じ件数取得されること", func(t *testing.T) {
 			if l := len(gotWorks); l != pageSize {
@@ -377,7 +617,7 @@ func TestGetWorks(t *testing.T) {
 	})
 
 	t.Run("データ件数がpageSizeと同じ場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now       = time.Now().Truncate(time.Millisecond)
@@ -391,10 +631,10 @@ func TestGetWorks(t *testing.T) {
 			}
 			pageSize = len(fixtureWorks)
 		)
-		putWorks(r, fixtureWorks)
+		putWorkListItems(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		pageToken, _ := s.GetWorks(userID, pageSize, "", &gotWorks)
+		pageToken, _ := s.GetWorkList(userID, pageSize, "", &gotWorks)
 
 		t.Run("pageSizeと同じ件数取得されること", func(t *testing.T) {
 			if l := len(gotWorks); l != pageSize {
@@ -410,7 +650,7 @@ func TestGetWorks(t *testing.T) {
 	})
 
 	t.Run("データ件数がpageSizeより小さい場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var (
 			now       = time.Now().Truncate(time.Millisecond)
@@ -424,10 +664,10 @@ func TestGetWorks(t *testing.T) {
 			}
 			pageSize = len(fixtureWorks) + 1
 		)
-		putWorks(r, fixtureWorks)
+		putWorkListItems(r, fixtureWorks)
 
 		var gotWorks []model.WorkListItem
-		pageToken, _ := s.GetWorks(userID, pageSize, "", &gotWorks)
+		pageToken, _ := s.GetWorkList(userID, pageSize, "", &gotWorks)
 
 		t.Run("データ件数と同じ件数取得されること", func(t *testing.T) {
 			workSize := len(fixtureWorks)
@@ -444,21 +684,21 @@ func TestGetWorks(t *testing.T) {
 	})
 }
 
-func TestGetWork(t *testing.T) {
+func TestGetWorkListItem(t *testing.T) {
 	var (
 		r, _   = http.NewRequest("GET", "/", nil)
 		s, _   = store.NewCloudDataStore(r)
-		source = newWork()
+		source = newWorkListItem()
 	)
 	defer s.Close()
 
 	t.Run("対象が存在する場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
-		putWork(r, source)
+		putWorkListItem(r, source)
 
 		var work model.WorkListItem
-		err := s.GetWork(source.ID, &work)
+		err := s.GetWorkListItem(source.ID, &work)
 
 		t.Run("Workが取得されること", func(t *testing.T) {
 			if !cmp.Equal(work, source) {
@@ -474,37 +714,37 @@ func TestGetWork(t *testing.T) {
 	})
 
 	t.Run("対象が存在しない場合はErrNotfoundが返却されること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		var work model.WorkListItem
-		err := s.GetWork("someid", &work)
+		err := s.GetWorkListItem("someid", &work)
 		if err != store.ErrNotfound {
 			t.Errorf("error = %#v, wants = ErrNotfound", err)
 		}
 	})
 }
 
-func TestPutWork(t *testing.T) {
+func TestPutWorkListItem(t *testing.T) {
 	var (
 		r, _   = http.NewRequest("GET", "/", nil)
 		s, _   = store.NewCloudDataStore(r)
-		source = newWork()
+		source = newWorkListItem()
 	)
 	defer s.Close()
 
 	t.Run("対象が既に存在する場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
-		putWork(r, source)
+		putWorkListItem(r, source)
 
 		updated := source
 		updated.Title = "Updated Title"
 		updated.UpdatedAt = source.UpdatedAt.Add(1 * time.Hour)
 
-		err := s.PutWork(updated)
+		err := s.PutWorkListItem(updated)
 
 		t.Run("Workが更新されること", func(t *testing.T) {
-			if w := getWork(r, source.ID); !cmp.Equal(w, updated) {
+			if w := getWorkListItem(r, source.ID); !cmp.Equal(w, updated) {
 				t.Errorf("updated != source, diff = %s", cmp.Diff(w, updated))
 			}
 		})
@@ -517,12 +757,12 @@ func TestPutWork(t *testing.T) {
 	})
 
 	t.Run("対象が存在しない場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
-		err := s.PutWork(source)
+		err := s.PutWorkListItem(source)
 
 		t.Run("Workを新規登録すること", func(t *testing.T) {
-			if w := getWork(r, source.ID); !cmp.Equal(w, source) {
+			if w := getWorkListItem(r, source.ID); !cmp.Equal(w, source) {
 				t.Errorf("created != source, diff = %s", cmp.Diff(w, source))
 			}
 		})
@@ -535,23 +775,23 @@ func TestPutWork(t *testing.T) {
 	})
 }
 
-func TestDeleteWork(t *testing.T) {
+func TestDeleteWorkListItem(t *testing.T) {
 	var (
 		r, _   = http.NewRequest("GET", "/", nil)
 		s, _   = store.NewCloudDataStore(r)
-		source = newWork()
+		source = newWorkListItem()
 	)
 	defer s.Close()
 
 	t.Run("対象が存在する場合", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
-		putWork(r, source)
+		putWorkListItem(r, source)
 
-		err := s.DeleteWork(source.ID)
+		err := s.DeleteWorkListItem(source.ID)
 
 		t.Run("Workが削除されること", func(t *testing.T) {
-			if w := getWork(r, source.ID); w.ID != "" {
+			if w := getWorkListItem(r, source.ID); w.ID != "" {
 				t.Fatal("Work is not deleted")
 			}
 		})
@@ -564,7 +804,7 @@ func TestDeleteWork(t *testing.T) {
 	})
 
 	t.Run("対象が存在しない場合でもerrorがnilであること", func(t *testing.T) {
-		defer clearStore(r)
+		defer clearStore()
 
 		err := s.DeleteWork("someid")
 		if err != nil {
@@ -573,12 +813,48 @@ func TestDeleteWork(t *testing.T) {
 	})
 }
 
-func getWork(r *http.Request, id string) model.WorkListItem {
+func getWork(r *http.Request, id string) model.Work {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	key := datastore.NameKey(model.KindNameWork, id, nil)
+
+	var w model.Work
+	client.Get(ctx, key, &w)
+
+	return w
+}
+
+func getEvent(r *http.Request, id string) event.Event {
+	ctx := r.Context()
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
+	defer client.Close()
+
+	key := datastore.NameKey(event.KindName, id, nil)
+
+	var e event.Event
+	client.Get(ctx, key, &e)
+
+	return e
+}
+
+func putWork(r *http.Request, w model.Work) {
+	ctx := r.Context()
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
+	defer client.Close()
+
+	key := datastore.NameKey(model.KindNameWork, w.ID, nil)
+
+	client.Put(ctx, key, &w)
+}
+
+func getWorkListItem(r *http.Request, id string) model.WorkListItem {
+	ctx := r.Context()
+	client, _ := datastore.NewClient(ctx, util.ProjectID())
+	defer client.Close()
+
+	key := datastore.NameKey(model.KindNameWorkListItem, id, nil)
 
 	var w model.WorkListItem
 	client.Get(ctx, key, &w)
@@ -586,7 +862,7 @@ func getWork(r *http.Request, id string) model.WorkListItem {
 	return w
 }
 
-func newWork() model.WorkListItem {
+func newWorkListItem() model.WorkListItem {
 	return model.WorkListItem{
 		UserID:    util.NewUUID(),
 		ID:        util.NewUUID(),
@@ -597,24 +873,24 @@ func newWork() model.WorkListItem {
 	}
 }
 
-func putWorks(r *http.Request, works []model.WorkListItem) {
+func putWorkListItems(r *http.Request, works []model.WorkListItem) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
 	for _, w := range works {
-		key := datastore.NameKey(model.KindNameWork, w.ID, nil)
+		key := datastore.NameKey(model.KindNameWorkListItem, w.ID, nil)
 
 		client.Put(ctx, key, &w)
 	}
 }
 
-func putWork(r *http.Request, w model.WorkListItem) {
+func putWorkListItem(r *http.Request, w model.WorkListItem) {
 	ctx := r.Context()
 	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
-	key := datastore.NameKey(model.KindNameWork, w.ID, nil)
+	key := datastore.NameKey(model.KindNameWorkListItem, w.ID, nil)
 
 	client.Put(ctx, key, &w)
 }
@@ -631,13 +907,16 @@ func putEvents(r *http.Request, events []event.Event) {
 	}
 }
 
-func clearStore(r *http.Request) {
-	ctx := r.Context()
+func clearStore() {
+	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, util.ProjectID())
 	defer client.Close()
 
-	for _, kind := range []string{model.KindNameWork, model.KindNameLastConstructedAt, event.KindName} {
-		q := datastore.NewQuery(kind).KeysOnly()
+	kindQuery := datastore.NewQuery("__kind__").KeysOnly()
+	kindKeys, _ := client.GetAll(ctx, kindQuery, nil)
+
+	for _, kind := range kindKeys {
+		q := datastore.NewQuery(kind.Name).KeysOnly()
 		keys, _ := client.GetAll(ctx, q, nil)
 		client.DeleteMulti(ctx, keys)
 	}

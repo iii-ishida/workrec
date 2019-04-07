@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/iii-ishida/workrec/server/api/model"
 	"github.com/iii-ishida/workrec/server/event"
 	"github.com/iii-ishida/workrec/server/util"
-	"github.com/iii-ishida/workrec/server/worklist/model"
 	"google.golang.org/api/iterator"
 )
 
@@ -16,6 +16,7 @@ import (
 type CloudDataStore struct {
 	ctx    context.Context
 	client *datastore.Client
+	tx     *datastore.Transaction
 }
 
 // NewCloudDataStore returns a CloudDataStore.
@@ -29,11 +30,51 @@ func NewCloudDataStore(r *http.Request) (CloudDataStore, error) {
 	return CloudDataStore{ctx: ctx, client: client}, nil
 }
 
-// GetWorks loads the works stored into dst.
-func (s CloudDataStore) GetWorks(userID string, pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
+// RunInTransaction runs f in transaction.
+func (s CloudDataStore) RunInTransaction(f func(Store) error) error {
+	_, err := s.client.RunInTransaction(s.ctx, func(tx *datastore.Transaction) error {
+		return f(CloudDataStore{ctx: s.ctx, client: s.client, tx: tx})
+	})
+	return err
+}
+
+// GetWork loads the work stored for id into dst
+func (s CloudDataStore) GetWork(id string, dst *model.Work) error {
+	key := datastore.NameKey(model.KindNameWork, id, nil)
+
+	err := s.get(key, dst)
+	if err == datastore.ErrNoSuchEntity {
+		return ErrNotfound
+	}
+	return err
+}
+
+// PutWork saves the work into the datastore.
+func (s CloudDataStore) PutWork(work model.Work) error {
+	key := datastore.NameKey(model.KindNameWork, work.ID, nil)
+
+	return s.put(key, &work)
+}
+
+// DeleteWork deletes the work for the given id from datastore.
+func (s CloudDataStore) DeleteWork(id string) error {
+	key := datastore.NameKey(model.KindNameWork, id, nil)
+
+	return s.delete(key)
+}
+
+// PutEvent saves the event into the datastore.
+func (s CloudDataStore) PutEvent(e event.Event) error {
+	key := datastore.NameKey(event.KindName, e.ID, nil)
+
+	return s.put(key, &e)
+}
+
+// GetWorkList loads the works stored into dst.
+func (s CloudDataStore) GetWorkList(userID string, pageSize int, pageToken string, dst *[]model.WorkListItem) (string, error) {
 	var ws []model.WorkListItem
 
-	q := datastore.NewQuery(model.KindNameWork).Order("UserID").Order("-CreatedAt").Filter("UserID=", userID).Limit(pageSize)
+	q := datastore.NewQuery(model.KindNameWorkListItem).Order("UserID").Order("-CreatedAt").Filter("UserID=", userID).Limit(pageSize)
 	if cursor, err := datastore.DecodeCursor(pageToken); err == nil {
 		q = q.Start(cursor)
 	}
@@ -65,9 +106,9 @@ func (s CloudDataStore) GetWorks(userID string, pageSize int, pageToken string, 
 	return "", nil
 }
 
-// GetWork loads the work stored for id into dst.
-func (s CloudDataStore) GetWork(id string, dst *model.WorkListItem) error {
-	key := datastore.NameKey(model.KindNameWork, id, nil)
+// GetWorkListItem loads the work stored for id into dst.
+func (s CloudDataStore) GetWorkListItem(id string, dst *model.WorkListItem) error {
+	key := datastore.NameKey(model.KindNameWorkListItem, id, nil)
 
 	err := s.client.Get(s.ctx, key, dst)
 	if err == datastore.ErrNoSuchEntity {
@@ -76,17 +117,17 @@ func (s CloudDataStore) GetWork(id string, dst *model.WorkListItem) error {
 	return err
 }
 
-// PutWork saves the work into the datastore.
-func (s CloudDataStore) PutWork(work model.WorkListItem) error {
-	key := datastore.NameKey(model.KindNameWork, work.ID, nil)
+// PutWorkListItem saves the work into the datastore.
+func (s CloudDataStore) PutWorkListItem(work model.WorkListItem) error {
+	key := datastore.NameKey(model.KindNameWorkListItem, work.ID, nil)
 
 	_, err := s.client.Put(s.ctx, key, &work)
 	return err
 }
 
-// DeleteWork deletes the work for the given id from datastore.
-func (s CloudDataStore) DeleteWork(id string) error {
-	key := datastore.NameKey(model.KindNameWork, id, nil)
+// DeleteWorkListItem deletes the work for the given id from datastore.
+func (s CloudDataStore) DeleteWorkListItem(id string) error {
+	key := datastore.NameKey(model.KindNameWorkListItem, id, nil)
 
 	return s.client.Delete(s.ctx, key)
 }
@@ -149,6 +190,27 @@ func (s CloudDataStore) PutLastConstructedAt(lastConstructedAt model.LastConstru
 // Close closes the Store.
 func (s CloudDataStore) Close() error {
 	return s.client.Close()
+}
+
+func (s CloudDataStore) get(key *datastore.Key, dst interface{}) error {
+	if s.tx != nil {
+		return s.tx.Get(key, dst)
+	}
+	return s.client.Get(s.ctx, key, dst)
+}
+func (s CloudDataStore) put(key *datastore.Key, src interface{}) error {
+	if s.tx != nil {
+		_, err := s.tx.Put(key, src)
+		return err
+	}
+	_, err := s.client.Put(s.ctx, key, src)
+	return err
+}
+func (s CloudDataStore) delete(key *datastore.Key) error {
+	if s.tx != nil {
+		return s.tx.Delete(key)
+	}
+	return s.client.Delete(s.ctx, key)
 }
 
 func (s CloudDataStore) hasNext(q *datastore.Query, cursor datastore.Cursor) bool {
