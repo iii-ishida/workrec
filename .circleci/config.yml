@@ -2,11 +2,10 @@ version: 2
 jobs:
   server-test-and-deploy:
     docker:
-      - image: circleci/golang:1.11-stretch-browsers
-        environment:
-          GO111MODULE: "on"
+      - image: circleci/ruby:2.6-stretch
 
-    working_directory: /go/src/github.com/iii-ishida/workrec
+    working_directory: ~/workrec
+
     steps:
       - checkout
 
@@ -16,7 +15,7 @@ jobs:
             sudo apt-get install -qqy lsb-release && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
             echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
             curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-            sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-datastore-emulator google-cloud-sdk-pubsub-emulator google-cloud-sdk-app-engine-go
+            sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-datastore-emulator google-cloud-sdk-pubsub-emulator
 
       - run:
           name: Setup glcoud
@@ -27,33 +26,60 @@ jobs:
             gcloud --quiet config set core/disable_usage_reporting true
             gcloud --quiet config set component_manager/disable_update_check true
 
-      - run:
-          name: Install golint
-          command: GO111MODULE=off go get -u golang.org/x/lint/golint
-
       - restore_cache:
           keys:
-            - go-mod-v1-{{ checksum "server/go.sum" }}
+            - bundle-v2-{{ checksum "server/Gemfile.lock" }}
+            - bundle-v2-
 
-      - run: cd server && go mod download
+      - run:
+          name: Bundle Install
+          command: cd server && bundle check || bundle install --path vendor/bundle --jobs=4 --retry=3
 
       - save_cache:
-          key: go-mod-v1-{{ checksum "server/go.sum" }}
+          key: bundle-v2-{{ checksum "server/Gemfile.lock" }}
           paths:
-            - "/go/pkg/mod"
+            - server/vendor/bundle
 
       - run:
-          name: Unit testing
+          name: Database setup
           command: |
-            cd ./server
             gcloud beta emulators datastore start --quiet --no-store-on-disk --consistency=1.0 &
             gcloud beta emulators pubsub start --quiet &
-            sleep 10; $(gcloud beta emulators datastore env-init) && $(gcloud beta emulators pubsub env-init) && sh ./scripts/test.sh
+
+      - run: mkdir ~/test_results
 
       - run:
-          name: Deploy Server
+          name: Run rubocop
           command: |
-            ./server/scripts/build.sh && gcloud --quiet app deploy ./server/web/ > /dev/null 2>&1 && echo "deploy done."
+            cd server
+            bundle exec rubocop --config ./.rubocop.yml --fail-level=W -o ~/test_results/rubocop.txt
+
+      - run:
+          name: Run rspec
+          command: |
+            cd server
+            bundle exec rspec --profile 10 \
+                              --format progress \
+                              --format RspecJunitFormatter \
+                              --out ~/test_results/rspec.xml \
+                              --format progress \
+                              $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+
+      - store_test_results:
+          path: ~/test_results
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Deploy server
+          command: |
+            cd server
+            TAG=v0.1.$CIRCLE_BUILD_NUM
+            gcloud auth configure-docker --quiet
+            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG . > /dev/null 2>&1 && echo "build done."
+            docker push gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG > /dev/null 2>&1 && echo "push done."
+            gcloud beta run deploy roda-sample --quiet --image gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG --region=us-central1 > /dev/null 2>&1 && echo "deploy done."
 
   client-test-and-deploy:
     docker:
@@ -92,15 +118,16 @@ jobs:
             - ~/.cache/yarn
 
       - run:
-          name: Unit testing
+          name: Run unit test
           command: |
             cd ./web-client
             sh ./scripts/build.sh && sh ./scripts/test.sh
 
       - run:
-          name: Deploy Server
+          name: Deploy client
           command: |
             sh ./web-client/scripts/build.sh && gcloud --quiet app deploy ./web-client/server > /dev/null 2>&1 && echo "deploy done."
+
 workflows:
   version: 2
   test_and_deploy:
