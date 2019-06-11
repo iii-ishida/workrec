@@ -86,7 +86,6 @@ jobs:
             docker build -t gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG . > /dev/null 2>&1 && echo "build done."
             docker push gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG > /dev/null 2>&1 && echo "push done."
             gcloud beta run deploy roda-sample --quiet --image gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG --region=us-central1 > /dev/null 2>&1 && echo "deploy done."
-            gcloud datastore indexes create  --quiet ./config/index.yaml > /dev/null 2>&1 && echo "create indexes done."
 
   client-test-and-deploy:
     docker:
