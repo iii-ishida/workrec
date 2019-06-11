@@ -105,3 +105,5 @@ require 'models/work'
 require 'models/event'
 require 'models/worklist'
 require 'models/last_constructed_at'
+require 'repository/cloud_datastore_repository'
+
