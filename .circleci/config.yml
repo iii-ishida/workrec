@@ -52,7 +52,12 @@ jobs:
           name: Run rubocop
           command: |
             cd server
-            bundle exec rubocop --config ./.rubocop.yml --fail-level=W -o ~/test_results/rubocop.txt
+            bundle exec rubocop \
+              -r $(bundle show rubocop-junit-formatter)/lib/rubocop/formatter/junit_formatter.rb \
+              --config ./.rubocop.yml \
+              --fail-level=W \
+              --format RuboCop::Formatter::JUnitFormatter \
+              --out ~/test_results/rubocop.xml
 
       - run:
           name: Run rspec
@@ -75,11 +80,13 @@ jobs:
           name: Deploy server
           command: |
             cd server
+            echo $DATASTORE_KEY | base64 --decode > ./config/keyfile.json
             TAG=v0.1.$CIRCLE_BUILD_NUM
             gcloud auth configure-docker --quiet
             docker build -t gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG . > /dev/null 2>&1 && echo "build done."
             docker push gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG > /dev/null 2>&1 && echo "push done."
             gcloud beta run deploy roda-sample --quiet --image gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG --region=us-central1 > /dev/null 2>&1 && echo "deploy done."
+            gcloud datastore indexes create  --quiet ./config/index.yaml > /dev/null 2>&1 && echo "create indexes done."
 
   client-test-and-deploy:
     docker:

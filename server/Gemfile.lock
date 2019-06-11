@@ -78,6 +78,8 @@ GEM
     public_suffix (3.1.0)
     puma (3.12.1)
     rack (2.0.7)
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rainbow (3.0.0)
     rake (12.3.2)
     rly (0.2.3)
@@ -105,6 +107,7 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
+    rubocop-junit-formatter (0.1.4)
     rubocop-rspec (1.33.0)
       rubocop (>= 0.60.0)
     ruby-progressbar (1.10.1)
@@ -126,12 +129,14 @@ DEPENDENCIES
   jwt
   puma
   rack
+  rack-test
   rake
   roda
   rspec
   rspec-mocks
   rspec_junit_formatter
   rubocop
+  rubocop-junit-formatter
   rubocop-rspec
   timecop
 

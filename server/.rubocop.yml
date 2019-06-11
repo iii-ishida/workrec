@@ -12,6 +12,13 @@ AllCops:
 Style/Documentation:
   Enabled: false
 
+Style/RedundantSelf:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - spec/**/*
+
 Lint/ShadowingOuterLocalVariable:
   Severity: convention
 
@@ -39,6 +46,8 @@ Style/ReturnNil:
 
 Style/StringHashKeys:
   Enabled: true
+  Exclude:
+    - spec/**/*
 
 Layout/SpaceInsideHashLiteralBraces:
   EnforcedStyle: no_space

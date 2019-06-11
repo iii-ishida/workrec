@@ -16,9 +16,11 @@ group :development do
 end
 
 group :test do
+  gem 'rack-test'
   gem 'rspec'
   gem 'rspec-mocks'
   gem 'rspec_junit_formatter'
+  gem 'rubocop-junit-formatter'
   gem 'rubocop-rspec'
   gem 'timecop'
 end
