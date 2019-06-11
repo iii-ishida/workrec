@@ -101,6 +101,17 @@ end
 
 $LOAD_PATH.push(File.dirname(__dir__))
 require 'timecop'
+require 'workrec_app'
+require 'web/works'
+require 'app/works/create'
+require 'app/works/update'
+require 'app/works/delete'
+require 'app/works/start'
+require 'app/works/pause'
+require 'app/works/resume'
+require 'app/works/finish'
+require 'app/works/unfinish'
+require 'app/works/change_state'
 require 'models/work'
 require 'models/event'
 require 'models/worklist'
