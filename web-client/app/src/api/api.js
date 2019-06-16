@@ -61,7 +61,7 @@ export default class API {
     const param = new command_request_pb.ChangeWorkStateRequestPb();
     param.setTime(timestamp)
 
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}:${method}`, {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}/${method}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/octet-stream'},
       body: param.serializeBinary()
