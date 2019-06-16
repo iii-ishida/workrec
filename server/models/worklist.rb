@@ -135,23 +135,23 @@ end
 module Models
   class WorkListItem
     def apply_events(events)
-      events.reduce(self) { |work, e| apply_event(work, e) }
+      events.reduce(self) { |work, e| work.apply_event(e) }
+    end
+
+    def apply_event(event)
+      case event.action
+      when EVENT_ACTIONS['create_work']   then create(event)
+      when EVENT_ACTIONS['update_work']   then update(event)
+      when EVENT_ACTIONS['delete_work']   then delet
+      when EVENT_ACTIONS['start_work']    then start(event)
+      when EVENT_ACTIONS['pause_work']    then pause(event)
+      when EVENT_ACTIONS['resume_work']   then resume(event)
+      when EVENT_ACTIONS['finish_work']   then finish(event)
+      when EVENT_ACTIONS['unfinish_work'] then unfinish(event)
+      end
     end
 
     private
-
-    def apply_event(work, event)
-      case event.action
-      when EVENT_ACTIONS['create_work']   then create(event)
-      when EVENT_ACTIONS['update_work']   then update(work, event)
-      when EVENT_ACTIONS['delete_work']   then delete(work)
-      when EVENT_ACTIONS['start_work']    then start(work, event)
-      when EVENT_ACTIONS['pause_work']    then pause(work, event)
-      when EVENT_ACTIONS['resume_work']   then resume(work, event)
-      when EVENT_ACTIONS['finish_work']   then finish(work, event)
-      when EVENT_ACTIONS['unfinish_work'] then unfinish(work, event)
-      end
-    end
 
     def create(event)
       WorkListItem.new(
@@ -164,55 +164,55 @@ module Models
       )
     end
 
-    def update(work, event)
-      work.patch(
+    def update(event)
+      patch(
         title: event.title,
         updated_at: event.created_at
       )
     end
 
-    def delete(work)
-      work.patch(deleted?: true)
+    def delete
+      patch(deleted?: true)
     end
 
-    def start(work, event)
-      work.patch(
+    def start(event)
+      patch(
         state: WORK_STATES['started'],
         base_working_time: event.time,
         started_at: event.time,
-        update_at: event.created_at
+        updated_at: event.created_at
       )
     end
 
-    def pause(work, event)
-      work.patch(
+    def pause(event)
+      patch(
         state: WORK_STATES['paused'],
         paused_at: event.time,
-        update_at: event.created_at
+        updated_at: event.created_at
       )
     end
 
-    def resume(work, event)
-      work.patch(
+    def resume(event)
+      patch(
         state: WORK_STATES['resumed'],
-        base_working_time: work.calculete_base_working_time(event.time),
-        paused_at: TIme.at(0),
-        update_at: event.created_at
+        base_working_time: calculate_base_working_time(event.time),
+        paused_at: Time.at(0),
+        updated_at: event.created_at
       )
     end
 
-    def finish(work, event)
-      work.patch(
+    def finish(event)
+      patch(
         state: WORK_STATES['finished'],
-        paused_at: work.paused? ? work.paused_at : event.time,
-        update_at: event.created_at
+        paused_at: paused? ? paused_at : event.time,
+        updated_at: event.created_at
       )
     end
 
-    def unfinish(work, event)
-      work.patch(
+    def unfinish(event)
+      patch(
         state: WORK_STATES['paused'],
-        update_at: event.created_at
+        updated_at: event.created_at
       )
     end
 
@@ -220,7 +220,7 @@ module Models
       state == WORK_STATES['paused']
     end
 
-    def calculete_base_working_time(resumed_at)
+    def calculate_base_working_time(resumed_at)
       base_working_time + (resumed_at - paused_at)
     end
   end
