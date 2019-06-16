@@ -4,7 +4,7 @@ require 'google/cloud/datastore'
 require_relative './env'
 
 class CloudDatastoreRepository
-  def initialize(datastore = Google::Cloud::Datastore.new(project_id: Repo::Env::PROJECT_ID, credentials: 'config/keyfile.json'))
+  def initialize(datastore = Google::Cloud::Datastore.new(project_id: Repo::Env::PROJECT_ID))
     @datastore = datastore
   end
 
@@ -13,7 +13,7 @@ class CloudDatastoreRepository
     err = nil
 
     @datastore.transaction do |tx|
-      ret = yield CloudDatastoreRepo.new(tx)
+      ret = yield CloudDatastoreRepository.new(tx)
     rescue StandardError => e
       err = e
       raise e

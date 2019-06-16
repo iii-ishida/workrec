@@ -80,7 +80,6 @@ jobs:
           name: Deploy server
           command: |
             cd server
-            echo $DATASTORE_KEY | base64 --decode > ./config/keyfile.json
             TAG=v0.1.$CIRCLE_BUILD_NUM
             gcloud auth configure-docker --quiet
             docker build -t gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG . > /dev/null 2>&1 && echo "build done."
