@@ -13,7 +13,7 @@ module App
       end
 
       def call(params)
-        change_state(@repo, params, Event::Actions['finish_work'])
+        change_state(@repo, params, Models::EVENT_ACTIONS['finish_work'])
       end
     end
   end
