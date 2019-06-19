@@ -59,6 +59,7 @@ module Models
       entity['user_id']           = user_id
       entity['base_working_time'] = base_working_time
       entity['paused_at']         = paused_at
+      entity['started_at']        = started_at
       entity['title']             = title
       entity['state']             = state
       entity['created_at']        = created_at
@@ -76,6 +77,7 @@ module Models
         user_id: props['user_id'],
         base_working_time: props['base_working_time'],
         paused_at: props['paused_at'],
+        started_at: props['started_at'],
         title: props['title'],
         state: props['state'],
         created_at: props['created_at'],
