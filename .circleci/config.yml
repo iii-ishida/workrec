@@ -94,23 +94,6 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          name: Install gcloud
-          command: |
-            sudo apt-get install -qqy lsb-release && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-            sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-app-engine-go
-
-      - run:
-          name: Setup glcoud
-          command: |
-            echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud --quiet config set core/disable_usage_reporting true
-            gcloud --quiet config set component_manager/disable_update_check true
-
       - restore_cache:
           keys:
             - yarn-packages-{{ checksum "web-client/app/yarn.lock" }}
@@ -131,7 +114,7 @@ jobs:
       - run:
           name: Deploy client
           command: |
-            sh ./web-client/scripts/build.sh && gcloud --quiet app deploy ./web-client/server > /dev/null 2>&1 && echo "deploy done."
+            sh ./web-client/scripts/build.sh && cd ./web-client/app && yarn run deploy --project=${GOOGLE_PROJECT_ID} --token=${FIREBASE_TOKEN} > /dev/null 2>&1 && echo "deploy done."
 
 workflows:
   version: 2
