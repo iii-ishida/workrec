@@ -86,7 +86,7 @@ jobs:
             docker push gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG > /dev/null 2>&1 && echo "push done."
             gcloud beta run deploy roda-sample --quiet --image gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG --region=us-central1 > /dev/null 2>&1 && echo "deploy done."
 
-  client-test-and-deploy:
+  web-client-test-and-deploy:
     docker:
       - image: circleci/node:10-stretch-browsers
 
@@ -116,9 +116,40 @@ jobs:
           command: |
             sh ./web-client/scripts/build.sh && cd ./web-client/app && yarn run deploy --project=${GOOGLE_PROJECT_ID} --token=${FIREBASE_TOKEN} > /dev/null 2>&1 && echo "deploy done."
 
+  android-client-test:
+    working_directory: ~/workrec
+    docker:
+      - image: circleci/android:api-29
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: jars-{{ checksum "android-client/Workrec/build.gradle" }}-{{ checksum  "android-client/Workrec/app/build.gradle" }}
+      - run:
+          name: Download Dependencies
+          command: cd android-client/Workrec && ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/android-client/Workrec/.gradle
+          key: jars-{{ checksum "android-client/Workrec/build.gradle" }}-{{ checksum  "android-client/Workrec/app/build.gradle" }}
+
+      - run:
+          name: Run Tests
+          command: cd android-client/Workrec && ./gradlew lint test
+
+      - store_artifacts:
+          path: android-client/Workrec/app/build/reports
+          destination: reports
+
+      - store_test_results:
+          path: android-client/Workrec/app/build/test-results
+
 workflows:
   version: 2
   test_and_deploy:
     jobs:
       - server-test-and-deploy
-      - client-test-and-deploy
+      - web-client-test-and-deploy
+      - android-client-test
