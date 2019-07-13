@@ -82,9 +82,14 @@ jobs:
             cd server
             TAG=v0.1.$CIRCLE_BUILD_NUM
             gcloud auth configure-docker --quiet
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG . > /dev/null 2>&1 && echo "build done."
-            docker push gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG > /dev/null 2>&1 && echo "push done."
-            gcloud beta run deploy roda-sample --quiet --image gcr.io/${GOOGLE_PROJECT_ID}/roda-sample:$TAG --region=us-central1 > /dev/null 2>&1 && echo "deploy done."
+            rm -rf ./vendor
+            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
+            docker push gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG > /dev/null 2>&1 && echo "push done."
+            gcloud beta run deploy api-server --quiet \
+                                              --image gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG \
+                                              --platform managed \
+                                              --region asia-northeast1 \
+                                              --set-env-vars "GOOGLE_CLOUD_PROJECT=${GOOGLE_PROJECT_ID}, API_ORIGIN=${API_ORIGIN}, CLIENT_ORIGIN=${CLIENT_ORIGIN}" > /dev/null 2>&1 && echo "deploy done."
 
   web-client-test-and-deploy:
     docker:
