@@ -17,6 +17,7 @@ class WorkrecApp < Roda
         r.options do
           response['Access-Control-Allow-Methods'] = %w[GET POST PATCH DELETE OPTIONS].join(',')
           response['Access-Control-Allow-Headers'] = %w[Content-Type Authorization].join(',')
+          response['Access-Control-Max-Age'] = '600'
         end
 
         r.is do

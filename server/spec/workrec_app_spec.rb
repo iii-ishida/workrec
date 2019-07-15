@@ -39,6 +39,7 @@ RSpec.describe WorkrecApp do
   context 'when OPTIONS /v1/works' do
     let(:allow_methods) { %w[GET POST PATCH DELETE OPTIONS] }
     let(:allow_headers) { %w[Content-Type Authorization] }
+    let(:allow_max_age) { '600' }
 
     it 'set Access-Control-Allow-Methods header' do
       options '/v1/works'
@@ -48,6 +49,11 @@ RSpec.describe WorkrecApp do
     it 'set Access-Control-Allow-Headers header' do
       options '/v1/works'
       expect(last_response.header['Access-Control-Allow-Headers'].split(',')).to match_array(allow_headers)
+    end
+
+    it 'set Access-Control-Max-Age header' do
+      options '/v1/works'
+      expect(last_response.header['Access-Control-Max-Age']).to be(allow_max_age)
     end
   end
 
