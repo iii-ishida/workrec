@@ -9,7 +9,7 @@ module TimePb
 
   refine Google::Protobuf::Timestamp do
     def to_time
-      Time.at(seconds, nanos)
+      Time.at(seconds, nanos, :nsec)
     end
   end
 end
