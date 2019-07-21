@@ -1,6 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import Immutable from 'immutable'
 import { WorkState } from 'src/api'
 import styles from './ToggleStateButton.module.css'
 
@@ -26,20 +24,10 @@ const nextWorkState = (state) => {
   }
 }
 
-const ToggleStateButton = ({ work, onClick }) => {
-  const state = work.get('state')
-
+export default function ToggleStateButton({ work, onClick }) {
   return (
     <button className={styles.toggleButton} onClick={onClick}>
-      {nextWorkState(state)}
+      {nextWorkState(work.get('state'))}
     </button>
   )
 }
-
-ToggleStateButton.propTypes = {
-  work: PropTypes.instanceOf(Immutable.Map).isRequired,
-  onClick: PropTypes.func.isRequired,
-}
-
-export default ToggleStateButton
-

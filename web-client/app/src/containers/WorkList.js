@@ -1,27 +1,43 @@
-import { connect } from 'react-redux'
-import {
-  fetchWorks,
-  toggleState,
-  finishWork,
-  cancelFinishWork,
-  deleteWork
-} from 'src/actions'
+import React, { useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import * as Actions from 'src/actions'
 
-import WorkList from 'src/components/WorkList'
+import { default as Child } from 'src/components/WorkList'
 
-const mapStateToProps = state => ({
-  works: state.works.get('works')
-})
+export default function WorkList() {
+  const works = useSelector(state => state.works.get('works'))
 
-const mapDispatchToProps = dispatch => ({
-  fetchWorks: () => dispatch(fetchWorks()),
-  toggleState: (id, currentState, time) => dispatch(toggleState(id, currentState, time)),
-  finishWork: (id, time) => dispatch(finishWork(id, time)),
-  cancelFinishWork: (id, time) => dispatch(cancelFinishWork(id, time)),
-  deleteWork: (id) => dispatch(deleteWork(id))
-})
+  const dispatch = useDispatch()
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WorkList)
+  const fetchWorks = useCallback(
+    () => dispatch(Actions.fetchWorks()),
+    [dispatch]
+  )
+  const toggleState = useCallback(
+    (id, currentState, time) => dispatch(Actions.toggleState(id, currentState, time)),
+    [dispatch]
+  )
+  const finishWork = useCallback(
+    (id, time) => dispatch(Actions.finishWork(id, time)),
+    [dispatch]
+  )
+  const cancelFinishWork = useCallback(
+    (id, time) => dispatch(Actions.cancelFinishWork(id, time)),
+    [dispatch]
+  )
+  const deleteWork = useCallback(
+    (id) => dispatch(Actions.deleteWork(id)),
+    [dispatch]
+  )
+
+  return (
+    <Child
+      works={works}
+      fetchWorks={fetchWorks}
+      toggleState={toggleState}
+      finishWork={finishWork}
+      cancelFinishWork={cancelFinishWork}
+      deleteWork={deleteWork}
+    />
+  )
+}

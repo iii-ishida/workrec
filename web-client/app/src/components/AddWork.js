@@ -1,21 +1,20 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { useRef } from 'react'
 import styles from './AddWork.module.css'
 
-const AddWork = ({ addWork }) => {
-  let input
+export default function AddWork({ addWork }) {
+  const inputEl = useRef(null)
 
   return (
     <div>
       <form className={styles.addWork} onSubmit={e => {
         e.preventDefault()
-        if (!input.value.trim()) {
+        if (!inputEl.current.value.trim()) {
           return
         }
-        addWork(input.value)
-        input.value = ''
+        addWork(inputEl.current.value)
+        inputEl.current.value = ''
       }}>
-        <input className={styles.titleText} placeholder='タイトル' ref={node => input = node} />
+        <input className={styles.titleText} placeholder='タイトル' ref={inputEl} />
         <button className={styles.addButton} type='submit'>
           Add Work
         </button>
@@ -23,9 +22,3 @@ const AddWork = ({ addWork }) => {
     </div>
   )
 }
-
-AddWork.propTypes = {
-  addWork: PropTypes.func.isRequired,
-}
-
-export default AddWork

@@ -1,12 +1,17 @@
-import { connect } from 'react-redux'
-import { addWork } from 'src/actions'
-import AddWork from 'src/components/AddWork'
+import React, { useCallback } from 'react'
+import { useDispatch } from 'react-redux'
+import { addWork as addWorkAction} from 'src/actions'
+import { default as Child } from 'src/components/AddWork'
 
-const mapDispatchToProps = dispatch => ({
-  addWork: title => dispatch(addWork(title))
-})
+export default function AddWork() {
+  const dispatch = useDispatch()
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(AddWork)
+  const addWork = useCallback(
+    (title) => dispatch(addWorkAction(title)),
+    [dispatch]
+  )
+
+  return (
+    <Child addWork={addWork} />
+  )
+}
