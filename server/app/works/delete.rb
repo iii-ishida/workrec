@@ -48,6 +48,7 @@ module App
           user_id: params.user_id,
           work_id: work_id,
           action: 'delete_work',
+          time: nil,
           created_at: timestamp
         )
       end

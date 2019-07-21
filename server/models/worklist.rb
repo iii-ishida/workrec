@@ -144,7 +144,7 @@ module Models
       case event.action
       when EVENT_ACTIONS['create_work']   then create(event)
       when EVENT_ACTIONS['update_work']   then update(event)
-      when EVENT_ACTIONS['delete_work']   then delet
+      when EVENT_ACTIONS['delete_work']   then delete()
       when EVENT_ACTIONS['start_work']    then start(event)
       when EVENT_ACTIONS['pause_work']    then pause(event)
       when EVENT_ACTIONS['resume_work']   then resume(event)
@@ -174,7 +174,7 @@ module Models
     end
 
     def delete
-      patch(deleted?: true)
+      patch(deleted: true)
     end
 
     def start(event)

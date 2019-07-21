@@ -63,7 +63,7 @@ module App
           work = work.apply_events(events_of_work)
 
           if work.deleted?
-            tx_repo.delte(work)
+            tx_repo.delete(work)
           else
             tx_repo.upsert(work)
           end
