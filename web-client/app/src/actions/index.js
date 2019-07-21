@@ -1,12 +1,12 @@
 import API, { WorkState } from 'src/api'
 
-export const RECIEVE_WORKS      = 'RECIEVE_WORKS'
-export const START_WORK         = 'START_WORK'
-export const PAUSE_WORK         = 'PAUSE_WORK'
-export const RESUME_WORK        = 'RESUME_WORK'
-export const FINISH_WORK        = 'FINISH_WORK'
-export const CANCEL_FINISH_WORK = 'CANCEL_FINISH_WORK'
-export const DELETE_WORK        = 'DELETE_WORK'
+export const RECIEVE_WORKS = 'RECIEVE_WORKS'
+export const START_WORK    = 'START_WORK'
+export const PAUSE_WORK    = 'PAUSE_WORK'
+export const RESUME_WORK   = 'RESUME_WORK'
+export const FINISH_WORK   = 'FINISH_WORK'
+export const UNFINISH_WORK = 'UNFINISH_WORK'
+export const DELETE_WORK   = 'DELETE_WORK'
 
 const recieveWorks = worklist => ({
   type: RECIEVE_WORKS,
@@ -62,9 +62,9 @@ export function finishWork(id, time) {
   }
 }
 
-export function cancelFinishWork(id, time) {
+export function unfinishWork(id, time) {
   return dispatch => {
-    return API.cancelFinishWork(id, time).then(() => dispatch(fetchWorks()))
+    return API.unfinishWork(id, time).then(() => dispatch(fetchWorks()))
   }
 }
 

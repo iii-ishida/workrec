@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import WorkListItem from './WorkListItem'
 import styles from './WorkList.module.css'
 
-export default function WorkList({works, fetchWorks, toggleState, finishWork, cancelFinishWork, deleteWork}) {
+export default function WorkList({works, fetchWorks, toggleState, finishWork, unfinishWork, deleteWork}) {
   useEffect(
     () => {
       fetchWorks()
@@ -20,7 +20,7 @@ export default function WorkList({works, fetchWorks, toggleState, finishWork, ca
                 work={work}
                 toggleState={toggleState}
                 finishWork={finishWork}
-                cancelFinishWork={cancelFinishWork}
+                unfinishWork={unfinishWork}
                 deleteWork={deleteWork}
             />
           </li>

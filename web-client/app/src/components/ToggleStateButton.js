@@ -17,7 +17,7 @@ const nextWorkState = (state) => {
       return 'Pause'
 
     case WorkState.FINISHED:
-      return 'Cancel Finish'
+      return 'Unfinish'
 
     default:
       return '-'

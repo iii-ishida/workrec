@@ -21,8 +21,8 @@ export default function WorkList() {
     (id, time) => dispatch(Actions.finishWork(id, time)),
     [dispatch]
   )
-  const cancelFinishWork = useCallback(
-    (id, time) => dispatch(Actions.cancelFinishWork(id, time)),
+  const unfinishWork = useCallback(
+    (id, time) => dispatch(Actions.unfinishWork(id, time)),
     [dispatch]
   )
   const deleteWork = useCallback(
@@ -36,7 +36,7 @@ export default function WorkList() {
       fetchWorks={fetchWorks}
       toggleState={toggleState}
       finishWork={finishWork}
-      cancelFinishWork={cancelFinishWork}
+      unfinishWork={unfinishWork}
       deleteWork={deleteWork}
     />
   )

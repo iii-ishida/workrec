@@ -4,7 +4,7 @@ import styles from './WorkListItem.module.css'
 
 import * as Work from 'src/work'
 
-export default function WorkListItem({ work, toggleState, finishWork, cancelFinishWork, deleteWork }) {
+export default function WorkListItem({ work, toggleState, finishWork, unfinishWork, deleteWork }) {
   const onToggleState = (work) => {
     const now = new Date()
     const id = work.get('id')

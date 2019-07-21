@@ -50,8 +50,8 @@ export default class API {
     return this._changeWorkState('finish', id, time)
   }
 
-  static cancelFinishWork(id, time) {
-    return this._changeWorkState('cancelFinish', id, time)
+  static unfinishWork(id, time) {
+    return this._changeWorkState('unfinish', id, time)
   }
 
   static _changeWorkState(method, id, time) {

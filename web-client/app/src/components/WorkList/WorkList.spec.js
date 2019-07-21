@@ -18,7 +18,7 @@ describe('<WorkList />', () => {
       fetchWorks={() => {}}
       toggleState={() => {}}
       finishWork={() => {}}
-      cancelFinishWork={() => {}}
+      unfinishWork={() => {}}
       deleteWork={() => {}}
     />)
 
@@ -32,7 +32,7 @@ describe('<WorkList />', () => {
     const fetchWorks = () => {}
     const toggleState = () => {}
     const finishWork = () => {}
-    const cancelFinishWork = () => {}
+    const unfinishWork = () => {}
     const deleteWork = () => {}
 
     const worklist = shallow(<WorkList
@@ -40,7 +40,7 @@ describe('<WorkList />', () => {
       fetchWorks={fetchWorks}
       toggleState={toggleState}
       finishWork={finishWork}
-      cancelFinishWork={cancelFinishWork}
+      unfinishWork={unfinishWork}
       deleteWork={deleteWork}
     />)
 
@@ -48,7 +48,7 @@ describe('<WorkList />', () => {
     expect(worklistItem.props().work).toBe(work)
     expect(worklistItem.props().toggleState).toBe(toggleState)
     expect(worklistItem.props().finishWork).toBe(finishWork)
-    expect(worklistItem.props().cancelFinishWork).toBe(cancelFinishWork)
+    expect(worklistItem.props().unfinishWork).toBe(unfinishWork)
     expect(worklistItem.props().deleteWork).toBe(deleteWork)
   })
 })
