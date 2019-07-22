@@ -8,7 +8,7 @@ export default function WorkList({works, fetchWorks, toggleState, finishWork, un
     () => {
       fetchWorks()
     },
-    []
+    [fetchWorks]
   )
 
   return (
@@ -17,11 +17,11 @@ export default function WorkList({works, fetchWorks, toggleState, finishWork, un
         return (
           <li key={work.get('id')}>
             <WorkListItem
-                work={work}
-                toggleState={toggleState}
-                finishWork={finishWork}
-                unfinishWork={unfinishWork}
-                deleteWork={deleteWork}
+              work={work}
+              toggleState={toggleState}
+              finishWork={finishWork}
+              unfinishWork={unfinishWork}
+              deleteWork={deleteWork}
             />
           </li>
         )

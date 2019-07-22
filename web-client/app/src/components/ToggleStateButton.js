@@ -4,23 +4,23 @@ import styles from './ToggleStateButton.module.css'
 
 const nextWorkState = (state) => {
   switch (state) {
-    case WorkState.UNSTARTED:
-      return 'Start'
+  case WorkState.UNSTARTED:
+    return 'Start'
 
-    case WorkState.STARTED:
-      return 'Pause'
+  case WorkState.STARTED:
+    return 'Pause'
 
-    case WorkState.PAUSED:
-      return 'Resume'
+  case WorkState.PAUSED:
+    return 'Resume'
 
-    case WorkState.RESUMED:
-      return 'Pause'
+  case WorkState.RESUMED:
+    return 'Pause'
 
-    case WorkState.FINISHED:
-      return 'Unfinish'
+  case WorkState.FINISHED:
+    return 'Unfinish'
 
-    default:
-      return '-'
+  default:
+    return '-'
   }
 }
 

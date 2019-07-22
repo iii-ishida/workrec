@@ -27,7 +27,7 @@ describe('stateText', () => {
     const work = Immutable.fromJS({state: WorkState.FINISHED})
     expect(Work.stateText(work)).toEqual('完了')
   })
-});
+})
 
 describe('startedAtText', () => {
   it('state が UNSTARTED の場合は - を返すこと', () => {

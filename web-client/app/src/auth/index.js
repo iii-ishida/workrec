@@ -2,10 +2,10 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import { firebaseConfig } from 'src/firebase-config.js'
 
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig)
 
 export const loginWithGoogle = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
+  const provider = new firebase.auth.GoogleAuthProvider()
   return firebase.auth().signInWithRedirect(provider)
 }
 

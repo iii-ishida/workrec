@@ -1,14 +1,14 @@
 import React from 'react'
-import Enzyme, { shallow, mount } from 'enzyme'
+import Enzyme, { shallow } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
-
-Enzyme.configure({ adapter: new Adapter() })
 
 import Immutable from 'immutable'
 
 import WorkList from './WorkList'
 import WorkListItem from './WorkListItem'
 import { WorkState } from 'src/api'
+
+Enzyme.configure({ adapter: new Adapter() })
 
 describe('<WorkList />', () => {
   it('works の分 WorkListItem を表示すること', () => {

@@ -1,4 +1,4 @@
-const worklist_pb = require('./pb/worklist_pb');
+const worklist_pb = require('./pb/worklist_pb')
 
 export const {
   UNSTARTED,
