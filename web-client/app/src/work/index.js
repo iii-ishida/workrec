@@ -1,13 +1,5 @@
 import { WorkState } from 'src/api'
 
-const zeroPad = num => {
-  return `0${num}`.slice(-2)
-}
-
-const isWorking = state => {
-  return state === WorkState.STARTED || state === WorkState.RESUMED
-}
-
 export const stateText = work => {
   const state = work.get('state')
 
@@ -29,6 +21,8 @@ export const startedAtText = work => {
 
   const startedAt = work.get('startedAt')
 
+  const zeroPad = num => `0${num}`.slice(-2)
+
   const year   = startedAt.getFullYear()
   const month  = zeroPad(startedAt.getMonth()+1)
   const day    = zeroPad(startedAt.getDate())
@@ -39,28 +33,10 @@ export const startedAtText = work => {
 }
 
 export const workingTimeText = work => {
-  const state = work.get('state')
-
-  if (state === WorkState.UNSTARTED) {
-    return '0分'
-  }
-
-  const pausedAt = work.get('pausedAt')
-  const baseWorkingTime = work.get('baseWorkingTime')
-
-  let baseTime
-  if (isWorking(state)) {
-    baseTime = new Date()
-  } else {
-    baseTime = pausedAt
-  }
-
-  const workingTimeInMinute = Math.floor((baseTime.getTime() - baseWorkingTime.getTime()) / 1000 / 60)
-
+  const workingTimeInMinute  = calcWorkingMinutes(work)
   const workingDay = Math.floor(workingTimeInMinute / 60 / 24)
   const workingHour = Math.floor((workingTimeInMinute % (60 * 24)) / 60)
   const workingMinute = Math.floor((workingTimeInMinute % (60 * 24) % 60))
-
 
   let workingTimeText = ''
   if (workingDay !== 0) {
@@ -75,3 +51,14 @@ export const workingTimeText = work => {
   return workingTimeText
 }
 
+const calcWorkingMinutes = work => {
+  const state = work.get('state')
+  if (state === WorkState.UNSTARTED) {
+    return 0
+  }
+
+  const start = work.get('baseWorkingTime')
+  const end = work.get('pausedAt') || new Date()
+
+  return Math.floor((end.getTime() - start.getTime()) / 1000 / 60)
+}
