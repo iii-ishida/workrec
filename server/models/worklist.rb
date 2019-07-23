@@ -14,7 +14,7 @@ module Models
     attribute :id,                  Types::Strict::String.constrained(min_size: 1)
     attribute :user_id,             Types::Strict::String.constrained(min_size: 1)
     attribute :base_working_time,   Types::Strict::Time.default(Time.at(0).freeze)
-    attribute :paused_at,           Types::Strict::Time.default(Time.at(0).freeze)
+    attribute :paused_at,           Types::Strict::Time.optional.default(nil)
     attribute :started_at,          Types::Strict::Time.default(Time.at(0).freeze)
     attribute :title,               Types::Strict::String
     attribute :state,               WORK_STATES
@@ -110,7 +110,7 @@ module Models
         id: id,
         title: title,
         base_working_time: base_working_time.to_pb,
-        paused_at: paused_at.to_pb,
+        paused_at: paused_at&.to_pb,
         state: Models.work_states_to_pb(state),
         started_at: started_at.to_pb,
         created_at: created_at.to_pb,
@@ -144,7 +144,7 @@ module Models
       case event.action
       when EVENT_ACTIONS['create_work']   then create(event)
       when EVENT_ACTIONS['update_work']   then update(event)
-      when EVENT_ACTIONS['delete_work']   then delete()
+      when EVENT_ACTIONS['delete_work']   then delete
       when EVENT_ACTIONS['start_work']    then start(event)
       when EVENT_ACTIONS['pause_work']    then pause(event)
       when EVENT_ACTIONS['resume_work']   then resume(event)
@@ -198,7 +198,7 @@ module Models
       patch(
         state: WORK_STATES['resumed'],
         base_working_time: calculate_base_working_time(event.time),
-        paused_at: Time.at(0),
+        paused_at: nil,
         updated_at: event.created_at
       )
     end

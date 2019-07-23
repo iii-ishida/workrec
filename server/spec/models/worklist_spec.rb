@@ -28,7 +28,7 @@ RSpec.describe Models::WorkListItem do
         id: work_id,
         user_id: user_id,
         base_working_time: Time.at(0),
-        paused_at: Time.at(0),
+        paused_at: nil,
         started_at: Time.at(0),
         title: title,
         state: 'unstarted',
@@ -59,7 +59,7 @@ RSpec.describe Models::WorkListItem do
         state: 'resumed',
         base_working_time: start_work_event.time + 1 * 60,
         started_at: start_work_event.time,
-        paused_at: Time.at(0),
+        paused_at: nil,
         updated_at: resume_work_event.created_at
       )
     end
