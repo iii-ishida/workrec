@@ -3,7 +3,7 @@ require: rubocop-rspec
 AllCops:
   TargetRubyVersion: 2.6
   Exclude:
-    - workrec_app.rb
+    - web/router.rb
     - pb/**/*
     - spec/spec_helper.rb
     - tmp/**/*

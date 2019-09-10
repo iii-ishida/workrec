@@ -2,9 +2,9 @@
 
 require 'rack/test'
 
-OUTER_APP = Rack::Builder.new.run WorkrecApp.freeze.app
+OUTER_APP = Rack::Builder.new.run Web::Router.freeze.app
 
-RSpec.describe WorkrecApp do
+RSpec.describe Web::Router do
   include Rack::Test::Methods
 
   def app
@@ -60,63 +60,63 @@ RSpec.describe WorkrecApp do
   context 'when GET /v1/works' do
     it 'do Web::Works::List#call' do
       get '/v1/works'
-      expect(list_work).to have_received(:call).with(WorkrecApp::RodaRequest)
+      expect(list_work).to have_received(:call).with(Web::Router::RodaRequest)
     end
   end
 
   context 'when POST /v1/works' do
     it 'do Web::Works::Create#call' do
       post '/v1/works'
-      expect(create_work).to have_received(:call).with(WorkrecApp::RodaRequest)
+      expect(create_work).to have_received(:call).with(Web::Router::RodaRequest)
     end
   end
 
   context 'when PATCH /v1/works/{work_id}' do
     it 'do Web::Works::Update#call with work_id' do
       patch "/v1/works/#{work_id}"
-      expect(update_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(update_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 
   context 'when DELETE /v1/works/{work_id}' do
     it 'do Web::Works::Delete#call with work_id' do
       delete "/v1/works/#{work_id}"
-      expect(delete_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(delete_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 
   context 'when POST /v1/works/{work_id}/start' do
     it 'do Web::Works::Start#call with work_id' do
       post "/v1/works/#{work_id}/start"
-      expect(start_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(start_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 
   context 'when POST /v1/works/{work_id}/pause' do
     it 'do Web::Works::Pause#call with work_id' do
       post "/v1/works/#{work_id}/pause"
-      expect(pause_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(pause_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 
   context 'when POST /v1/works/{work_id}/resume' do
     it 'do Web::Works::Resume#call with work_id' do
       post "/v1/works/#{work_id}/resume"
-      expect(resume_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(resume_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 
   context 'when POST /v1/works/{work_id}/finish' do
     it 'do Web::Works::Finish#call with work_id' do
       post "/v1/works/#{work_id}/finish"
-      expect(finish_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(finish_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 
   context 'when POST /v1/works/{work_id}/unfinish' do
     it 'do Web::Works::Unfinish#call with work_id' do
       post "/v1/works/#{work_id}/unfinish"
-      expect(unfinish_work).to have_received(:call).with(work_id, WorkrecApp::RodaRequest)
+      expect(unfinish_work).to have_received(:call).with(work_id, Web::Router::RodaRequest)
     end
   end
 end

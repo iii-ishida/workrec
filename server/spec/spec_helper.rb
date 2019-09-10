@@ -101,7 +101,7 @@ end
 
 $LOAD_PATH.push(File.dirname(__dir__))
 require 'timecop'
-require 'workrec_app'
+require 'web/router'
 require 'web/works'
 require 'app/works/create'
 require 'app/works/update'

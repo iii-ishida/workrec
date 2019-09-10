@@ -2,5 +2,5 @@
 
 $LOAD_PATH.push(__dir__)
 
-require 'workrec_app'
-run WorkrecApp.freeze.app
+require 'web/router'
+run Web::Router.freeze.app
