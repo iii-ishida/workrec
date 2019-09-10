@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'app/works/create'
+require 'app/work_service/create'
 require 'web/env'
 require 'web/auth'
 
@@ -15,10 +15,10 @@ module Web
         user_id = Web::Auth.get_user_id(req)
 
         params = new_params(user_id, req)
-        ret = App::Works::Create.new(@repo).call(params)
+        ret = App::WorkService::Create.new(@repo).call(params)
 
         [201, {'Location' => "#{Web::Env::API_ORIGIN}/#{Web::Env::API_VERSION}/works/#{ret.work_id}"}]
-      rescue App::ForbiddenError
+      rescue App::Errors::Forbidden
         [401]
       end
 
@@ -29,7 +29,7 @@ module Web
         require 'pb/command_request_pb'
 
         param = CreateWorkRequestPb.decode(req.body.read)
-        App::Works::Create::Params.new(user_id: user_id, title: param.title)
+        App::WorkService::Create::Params.new(user_id: user_id, title: param.title)
       end
     end
   end

@@ -24,7 +24,7 @@ RSpec.describe Web::Router do
   let(:work_id) { 'some-work-id' }
 
   before do
-    allow(CloudDatastoreRepository).to receive(:new)
+    allow(App::Repositories::CloudDatastore).to receive(:new)
     allow(Web::Works::List).to receive(:new).and_return(list_work)
     allow(Web::Works::Create).to receive(:new).and_return(create_work)
     allow(Web::Works::Update).to receive(:new).and_return(update_work)

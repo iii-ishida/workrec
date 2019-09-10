@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'app/works/update'
+require 'app/work_service/update'
 require 'web/auth'
 
 module Web
@@ -14,12 +14,12 @@ module Web
         user_id = Web::Auth.get_user_id(req)
 
         params = new_params(user_id, work_id, req)
-        App::Works::Update.new(@repo).call(params)
+        App::WorkService::Update.new(@repo).call(params)
 
         [200]
-      rescue App::NotFoundError
+      rescue App::Errors::NotFound
         [404]
-      rescue App::ForbiddenError => e
+      rescue App::Errors::Forbidden => e
         logger = Logger.new(STDOUT)
         logger.warn(e)
         [404]
@@ -32,7 +32,7 @@ module Web
         require 'pb/command_request_pb'
 
         param = UpdateWorkRequestPb.decode(req.body.read)
-        App::Works::Update::Params.new(user_id: user_id, work_id: work_id, title: param.title)
+        App::WorkService::Update::Params.new(user_id: user_id, work_id: work_id, title: param.title)
       end
     end
   end

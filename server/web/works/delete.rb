@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'app/works/delete'
+require 'app/work_service/create'
+require 'app/work_service/delete'
 require 'web/auth'
 
 module Web
@@ -14,12 +15,12 @@ module Web
         user_id = Web::Auth.get_user_id(req)
 
         params = new_params(user_id, work_id)
-        App::Works::Delete.new(@repo).call(params)
+        App::WorkService::Delete.new(@repo).call(params)
 
         [200]
-      rescue App::NotFoundError
+      rescue App::Errors::NotFound
         [404]
-      rescue App::ForbiddenError => e
+      rescue App::Errors::Forbidden => e
         logger = Logger.new(STDOUT)
         logger.warn(e)
         [404]
@@ -28,7 +29,7 @@ module Web
       private
 
       def new_params(user_id, work_id)
-        App::Works::Delete::Params.new(user_id: user_id, work_id: work_id)
+        App::WorkService::Delete::Params.new(user_id: user_id, work_id: work_id)
       end
     end
   end

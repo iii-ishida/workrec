@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'app/works/finish'
+require 'app/work_service/finish'
 require 'web/auth'
 
 module Web
@@ -17,12 +17,12 @@ module Web
         user_id = Web::Auth.get_user_id(req)
 
         params = new_params(user_id, work_id, req)
-        App::Works::Finish.new(@repo).call(params)
+        App::WorkService::Finish.new(@repo).call(params)
 
         [200]
-      rescue App::NotFoundError
+      rescue App::Errors::NotFound
         [404]
-      rescue App::ForbiddenError => e
+      rescue App::Errors::Forbidden => e
         logger = Logger.new(STDOUT)
         logger.warn(e)
         [404]
@@ -35,7 +35,7 @@ module Web
         require 'pb/command_request_pb'
 
         param = ChangeWorkStateRequestPb.decode(req.body.read)
-        App::Works::Finish::Params.new(user_id: user_id, work_id: work_id, time: param.time.to_time)
+        App::WorkService::Finish::Params.new(user_id: user_id, work_id: work_id, time: param.time.to_time)
       end
     end
   end
