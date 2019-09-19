@@ -54,7 +54,7 @@ RSpec.describe App::Repositories::CloudDatastore do
   let(:user_id) { 'some-user-id' }
   let(:id) { 'some-model-id' }
   let(:key) { 'some-entity-key' }
-  let(:model) { App::Models::Work.new(id: id, user_id: user_id, event_id: 'some-event-id', title: 'some title', state: 'unstarted', updated_at: Time.now) }
+  let(:model) { App::Models::Event.for_create_work('some-user-id', 'some title') }
   let(:entity) do
     e = model.to_entity
     e.key = key
@@ -73,12 +73,12 @@ RSpec.describe App::Repositories::CloudDatastore do
 
   describe '#find' do
     it 'do datastore#find with kind_name and id' do
-      repo.find(App::Models::Work, id)
-      expect(datastore).to have_received(:find).with(App::Models::Work.kind_name, id)
+      repo.find(App::Models::Event, id)
+      expect(datastore).to have_received(:find).with(App::Models::Event.kind_name, id)
     end
 
     it 'returns the model for the given id' do
-      expect(repo.find(App::Models::Work, id)).to eq(model)
+      expect(repo.find(App::Models::Event, id)).to eq(model)
     end
   end
 

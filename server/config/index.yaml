@@ -5,6 +5,13 @@ indexes:
   - name: user_id
   - name: created_at
 
+- kind: Event
+  properties:
+  - name: user_id
+  - name: work_id
+  - name: created_at
+    direction: desc
+
 - kind: WorkListItem
   properties:
   - name: user_id

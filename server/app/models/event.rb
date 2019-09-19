@@ -32,8 +32,53 @@ module App
       attribute :time,        Types::Strict::Time.optional
       attribute :created_at,  Types::Strict::Time
 
-      def self.new_id
-        SecureRandom.uuid
+      def self.for_create_work(user_id, title)
+        Event.new(
+          id: new_id,
+          user_id: user_id,
+          work_id: new_work_id,
+          action: 'create_work',
+          title: title,
+          time: nil,
+          created_at: Time.now
+        )
+      end
+
+      def self.for_update_work(prev_event, title)
+        Event.new(
+          id: new_id,
+          prev_id: prev_event.id,
+          user_id: prev_event.user_id,
+          work_id: prev_event.work_id,
+          action: 'update_work',
+          title: title,
+          time: nil,
+          created_at: Time.now
+        )
+      end
+
+      def self.for_delete_work(prev_event)
+        Event.new(
+          id: new_id,
+          prev_id: prev_event.id,
+          user_id: prev_event.user_id,
+          work_id: prev_event.work_id,
+          action: 'delete_work',
+          time: nil,
+          created_at: Time.now
+        )
+      end
+
+      def self.for_change_work_state(prev_event, action, time)
+        Event.new(
+          id: new_id,
+          prev_id: prev_event.id,
+          user_id: prev_event.user_id,
+          work_id: prev_event.work_id,
+          action: action,
+          time: time,
+          created_at: Time.now
+        )
       end
 
       def self.kind_name
@@ -71,6 +116,16 @@ module App
           created_at: props['created_at']
         )
       end
+
+      def self.new_id
+        SecureRandom.uuid
+      end
+
+      def self.new_work_id
+        SecureRandom.uuid
+      end
+
+      private_class_method :new_id, :new_work_id
     end
   end
 end

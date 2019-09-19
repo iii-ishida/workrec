@@ -70,6 +70,21 @@ module App
         events.map { |e| Models::Event.from_entity(e) }
       end
 
+      def find_last_event(user_id, work_id)
+        require './app/models/event'
+
+        query = @datastore.query(Models::Event.kind_name)
+                          .where('user_id', '=', user_id)
+                          .where('work_id', '=', work_id)
+                          .order('user_id')
+                          .order('work_id')
+                          .order('created_at', :desc)
+                          .limit(1)
+
+        events = @datastore.run query
+        Models::Event.from_entity(events.first)
+      end
+
       def list_works(user_id, page_size, page_token)
         require './app/models/worklist'
 
