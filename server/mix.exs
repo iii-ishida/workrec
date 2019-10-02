@@ -36,7 +36,13 @@ defmodule Workrec.MixProject do
       {:phoenix_pubsub, "~> 1.1"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:google_api_datastore, "~> 0.11"},
+      {:elixir_uuid, "~> 1.2"},
+      {:goth, "~> 1.1.0"},
+      {:jose, "~> 1.9"}, 
+      {:httpoison, "~> 1.5"},
+      {:cors_plug, "~> 2.0"}
     ]
   end
 end
