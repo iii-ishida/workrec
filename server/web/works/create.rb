@@ -25,11 +25,10 @@ module Web
       private
 
       def new_params(user_id, req)
-        require 'google/protobuf'
-        require 'pb/command_request_pb'
+        require 'json'
 
-        param = CreateWorkRequestPb.decode(req.body.read)
-        App::WorkService::Create::Params.new(user_id: user_id, title: param.title)
+        param = JSON.parse(req.body.read)
+        App::WorkService::Create::Params.new(user_id: user_id, title: param['title'])
       end
     end
   end

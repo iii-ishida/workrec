@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 
 gem 'dry-struct'
 gem 'google-cloud-datastore'
-gem 'google-protobuf'
 gem 'jwt'
 gem 'puma'
 gem 'rack'

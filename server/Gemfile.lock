@@ -127,7 +127,6 @@ PLATFORMS
 DEPENDENCIES
   dry-struct
   google-cloud-datastore
-  google-protobuf
   jwt
   puma
   rack

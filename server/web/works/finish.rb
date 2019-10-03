@@ -6,9 +6,6 @@ require 'web/auth'
 module Web
   module Works
     class Finish
-      require 'pb/time_pb'
-      using TimePb
-
       def initialize(repo)
         @repo = repo
       end
@@ -31,11 +28,10 @@ module Web
       private
 
       def new_params(user_id, work_id, req)
-        require 'google/protobuf'
-        require 'pb/command_request_pb'
+        require 'json'
 
-        param = ChangeWorkStateRequestPb.decode(req.body.read)
-        App::WorkService::Finish::Params.new(user_id: user_id, work_id: work_id, time: param.time.to_time)
+        param = JSON.parse(req.body.read)
+        App::WorkService::Finish::Params.new(user_id: user_id, work_id: work_id, time: Time.iso8601(param['time']))
       end
     end
   end

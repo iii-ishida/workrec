@@ -100,40 +100,33 @@ module App
   end
 end
 
-# Protocol Buffers
+# JSON
 module App
   module Models
     class WorkListItem
-      require 'pb/time_pb'
-      using TimePb
+      require 'json'
 
-      def to_pb
-        require 'google/protobuf'
-        require 'pb/worklist_pb'
-
-        WorkListItemPb.new(
+      def to_json(*_args)
+        JSON.generate(
           id: id,
+          user_id: user_id,
+          base_working_time: base_working_time&.iso8601,
+          paused_at: paused_at&.iso8601,
+          started_at: started_at&.iso8601,
           title: title,
-          base_working_time: base_working_time.to_pb,
-          paused_at: paused_at&.to_pb,
-          state: Models.work_states_to_pb(state),
-          started_at: started_at.to_pb,
-          created_at: created_at.to_pb,
-          updated_at: updated_at.to_pb
+          state: state,
+          created_at: created_at.iso8601,
+          updated_at: updated_at.iso8601
         )
       end
     end
 
     class WorkList
-      def to_pb
-        require 'google/protobuf'
-        require 'pb/worklist_pb'
-
-        pb = WorkListPb.new(
-          works: works.map(&:to_pb),
+      def to_json(*_args)
+        JSON.generate(
+          works: works.map(&:to_json),
           next_page_token: next_page_token
         )
-        WorkListPb.encode(pb)
       end
     end
   end

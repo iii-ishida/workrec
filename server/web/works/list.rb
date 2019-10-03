@@ -16,7 +16,7 @@ module Web
         params = new_params(user_id, req)
         ret = App::WorkService::List.new(@repo).call(params)
 
-        [200, {'Content-Type' => 'application/octet-stream'}, ret.work_list.to_pb]
+        [200, {'Content-Type' => 'application/octet-stream'}, ret.work_list.to_json]
       rescue App::Errors::Forbidden
         [401]
       end
