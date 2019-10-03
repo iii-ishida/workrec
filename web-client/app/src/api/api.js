@@ -1,7 +1,4 @@
 import { getIdToken } from 'src/auth'
-const worklist_pb = require('./pb/worklist_pb')
-const command_request_pb = require('./pb/command_request_pb')
-const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
 
 const fetchRequest = (url, req = {}) => {
   return getIdToken().then(idToken => {
@@ -16,21 +13,15 @@ const fetchRequest = (url, req = {}) => {
 export default class API {
   static getWorkList() {
     return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works`)
-      .then(res => res.arrayBuffer())
-      .then(data => {
-        const pb = worklist_pb.WorkListPb.deserializeBinary(new Uint8Array(data))
-        return this.worklistPbToObject(pb)
-      })
+      .then(res => res.json())
+      .then(json => this.worklistJsonToObject(json))
   }
 
   static addWork(title) {
-    const param = new command_request_pb.CreateWorkRequestPb()
-    param.setTitle(title)
-
     return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/octet-stream'},
-      body: param.serializeBinary()
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title: title})
     })
   }
 
@@ -55,16 +46,10 @@ export default class API {
   }
 
   static _changeWorkState(method, id, time) {
-    const timestamp = new google_protobuf_timestamp_pb.Timestamp()
-    timestamp.fromDate(time)
-
-    const param = new command_request_pb.ChangeWorkStateRequestPb()
-    param.setTime(timestamp)
-
     return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}/${method}`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/octet-stream'},
-      body: param.serializeBinary()
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({time: time.toISOString()})
     })
   }
 
@@ -74,31 +59,28 @@ export default class API {
     })
   }
 
-  static worklistPbToObject(pb) {
-    const pbObj = pb.toObject()
-
+  static worklistJsonToObject(json) {
     const toDate = (t) => {
       if (!t) {
         return null
       }
-      return new Date((t.seconds * 1000) + (t.nanos / 1000000))
+      return new Date(t)
     }
 
+    const works = (json.works || []).map(JSON.parse).map(work => ({
+      id: work.id,
+      title: work.title,
+      state: work.state,
+      baseWorkingTime: toDate(work.base_working_time),
+      startedAt: toDate(work.started_at),
+      pausedAt: toDate(work.paused_at),
+      createdAt: toDate(work.created_at),
+      updatedAt: toDate(work.updated_at),
+    }))
 
     return {
-      works: (pbObj.worksList || []).map(work => {
-        return {
-          id: work.id,
-          title: work.title,
-          state: work.state,
-          baseWorkingTime: toDate(work.baseWorkingTime),
-          startedAt: toDate(work.startedAt),
-          pausedAt: toDate(work.pausedAt),
-          createdAt: toDate(work.createdAt),
-          updatedAt: toDate(work.updatedAt),
-        }
-      }),
-      nextPageToken: pbObj.nextPageToken
+      works: works,
+      nextPageToken: json.nextPageToken
     }
   }
 }

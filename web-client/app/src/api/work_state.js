@@ -1,10 +1,5 @@
-const worklist_pb = require('./pb/worklist_pb')
-
-export const {
-  UNSTARTED,
-  STARTED,
-  PAUSED,
-  RESUMED,
-  FINISHED
-} = worklist_pb.WorkListItemPb.State
-
+export const UNSTARTED = 1
+export const STARTED = 2
+export const PAUSED = 3
+export const RESUMED = 4
+export const FINISHED = 5
