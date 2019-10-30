@@ -74,7 +74,7 @@ jobs:
           path: ~/test_results
 
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
 
       - run:
           name: Deploy server
