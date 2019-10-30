@@ -2,7 +2,9 @@ version: 2
 jobs:
   server-test-and-deploy:
     docker:
-      - image: circleci/ruby:2.6-stretch
+      - image: circleci/elixir:1.9.0
+        environment:
+          MIX_ENV: test
 
     working_directory: ~/workrec
 
@@ -15,7 +17,7 @@ jobs:
             sudo apt-get install -qqy lsb-release && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
             echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
             curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-            sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-datastore-emulator google-cloud-sdk-pubsub-emulator
+            sudo apt-get update && sudo apt-get install google-cloud-sdk
 
       - run:
           name: Setup glcoud
@@ -26,52 +28,44 @@ jobs:
             gcloud --quiet config set core/disable_usage_reporting true
             gcloud --quiet config set component_manager/disable_update_check true
 
+      - run: cd server && mix local.hex --force
+      - run: cd server && mix local.rebar --force
+
       - restore_cache:
           keys:
-            - bundle-v2-{{ checksum "server/Gemfile.lock" }}
-            - bundle-v2-
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
+      - restore_cache:
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
 
-      - run:
-          name: Bundle Install
-          command: cd server && bundle check || bundle install --path vendor/bundle --jobs=4 --retry=3
-
+      - run: cd server && mix do deps.get, compile
       - save_cache:
-          key: bundle-v2-{{ checksum "server/Gemfile.lock" }}
-          paths:
-            - server/vendor/bundle
+          key: v1-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
+          paths: "server/deps"
+      - save_cache:
+          key: v1-mix-cache-{{ .Branch }}
+          paths: "server/deps"
+      - save_cache:
+          key: v1-mix-cache
+          paths: "server/deps"
+      - save_cache:
+          key: v1-build-cache-{{ .Branch }}
+          paths: "server/_build"
+      - save_cache:
+          key: v1-build-cache
+          paths: "server/_build"
 
       - run:
-          name: Database setup
-          command: |
-            gcloud beta emulators datastore start --quiet --no-store-on-disk --consistency=1.0 &
-            gcloud beta emulators pubsub start --quiet &
-
-      - run: mkdir ~/test_results
-
-      - run:
-          name: Run rubocop
-          command: |
-            cd server
-            bundle exec rubocop \
-              -r $(bundle show rubocop-junit-formatter)/lib/rubocop/formatter/junit_formatter.rb \
-              --config ./.rubocop.yml \
-              --fail-level=W \
-              --format RuboCop::Formatter::JUnitFormatter \
-              --out ~/test_results/rubocop.xml
-
-      - run:
-          name: Run rspec
+          name: Run mix test
           command: |
             cd server
-            bundle exec rspec --profile 10 \
-                              --format progress \
-                              --format RspecJunitFormatter \
-                              --out ~/test_results/rspec.xml \
-                              --format progress \
-                              $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+            GOOGLE_CLOUD_PROJECT=testapp mix test
 
       - store_test_results:
-          path: ~/test_results
+          path: server/_build/test/lib/workrec
 
       - setup_remote_docker:
           docker_layer_caching: false
@@ -82,8 +76,7 @@ jobs:
             cd server
             TAG=v0.1.$CIRCLE_BUILD_NUM
             gcloud auth configure-docker --quiet
-            rm -rf ./vendor
-            docker build -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
+            docker build --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
             docker push gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG > /dev/null 2>&1 && echo "push done."
             gcloud beta run deploy api-server --quiet \
                                               --image gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG \
