@@ -67,7 +67,7 @@ export default class API {
       return new Date(t)
     }
 
-    const works = (json.works || []).map(JSON.parse).map(work => ({
+    const works = (json.works || []).map(work => ({
       id: work.id,
       title: work.title,
       state: work.state,
