@@ -76,7 +76,7 @@ jobs:
             cd server
             TAG=v0.1.$CIRCLE_BUILD_NUM
             gcloud auth configure-docker --quiet
-            docker build --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
+            docker build --build-arg=CLIENT_ORIGIN=${CLIENT_ORIGIN} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
             docker push gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG > /dev/null 2>&1 && echo "push done."
             gcloud beta run deploy api-server --quiet \
                                               --image gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG \

@@ -40,8 +40,7 @@ defmodule WorkrecWeb.Endpoint do
     key: "_workrec_key",
     signing_salt: "RqDZHJ0N"
 
-  plug CORSPlug, origin: [System.get_env("CLIENT_ORIGIN")], max_age: 600, headers: ["Content-Type", "Authorization"]
-
+  plug CORSPlug
 
   plug WorkrecWeb.Router
 end
