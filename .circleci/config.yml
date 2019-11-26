@@ -40,8 +40,11 @@ jobs:
           keys:
             - v1-build-cache-{{ .Branch }}
             - v1-build-cache
+      - restore_cache:
+          keys:
+            - v1-plt-cache
 
-      - run: cd server && mix do deps.get, compile
+      - run: cd server && mkdir -p priv/plts && mix do deps.get, compile, dialyzer --plt
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
           paths: "server/deps"
@@ -57,12 +60,16 @@ jobs:
       - save_cache:
           key: v1-build-cache
           paths: "server/_build"
+      - save_cache:
+          key: v1-plt-cache
+          paths: "server/priv/plts"
+
 
       - run:
           name: Run mix test
           command: |
             cd server
-            GOOGLE_CLOUD_PROJECT=testapp mix test
+            MIX_ENV=dev mix dialyzer && mix credo --strict && mix test
 
       - store_test_results:
           path: server/_build/test/lib/workrec
