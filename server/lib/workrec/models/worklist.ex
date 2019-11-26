@@ -1,12 +1,10 @@
-defmodule Workrec.WorkList do
-  defstruct [:works, :next_page_token]
-
-  def from_entity(result) do
-    %__MODULE__{works: Enum.map(result.entities, &Workrec.WorkListItem.from_entity/1), next_page_token: result.cursor}
-  end
-end
-
 defmodule Workrec.WorkListItem do
+  @moduledoc """
+  item of work list
+  """
+
+  @behaviour Workrec.Repositories.CloudDatastore.EntityModel
+
   alias Workrec.Event
 
   defstruct [
@@ -22,17 +20,38 @@ defmodule Workrec.WorkListItem do
     :updated_at
   ]
 
+  @type state ::
+          :unstarted
+          | :started
+          | :paused
+          | :resumed
+          | :finished
+
+  @type t :: %__MODULE__{
+          id: String.t(),
+          user_id: String.t(),
+          base_working_time: DateTime.t(),
+          paused_at: DateTime.t(),
+          started_at: DateTime.t(),
+          title: String.t(),
+          state: state,
+          deleted?: boolean(),
+          created_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   def kind_name, do: "WorkListItem"
 
   def from_entity(%{properties: properties}) do
-    state = case properties["state"] do
-      1 -> :unstarted
-      2 -> :started
-      3 -> :paused
-      4 -> :resumed
-      5 -> :finished
-      _ -> :unknown
-    end
+    state =
+      case properties["state"] do
+        1 -> :unstarted
+        2 -> :started
+        3 -> :paused
+        4 -> :resumed
+        5 -> :finished
+        _ -> :unknown
+      end
 
     %__MODULE__{
       id: properties["id"],
@@ -43,12 +62,12 @@ defmodule Workrec.WorkListItem do
       title: properties["title"],
       state: state,
       created_at: properties["created_at"],
-      updated_at: properties["updated_at"],
+      updated_at: properties["updated_at"]
     }
   end
 
   def apply_events(work, events) do
-    Enum.reduce(events, work, &(apply_event(&2, &1)))
+    Enum.reduce(events, work, &apply_event(&2, &1))
   end
 
   defp apply_event(_work, %Event{action: :create_work} = event) do
@@ -58,7 +77,7 @@ defmodule Workrec.WorkListItem do
       title: event.title,
       state: :unstarted,
       created_at: event.created_at,
-      updated_at: event.created_at,
+      updated_at: event.created_at
     }
   end
 
@@ -72,47 +91,47 @@ defmodule Workrec.WorkListItem do
 
   defp apply_event(work, %Event{action: :start_work} = event) do
     %__MODULE__{
-      work |
-      state: :started,
-      base_working_time: event.time,
-      started_at: event.time,
-      updated_at: event.created_at
+      work
+      | state: :started,
+        base_working_time: event.time,
+        started_at: event.time,
+        updated_at: event.created_at
     }
   end
 
   defp apply_event(work, %Event{action: :pause_work} = event) do
     %__MODULE__{
-      work |
-      state: :paused,
-      paused_at: event.time,
-      updated_at: event.created_at
+      work
+      | state: :paused,
+        paused_at: event.time,
+        updated_at: event.created_at
     }
   end
 
   defp apply_event(work, %Event{action: :resume_work} = event) do
     %__MODULE__{
-      work |
-      state: :resumed,
-      base_working_time: calculate_base_working_time(work, event.time),
-      paused_at: nil,
-      updated_at: event.created_at
+      work
+      | state: :resumed,
+        base_working_time: calculate_base_working_time(work, event.time),
+        paused_at: nil,
+        updated_at: event.created_at
     }
   end
 
   defp apply_event(work, %Event{action: :finish_work} = event) do
     %__MODULE__{
-      work |
-      state: :finished,
-      paused_at: (if paused?(work), do: work.paused_at, else: event.time),
-      updated_at: event.created_at
+      work
+      | state: :finished,
+        paused_at: if(paused?(work), do: work.paused_at, else: event.time),
+        updated_at: event.created_at
     }
   end
 
   defp apply_event(work, %Event{action: :unfinish_work} = event) do
     %__MODULE__{
-      work |
-      state: :paused,
-      updated_at: event.created_at
+      work
+      | state: :paused,
+        updated_at: event.created_at
     }
   end
 
@@ -123,11 +142,12 @@ defmodule Workrec.WorkListItem do
   end
 end
 
-defimpl Utils.Datastore.Entity.Decoder, for: Workrec.WorkListItem do
-  alias Utils.Datastore
+defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.WorkListItem do
+  alias Utils.DatastoreHelper.Entity
 
   def to_entity(value) do
-    state = case value.state do
+    state =
+      case value.state do
         :unstarted -> 1
         :started -> 2
         :paused -> 3
@@ -136,7 +156,7 @@ defimpl Utils.Datastore.Entity.Decoder, for: Workrec.WorkListItem do
         _ -> 0
       end
 
-    Datastore.new_entity(Datastore.new_key(Workrec.WorkListItem.kind_name(), value.id), %{
+    Entity.new(Entity.new_key(Workrec.WorkListItem.kind_name(), value.id), %{
       "id" => value.id,
       "user_id" => value.user_id,
       "title" => value.title,
@@ -152,7 +172,8 @@ end
 
 defimpl Jason.Encoder, for: Workrec.WorkListItem do
   def encode(value, opts) do
-    state = case value.state do
+    state =
+      case value.state do
         :unstarted -> 1
         :started -> 2
         :paused -> 3
@@ -161,7 +182,38 @@ defimpl Jason.Encoder, for: Workrec.WorkListItem do
         _ -> 0
       end
 
-    map = Map.take(value, [:id, :title, :base_working_time, :started_at, :paused_at, :created_at, :updated_at]) |> Map.merge(%{state: state})
+    map =
+      Map.take(value, [
+        :id,
+        :title,
+        :base_working_time,
+        :started_at,
+        :paused_at,
+        :created_at,
+        :updated_at
+      ])
+      |> Map.merge(%{state: state})
+
     Jason.Encode.map(map, opts)
+  end
+end
+
+defmodule Workrec.WorkList do
+  @moduledoc """
+  work list
+  """
+
+  defstruct [:works, :next_page_token]
+
+  @type t :: %__MODULE__{
+          :works => list(Workrec.WorkListItem.t()),
+          :next_page_token => String.t() | nil
+        }
+
+  def from_entity(result) do
+    %__MODULE__{
+      works: Enum.map(result.entities, &Workrec.WorkListItem.from_entity/1),
+      next_page_token: result.cursor
+    }
   end
 end

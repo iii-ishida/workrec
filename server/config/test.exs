@@ -8,3 +8,5 @@ config :workrec, WorkrecWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :goth, disabled: true

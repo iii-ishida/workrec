@@ -1,14 +1,18 @@
 defmodule Workrec.SnapshotMeta do
+  @moduledoc """
+  meta data of snapshot
+  """
+
+  @behaviour Workrec.Repositories.CloudDatastore.EntityModel
+
   defstruct [:id, :user_id, :kind, :last_updated_at]
 
-  def new(user_id, kind) do
-    {:ok, zeroTime} = DateTime.from_unix(0)
-
+  def new(user_id, kind, last_event \\ %Workrec.Event{}) do
     %__MODULE__{
       id: new_id(user_id, kind),
       user_id: user_id,
       kind: kind,
-      last_updated_at: zeroTime
+      last_updated_at: last_event.created_at
     }
   end
 
@@ -21,16 +25,16 @@ defmodule Workrec.SnapshotMeta do
       id: properties["id"],
       user_id: properties["user_id"],
       kind: properties["kind"],
-      last_updated_at: properties["last_updated_at"],
+      last_updated_at: properties["last_updated_at"]
     }
   end
 end
 
-defimpl Utils.Datastore.Entity.Decoder, for: Workrec.SnapshotMeta do
-  alias Utils.Datastore
+defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.SnapshotMeta do
+  alias Utils.DatastoreHelper.Entity
 
   def to_entity(value) do
-    Datastore.new_entity(Datastore.new_key(Workrec.SnapshotMeta.kind_name(), value.id), %{
+    Entity.new(Entity.new_key(Workrec.SnapshotMeta.kind_name(), value.id), %{
       "id" => value.id,
       "kind" => value.kind,
       "user_id" => value.user_id,

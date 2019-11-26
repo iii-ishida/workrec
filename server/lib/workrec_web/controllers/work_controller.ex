@@ -9,14 +9,16 @@ defmodule WorkrecWeb.WorkController do
 
   def index(conn, _params) do
     user_id = conn.assigns[:user_id]
-    with {:ok, worklist} <- Work.list(user_id) do
+
+    with {:ok, worklist} <- Work.List.call(user_id) do
       render(conn, "index.json", worklist)
     end
   end
 
   def create(conn, %{"title" => title}) do
     user_id = conn.assigns[:user_id]
-    with {:ok, work_id} <- Work.create(user_id: user_id, title: title) do
+
+    with {:ok, work_id} <- Work.Create.call(user_id: user_id, title: title) do
       conn
       |> put_resp_header("location", work_id)
       |> send_resp(:created, "")
@@ -25,7 +27,8 @@ defmodule WorkrecWeb.WorkController do
 
   def update(conn, %{"id" => work_id, "title" => title}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.update(user_id: user_id, work_id: work_id, title: title) do
+
+    with {:ok, _} <- Work.Update.call(user_id: user_id, work_id: work_id, title: title) do
       conn
       |> send_resp(:ok, "")
     end
@@ -33,7 +36,8 @@ defmodule WorkrecWeb.WorkController do
 
   def delete(conn, %{"id" => work_id}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.delete(user_id: user_id, work_id: work_id) do
+
+    with {:ok, _} <- Work.Delete.call(user_id: user_id, work_id: work_id) do
       conn
       |> send_resp(:ok, "")
     end
@@ -41,7 +45,8 @@ defmodule WorkrecWeb.WorkController do
 
   def start(conn, %{"work_id" => work_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.start(user_id: user_id, work_id: work_id, time: time) do
+
+    with {:ok, _} <- Work.Start.call(user_id: user_id, work_id: work_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
@@ -49,7 +54,8 @@ defmodule WorkrecWeb.WorkController do
 
   def pause(conn, %{"work_id" => work_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.pause(user_id: user_id, work_id: work_id, time: time) do
+
+    with {:ok, _} <- Work.Pause.call(user_id: user_id, work_id: work_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
@@ -57,7 +63,8 @@ defmodule WorkrecWeb.WorkController do
 
   def resume(conn, %{"work_id" => work_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.resume(user_id: user_id, work_id: work_id, time: time) do
+
+    with {:ok, _} <- Work.Resume.call(user_id: user_id, work_id: work_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
@@ -65,7 +72,8 @@ defmodule WorkrecWeb.WorkController do
 
   def finish(conn, %{"work_id" => work_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.finish(user_id: user_id, work_id: work_id, time: time) do
+
+    with {:ok, _} <- Work.Finish.call(user_id: user_id, work_id: work_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
@@ -73,7 +81,8 @@ defmodule WorkrecWeb.WorkController do
 
   def unfinish(conn, %{"work_id" => work_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
-    with {:ok} <- Work.unfinish(user_id: user_id, work_id: work_id, time: time) do
+
+    with {:ok, _} <- Work.Unfinish.call(user_id: user_id, work_id: work_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
@@ -82,8 +91,8 @@ defmodule WorkrecWeb.WorkController do
   defp authenticate(conn, _params) do
     project_id = System.get_env("GOOGLE_CLOUD_PROJECT")
 
-    with [_, id_token] <- get_req_header(conn, "authorization") |> List.first |> String.split(" "),
-         {:ok, user_id} <- FirebaseAuth.verify_id_token(id_token, project_id) do
+    with [_, id_token] <- get_req_header(conn, "authorization") |> List.first() |> String.split(" "),
+         {:ok, user_id} <- Utils.FirebaseAuth.verify_id_token(id_token, project_id) do
       assign(conn, :user_id, user_id)
     else
       _ ->

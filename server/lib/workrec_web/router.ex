@@ -7,6 +7,7 @@ defmodule WorkrecWeb.Router do
 
   scope "/v1/works/", WorkrecWeb do
     pipe_through :api
+
     resources "/", WorkController, only: [:index, :create, :update, :delete] do
       post "/start", WorkController, :start, as: :start
       post "/pause", WorkController, :pause, as: :pause

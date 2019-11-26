@@ -9,7 +9,8 @@ defmodule Workrec.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: [plt_add_deps: :transitive,  plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
     ]
   end
 
@@ -40,9 +41,14 @@ defmodule Workrec.MixProject do
       {:google_api_datastore, "~> 0.11"},
       {:elixir_uuid, "~> 1.2"},
       {:goth, "~> 1.1.0"},
-      {:jose, "~> 1.9"}, 
+      {:jose, "~> 1.9"},
       {:httpoison, "~> 1.5"},
-      {:cors_plug, "~> 2.0"}
+      {:cors_plug, "~> 2.0"},
+
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:earmark, "~> 1.4", only: :dev},
+      {:ex_doc, "~> 0.21", only: :dev}
     ]
   end
 end
