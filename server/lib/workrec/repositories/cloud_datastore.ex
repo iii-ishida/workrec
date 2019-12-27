@@ -3,9 +3,11 @@ defmodule Workrec.Repositories.CloudDatastore do
   Cloud Datastore repository
   """
 
-  alias Utils.DatastoreHelper, as: Datastore
-  alias Utils.DatastoreHelper.Entity
-  alias Utils.DatastoreHelper.Transaction
+  alias DsWrapper.Connection
+  alias DsWrapper.Datastore
+  alias DsWrapper.Entity
+  alias DsWrapper.Key
+
   alias Workrec.Event
   alias Workrec.Repositories.CloudDatastore.Entity.Decoder
   alias Workrec.WorkList
@@ -14,12 +16,12 @@ defmodule Workrec.Repositories.CloudDatastore do
   defstruct [:store]
 
   @type commit_response :: GoogleApi.Datastore.V1.Model.CommitResponse.t() | nil
-  @type t :: %__MODULE__{store: Datastore.t() | Transaction.t()}
+  @type t :: %__MODULE__{store: Connection.t()}
 
   @spec new :: {:ok, t} | {:error, term}
   def new do
-    with {:ok, store} <- Datastore.new() do
-      {:ok, %__MODULE__{store: store}}
+    with {:ok, connection} <- Connection.new() do
+      {:ok, %__MODULE__{store: connection}}
     end
   end
 
@@ -34,13 +36,13 @@ defmodule Workrec.Repositories.CloudDatastore do
   def run_in_transaction(fun) do
     case new() do
       {:ok, repo} -> run_in_transaction(repo, fun)
-      {:error, _} = error -> error
+      error -> error
     end
   end
 
   @spec find(t, module, String.t()) :: {:ok, term} | {:error, term}
   def find(%{store: store}, module, id) do
-    with {:ok, found} <- Datastore.find(store, Entity.new_key(module.kind_name(), id)) do
+    with {:ok, found} <- Datastore.find(store, Key.new(module.kind_name(), id)) do
       case found do
         nil -> {:ok, nil}
         found -> {:ok, module.from_entity(found)}
@@ -100,7 +102,7 @@ defmodule Workrec.Repositories.CloudDatastore do
 
   @spec delete(t, list(struct) | struct) :: {:ok, commit_response} | {:error, term}
   def delete(%{store: store}, models) when is_list(models) do
-    keys = Enum.map(models, &Entity.new_key(&1.__struct__.kind_name, &1.id))
+    keys = Enum.map(models, &Key.new(&1.__struct__.kind_name, &1.id))
     Datastore.delete(store, keys)
   end
 
@@ -108,20 +110,18 @@ defmodule Workrec.Repositories.CloudDatastore do
     delete(store, [model])
   end
 
-  @spec delete!(t, list(struct) | struct) :: commit_response | no_return
-  def delete!(repo, models) do
-    case delete(repo, models) do
-      {:ok, result} -> result
-      {:error, reason} -> raise reason
-    end
+  @spec delete!(t, list(struct) | struct) :: :ok | no_return
+  def delete!(%{store: store}, models) do
+    keys = Enum.map(models, &Key.new(&1.__struct__.kind_name, &1.id))
+    Datastore.delete!(store, keys)
   end
 
   @spec list_events(t, String.t(), DateTime.t(), non_neg_integer(), String.t()) :: {:ok, list(Event.t())} | {:error, term}
   def list_events(%{store: store}, user_id, created_at, limit \\ 100, page_token \\ "") do
-    import Utils.DatastoreHelper.Query
+    import DsWrapper.Query
 
     query =
-      new_query(Event.kind_name())
+      Datastore.query(Event.kind_name())
       |> where("user_id", "=", user_id)
       |> where("created_at", ">", created_at)
       |> order("user_id")
@@ -143,10 +143,10 @@ defmodule Workrec.Repositories.CloudDatastore do
 
   @spec find_last_event(t, String.t(), String.t()) :: {:ok, term} | {:error, term}
   def find_last_event(%{store: store}, user_id, work_id) do
-    import Utils.DatastoreHelper.Query
+    import DsWrapper.Query
 
     query =
-      new_query(Event.kind_name())
+      Datastore.query(Event.kind_name())
       |> where("user_id", "=", user_id)
       |> where("work_id", "=", work_id)
       |> order("user_id")
@@ -171,10 +171,10 @@ defmodule Workrec.Repositories.CloudDatastore do
 
   @spec list_works(t, String.t(), non_neg_integer, String.t()) :: {:ok, WorkList.t()} | {:error, term}
   def list_works(%{store: store}, user_id, limit \\ 100, page_token \\ "") do
-    import Utils.DatastoreHelper.Query
+    import DsWrapper.Query
 
     query =
-      new_query(WorkListItem.kind_name())
+      Datastore.query(WorkListItem.kind_name())
       |> where("user_id", "=", user_id)
       |> order("user_id")
       |> order("created_at", :desc)

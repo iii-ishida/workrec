@@ -20,7 +20,7 @@ defmodule Workrec.SnapshotMeta do
 
   def kind_name, do: "SnapshotMeta"
 
-  def from_entity(%{properties: properties}) do
+  def from_entity(properties) do
     %__MODULE__{
       id: properties["id"],
       user_id: properties["user_id"],
@@ -31,10 +31,11 @@ defmodule Workrec.SnapshotMeta do
 end
 
 defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.SnapshotMeta do
-  alias Utils.DatastoreHelper.Entity
+  alias DsWrapper.Entity
+  alias DsWrapper.Key
 
   def to_entity(value) do
-    Entity.new(Entity.new_key(Workrec.SnapshotMeta.kind_name(), value.id), %{
+    Entity.new(Key.new(Workrec.SnapshotMeta.kind_name(), value.id), %{
       "id" => value.id,
       "kind" => value.kind,
       "user_id" => value.user_id,

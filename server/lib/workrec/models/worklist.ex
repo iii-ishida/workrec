@@ -42,7 +42,7 @@ defmodule Workrec.WorkListItem do
 
   def kind_name, do: "WorkListItem"
 
-  def from_entity(%{properties: properties}) do
+  def from_entity(properties) do
     state =
       case properties["state"] do
         1 -> :unstarted
@@ -143,7 +143,8 @@ defmodule Workrec.WorkListItem do
 end
 
 defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.WorkListItem do
-  alias Utils.DatastoreHelper.Entity
+  alias DsWrapper.Entity
+  alias DsWrapper.Key
 
   def to_entity(value) do
     state =
@@ -156,7 +157,7 @@ defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.WorkLis
         _ -> 0
       end
 
-    Entity.new(Entity.new_key(Workrec.WorkListItem.kind_name(), value.id), %{
+    Entity.new(Key.new(Workrec.WorkListItem.kind_name(), value.id), %{
       "id" => value.id,
       "user_id" => value.user_id,
       "title" => value.title,

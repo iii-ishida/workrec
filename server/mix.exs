@@ -10,7 +10,7 @@ defmodule Workrec.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: [plt_add_deps: :transitive,  plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
+      dialyzer: [plt_add_deps: :transitive, plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
     ]
   end
 
@@ -38,13 +38,12 @@ defmodule Workrec.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:google_api_datastore, "~> 0.11"},
+      {:google_api_datastore, "~> 0.12"},
       {:elixir_uuid, "~> 1.2"},
-      {:goth, "~> 1.1.0"},
       {:jose, "~> 1.9"},
       {:httpoison, "~> 1.5"},
       {:cors_plug, "~> 2.0"},
-
+      {:ds_wrapper, "~> 0.1.0"},
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4", only: :dev},

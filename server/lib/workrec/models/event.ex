@@ -110,7 +110,7 @@ defmodule Workrec.Event do
 
   defp new_id, do: UUID.uuid4()
 
-  def from_entity(%{properties: properties}) do
+  def from_entity(properties) do
     %__MODULE__{
       id: properties["id"],
       user_id: properties["user_id"],
@@ -138,10 +138,11 @@ defmodule Workrec.Event do
 end
 
 defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.Event do
-  alias Utils.DatastoreHelper.Entity
+  alias DsWrapper.Entity
+  alias DsWrapper.Key
 
   def to_entity(value) do
-    Entity.new(Entity.new_key(Workrec.Event.kind_name(), value.id), %{
+    Entity.new(Key.new(Workrec.Event.kind_name(), value.id), %{
       "id" => value.id,
       "prev_id" => value.prev_id,
       "user_id" => value.user_id,
