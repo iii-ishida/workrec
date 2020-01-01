@@ -1,4 +1,4 @@
-defmodule Workrec.WorkListItem do
+defmodule Workrec.TaskListItem do
   @moduledoc """
   item of work list
   """
@@ -40,7 +40,7 @@ defmodule Workrec.WorkListItem do
           updated_at: DateTime.t()
         }
 
-  def kind_name, do: "WorkListItem"
+  def kind_name, do: "TaskListItem"
 
   def from_entity(properties) do
     state =
@@ -66,13 +66,13 @@ defmodule Workrec.WorkListItem do
     }
   end
 
-  def apply_events(work, events) do
-    Enum.reduce(events, work, &apply_event(&2, &1))
+  def apply_events(task, events) do
+    Enum.reduce(events, task, &apply_event(&2, &1))
   end
 
-  defp apply_event(_work, %Event{action: :create_work} = event) do
+  defp apply_event(_task, %Event{action: :create_task} = event) do
     %__MODULE__{
-      id: event.work_id,
+      id: event.task_id,
       user_id: event.user_id,
       title: event.title,
       state: :unstarted,
@@ -81,17 +81,17 @@ defmodule Workrec.WorkListItem do
     }
   end
 
-  defp apply_event(work, %Event{action: :update_work} = event) do
-    %__MODULE__{work | title: event.title, updated_at: event.created_at}
+  defp apply_event(task, %Event{action: :update_task} = event) do
+    %__MODULE__{task | title: event.title, updated_at: event.created_at}
   end
 
-  defp apply_event(work, %Event{action: :delete_work}) do
-    %__MODULE__{work | deleted?: true}
+  defp apply_event(task, %Event{action: :delete_task}) do
+    %__MODULE__{task | deleted?: true}
   end
 
-  defp apply_event(work, %Event{action: :start_work} = event) do
+  defp apply_event(task, %Event{action: :start_task} = event) do
     %__MODULE__{
-      work
+      task
       | state: :started,
         base_working_time: event.time,
         started_at: event.time,
@@ -99,50 +99,50 @@ defmodule Workrec.WorkListItem do
     }
   end
 
-  defp apply_event(work, %Event{action: :pause_work} = event) do
+  defp apply_event(task, %Event{action: :pause_task} = event) do
     %__MODULE__{
-      work
+      task
       | state: :paused,
         paused_at: event.time,
         updated_at: event.created_at
     }
   end
 
-  defp apply_event(work, %Event{action: :resume_work} = event) do
+  defp apply_event(task, %Event{action: :resume_task} = event) do
     %__MODULE__{
-      work
+      task
       | state: :resumed,
-        base_working_time: calculate_base_working_time(work, event.time),
+        base_working_time: calculate_base_working_time(task, event.time),
         paused_at: nil,
         updated_at: event.created_at
     }
   end
 
-  defp apply_event(work, %Event{action: :finish_work} = event) do
+  defp apply_event(task, %Event{action: :finish_task} = event) do
     %__MODULE__{
-      work
+      task
       | state: :finished,
-        paused_at: if(paused?(work), do: work.paused_at, else: event.time),
+        paused_at: if(paused?(task), do: task.paused_at, else: event.time),
         updated_at: event.created_at
     }
   end
 
-  defp apply_event(work, %Event{action: :unfinish_work} = event) do
+  defp apply_event(task, %Event{action: :unfinish_task} = event) do
     %__MODULE__{
-      work
+      task
       | state: :paused,
         updated_at: event.created_at
     }
   end
 
-  defp paused?(work), do: work.state == :paused
+  defp paused?(task), do: task.state == :paused
 
-  defp calculate_base_working_time(work, resumed_at) do
-    DateTime.add(work.base_working_time, DateTime.diff(resumed_at, work.paused_at))
+  defp calculate_base_working_time(task, resumed_at) do
+    DateTime.add(task.base_working_time, DateTime.diff(resumed_at, task.paused_at))
   end
 end
 
-defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.WorkListItem do
+defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.TaskListItem do
   alias DsWrapper.Entity
   alias DsWrapper.Key
 
@@ -157,7 +157,7 @@ defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.WorkLis
         _ -> 0
       end
 
-    Entity.new(Key.new(Workrec.WorkListItem.kind_name(), value.id), %{
+    Entity.new(Key.new(Workrec.TaskListItem.kind_name(), value.id), %{
       "id" => value.id,
       "user_id" => value.user_id,
       "title" => value.title,
@@ -171,7 +171,7 @@ defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.WorkLis
   end
 end
 
-defimpl Jason.Encoder, for: Workrec.WorkListItem do
+defimpl Jason.Encoder, for: Workrec.TaskListItem do
   def encode(value, opts) do
     state =
       case value.state do
@@ -199,21 +199,21 @@ defimpl Jason.Encoder, for: Workrec.WorkListItem do
   end
 end
 
-defmodule Workrec.WorkList do
+defmodule Workrec.TaskList do
   @moduledoc """
-  work list
+  task list
   """
 
-  defstruct [:works, :next_page_token]
+  defstruct [:tasks, :next_page_token]
 
   @type t :: %__MODULE__{
-          :works => list(Workrec.WorkListItem.t()),
+          :tasks => list(Workrec.TaskListItem.t()),
           :next_page_token => String.t() | nil
         }
 
   def from_entity(result) do
     %__MODULE__{
-      works: Enum.map(result.entities, &Workrec.WorkListItem.from_entity/1),
+      tasks: Enum.map(result.entities, &Workrec.TaskListItem.from_entity/1),
       next_page_token: result.cursor
     }
   end

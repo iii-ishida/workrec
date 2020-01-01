@@ -10,8 +10,8 @@ defmodule Workrec.Repositories.CloudDatastore do
 
   alias Workrec.Event
   alias Workrec.Repositories.CloudDatastore.Entity.Decoder
-  alias Workrec.WorkList
-  alias Workrec.WorkListItem
+  alias Workrec.TaskList
+  alias Workrec.TaskListItem
 
   defstruct [:store]
 
@@ -142,15 +142,15 @@ defmodule Workrec.Repositories.CloudDatastore do
   end
 
   @spec find_last_event(t, String.t(), String.t()) :: {:ok, term} | {:error, term}
-  def find_last_event(%{store: store}, user_id, work_id) do
+  def find_last_event(%{store: store}, user_id, task_id) do
     import DsWrapper.Query
 
     query =
       Datastore.query(Event.kind_name())
       |> where("user_id", "=", user_id)
-      |> where("work_id", "=", work_id)
+      |> where("task_id", "=", task_id)
       |> order("user_id")
-      |> order("work_id")
+      |> order("task_id")
       |> order("created_at", :desc)
       |> limit(1)
 
@@ -162,19 +162,19 @@ defmodule Workrec.Repositories.CloudDatastore do
   end
 
   @spec find_last_event!(t, String.t(), String.t()) :: term | no_return
-  def find_last_event!(repo, user_id, work_id) do
-    case find_last_event(repo, user_id, work_id) do
+  def find_last_event!(repo, user_id, task_id) do
+    case find_last_event(repo, user_id, task_id) do
       {:ok, result} -> result
       {:error, reason} -> raise reason
     end
   end
 
-  @spec list_works(t, String.t(), non_neg_integer, String.t()) :: {:ok, WorkList.t()} | {:error, term}
-  def list_works(%{store: store}, user_id, limit \\ 100, page_token \\ "") do
+  @spec list_tasks(t, String.t(), non_neg_integer, String.t()) :: {:ok, TaskList.t()} | {:error, term}
+  def list_tasks(%{store: store}, user_id, limit \\ 100, page_token \\ "") do
     import DsWrapper.Query
 
     query =
-      Datastore.query(WorkListItem.kind_name())
+      Datastore.query(TaskListItem.kind_name())
       |> where("user_id", "=", user_id)
       |> order("user_id")
       |> order("created_at", :desc)
@@ -182,7 +182,7 @@ defmodule Workrec.Repositories.CloudDatastore do
       |> start(page_token)
 
     with {:ok, result} <- Datastore.run_query(store, query) do
-      {:ok, WorkList.from_entity(result)}
+      {:ok, TaskList.from_entity(result)}
     end
   end
 end

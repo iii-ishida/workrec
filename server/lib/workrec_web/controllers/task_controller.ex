@@ -1,7 +1,7 @@
-defmodule WorkrecWeb.WorkController do
+defmodule WorkrecWeb.TaskController do
   use WorkrecWeb, :controller
 
-  alias Workrec.Work
+  alias Workrec.Task
 
   action_fallback WorkrecWeb.FallbackController
 
@@ -10,79 +10,79 @@ defmodule WorkrecWeb.WorkController do
   def index(conn, _params) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, worklist} <- Work.List.call(user_id) do
-      render(conn, "index.json", worklist)
+    with {:ok, task_list} <- Task.List.call(user_id) do
+      render(conn, "index.json", task_list)
     end
   end
 
   def create(conn, %{"title" => title}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, work_id} <- Work.Create.call(user_id: user_id, title: title) do
+    with {:ok, task_id} <- Task.Create.call(user_id: user_id, title: title) do
       conn
-      |> put_resp_header("location", work_id)
+      |> put_resp_header("location", task_id)
       |> send_resp(:created, "")
     end
   end
 
-  def update(conn, %{"id" => work_id, "title" => title}) do
+  def update(conn, %{"id" => task_id, "title" => title}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Update.call(user_id: user_id, work_id: work_id, title: title) do
+    with {:ok, _} <- Task.Update.call(user_id: user_id, task_id: task_id, title: title) do
       conn
       |> send_resp(:ok, "")
     end
   end
 
-  def delete(conn, %{"id" => work_id}) do
+  def delete(conn, %{"id" => task_id}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Delete.call(user_id: user_id, work_id: work_id) do
+    with {:ok, _} <- Task.Delete.call(user_id: user_id, task_id: task_id) do
       conn
       |> send_resp(:ok, "")
     end
   end
 
-  def start(conn, %{"work_id" => work_id, "time" => time}) do
+  def start(conn, %{"task_id" => task_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Start.call(user_id: user_id, work_id: work_id, time: time) do
+    with {:ok, _} <- Task.Start.call(user_id: user_id, task_id: task_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
   end
 
-  def pause(conn, %{"work_id" => work_id, "time" => time}) do
+  def pause(conn, %{"task_id" => task_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Pause.call(user_id: user_id, work_id: work_id, time: time) do
+    with {:ok, _} <- Task.Pause.call(user_id: user_id, task_id: task_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
   end
 
-  def resume(conn, %{"work_id" => work_id, "time" => time}) do
+  def resume(conn, %{"task_id" => task_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Resume.call(user_id: user_id, work_id: work_id, time: time) do
+    with {:ok, _} <- Task.Resume.call(user_id: user_id, task_id: task_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
   end
 
-  def finish(conn, %{"work_id" => work_id, "time" => time}) do
+  def finish(conn, %{"task_id" => task_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Finish.call(user_id: user_id, work_id: work_id, time: time) do
+    with {:ok, _} <- Task.Finish.call(user_id: user_id, task_id: task_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end
   end
 
-  def unfinish(conn, %{"work_id" => work_id, "time" => time}) do
+  def unfinish(conn, %{"task_id" => task_id, "time" => time}) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, _} <- Work.Unfinish.call(user_id: user_id, work_id: work_id, time: time) do
+    with {:ok, _} <- Task.Unfinish.call(user_id: user_id, task_id: task_id, time: time) do
       conn
       |> send_resp(:ok, "")
     end

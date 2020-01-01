@@ -20,7 +20,7 @@ defmodule WorkrecWeb.FallbackController do
   end
 
   def call(conn, {:error, reson}) do
-    Logger.error(inspect(reson))
+    Logger.error("ERROR: #{inspect(reson)}, #{inspect(Process.info(self(), :current_stacktrace))}")
 
     conn
     |> put_status(:internal_server_error)
@@ -28,7 +28,7 @@ defmodule WorkrecWeb.FallbackController do
   end
 
   def call(conn, reson) do
-    Logger.error(inspect(reson))
+    Logger.error("ERROR: #{inspect(reson)}")
 
     conn
     |> put_status(:internal_server_error)
