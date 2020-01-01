@@ -1,25 +1,25 @@
-import { WorkState } from 'src/api'
+import { TaskState } from 'src/api'
 
-export const stateText = work => {
-  const state = work.get('state')
+export const stateText = task => {
+  const state = task.get('state')
 
   switch (state) {
-  case WorkState.UNSTARTED: return '-'
-  case WorkState.STARTED:   return '作業中'
-  case WorkState.PAUSED:    return '停止中'
-  case WorkState.RESUMED:   return '作業中'
-  case WorkState.FINISHED:  return '完了'
+  case TaskState.UNSTARTED: return '-'
+  case TaskState.STARTED:   return '作業中'
+  case TaskState.PAUSED:    return '停止中'
+  case TaskState.RESUMED:   return '作業中'
+  case TaskState.FINISHED:  return '完了'
   default:
     return '-'
   }
 }
 
-export const startedAtText = work => {
-  if (work.get('state') === WorkState.UNSTARTED) {
+export const startedAtText = task => {
+  if (task.get('state') === TaskState.UNSTARTED) {
     return '-'
   }
 
-  const startedAt = work.get('startedAt')
+  const startedAt = task.get('startedAt')
 
   const zeroPad = num => `0${num}`.slice(-2)
 
@@ -32,8 +32,8 @@ export const startedAtText = work => {
   return `${year}-${month}-${day} ${hour}:${minute}`
 }
 
-export const workingTimeText = work => {
-  const workingTimeInMinute  = calcWorkingMinutes(work)
+export const workingTimeText = task => {
+  const workingTimeInMinute  = calcWorkingMinutes(task)
   const workingDay = Math.floor(workingTimeInMinute / 60 / 24)
   const workingHour = Math.floor((workingTimeInMinute % (60 * 24)) / 60)
   const workingMinute = Math.floor((workingTimeInMinute % (60 * 24) % 60))
@@ -51,14 +51,14 @@ export const workingTimeText = work => {
   return workingTimeText
 }
 
-const calcWorkingMinutes = work => {
-  const state = work.get('state')
-  if (state === WorkState.UNSTARTED) {
+const calcWorkingMinutes = task => {
+  const state = task.get('state')
+  if (state === TaskState.UNSTARTED) {
     return 0
   }
 
-  const start = work.get('baseWorkingTime')
-  const end = work.get('pausedAt') || new Date()
+  const start = task.get('baseWorkingTime')
+  const end = task.get('pausedAt') || new Date()
 
   return Math.floor((end.getTime() - start.getTime()) / 1000 / 60)
 }

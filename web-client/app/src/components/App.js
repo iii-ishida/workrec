@@ -1,12 +1,12 @@
 import React from 'react'
-import WorkList from 'src/containers/WorkList'
-import AddWork from 'src/containers/AddWork'
+import TaskList from 'src/containers/TaskList'
+import AddTask from 'src/containers/AddTask'
 import Login from 'src/components/Login'
 
 const App = () => (
   <div>
-    <WorkList />
-    <AddWork />
+    <TaskList />
+    <AddTask />
     <Login />
   </div>
 )

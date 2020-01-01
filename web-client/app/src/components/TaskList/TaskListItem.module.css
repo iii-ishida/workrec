@@ -2,7 +2,7 @@ dd {
   margin-inline-start: 0;
 }
 
-.workListItem {
+.taskListItem {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;

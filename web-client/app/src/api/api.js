@@ -11,55 +11,55 @@ const fetchRequest = (url, req = {}) => {
 }
 
 export default class API {
-  static getWorkList() {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works`)
+  static getTaskList() {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks`)
       .then(res => res.json())
-      .then(json => this.worklistJsonToObject(json))
+      .then(json => this.taskListJsonToObject(json))
   }
 
-  static addWork(title) {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works`, {
+  static addTask(title) {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({title: title})
     })
   }
 
-  static startWork(id, time) {
-    return this._changeWorkState('start', id, time)
+  static startTask(id, time) {
+    return this._changeTaskState('start', id, time)
   }
 
-  static pauseWork(id, time) {
-    return this._changeWorkState('pause', id, time)
+  static pauseTask(id, time) {
+    return this._changeTaskState('pause', id, time)
   }
 
-  static resumeWork(id, time) {
-    return this._changeWorkState('resume', id, time)
+  static resumeTask(id, time) {
+    return this._changeTaskState('resume', id, time)
   }
 
-  static finishWork(id, time) {
-    return this._changeWorkState('finish', id, time)
+  static finishTask(id, time) {
+    return this._changeTaskState('finish', id, time)
   }
 
-  static unfinishWork(id, time) {
-    return this._changeWorkState('unfinish', id, time)
+  static unfinishTask(id, time) {
+    return this._changeTaskState('unfinish', id, time)
   }
 
-  static _changeWorkState(method, id, time) {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}/${method}`, {
+  static _changeTaskState(method, id, time) {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks/${id}/${method}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({time: time.toISOString()})
     })
   }
 
-  static deleteWork(id) {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/works/${id}`, {
+  static deleteTask(id) {
+    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks/${id}`, {
       method: 'DELETE'
     })
   }
 
-  static worklistJsonToObject(json) {
+  static taskListJsonToObject(json) {
     const toDate = (t) => {
       if (!t) {
         return null
@@ -67,19 +67,19 @@ export default class API {
       return new Date(t)
     }
 
-    const works = (json.works || []).map(work => ({
-      id: work.id,
-      title: work.title,
-      state: work.state,
-      baseWorkingTime: toDate(work.base_working_time),
-      startedAt: toDate(work.started_at),
-      pausedAt: toDate(work.paused_at),
-      createdAt: toDate(work.created_at),
-      updatedAt: toDate(work.updated_at),
+    const tasks = (json.tasks || []).map(task => ({
+      id: task.id,
+      title: task.title,
+      state: task.state,
+      baseWorkingTime: toDate(task.base_working_time),
+      startedAt: toDate(task.started_at),
+      pausedAt: toDate(task.paused_at),
+      createdAt: toDate(task.created_at),
+      updatedAt: toDate(task.updated_at),
     }))
 
     return {
-      works: works,
+      tasks: tasks,
       nextPageToken: json.nextPageToken
     }
   }

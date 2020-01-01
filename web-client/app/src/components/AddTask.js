@@ -1,22 +1,22 @@
 import React, { useRef } from 'react'
-import styles from './AddWork.module.css'
+import styles from './AddTask.module.css'
 
-export default function AddWork({ addWork }) {
+export default function AddTask({ addTask }) {
   const inputEl = useRef(null)
 
   return (
     <div>
-      <form className={styles.addWork} onSubmit={e => {
+      <form className={styles.addTask} onSubmit={e => {
         e.preventDefault()
         if (!inputEl.current.value.trim()) {
           return
         }
-        addWork(inputEl.current.value)
+        addTask(inputEl.current.value)
         inputEl.current.value = ''
       }}>
         <input className={styles.titleText} placeholder='タイトル' ref={inputEl} />
         <button className={styles.addButton} type='submit'>
-          Add Work
+          Add Task
         </button>
       </form>
     </div>

@@ -1,22 +1,22 @@
 import React from 'react'
-import { WorkState } from 'src/api'
+import { TaskState } from 'src/api'
 import styles from './ToggleStateButton.module.css'
 
-const nextWorkState = (state) => {
+const nextTaskState = (state) => {
   switch (state) {
-  case WorkState.UNSTARTED:
+  case TaskState.UNSTARTED:
     return 'Start'
 
-  case WorkState.STARTED:
+  case TaskState.STARTED:
     return 'Pause'
 
-  case WorkState.PAUSED:
+  case TaskState.PAUSED:
     return 'Resume'
 
-  case WorkState.RESUMED:
+  case TaskState.RESUMED:
     return 'Pause'
 
-  case WorkState.FINISHED:
+  case TaskState.FINISHED:
     return 'Unfinish'
 
   default:
@@ -24,10 +24,10 @@ const nextWorkState = (state) => {
   }
 }
 
-export default function ToggleStateButton({ work, onClick }) {
+export default function ToggleStateButton({ task, onClick }) {
   return (
     <button className={styles.toggleButton} onClick={onClick}>
-      {nextWorkState(work.get('state'))}
+      {nextTaskState(task.get('state'))}
     </button>
   )
 }
