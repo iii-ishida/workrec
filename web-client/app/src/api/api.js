@@ -1,65 +1,112 @@
 import { getIdToken } from 'src/auth'
 
-const fetchRequest = (url, req = {}) => {
-  return getIdToken().then(idToken => {
-    if (idToken) {
-      req.headers = {...req.headers,  ...{'Authorization': 'Bearer ' + idToken}}
-    }
+import ApolloClient from 'apollo-boost'
+import gql from 'graphql-tag'
 
-    return fetch(url, req)
-  })
-}
+const client = new ApolloClient({
+  uri: `${process.env.REACT_APP_API_ORIGIN}/graph`,
+  request: (operation) => {
+    return getIdToken().then(token => {
+      operation.setContext({
+        headers: {
+          authorization: token ? `Bearer ${token}` : ''
+        }
+      })
+    })
+  }
+})
 
 export default class API {
   static getTaskList() {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks`)
-      .then(res => res.json())
-      .then(json => this.taskListJsonToObject(json))
+    return client.query({
+      query: gql`
+        query {
+          list {
+            tasks {
+              id
+              title
+              state
+              baseWorkingTime
+              startedAt
+              pausedAt
+              createdAt
+              updatedAt
+            }
+          }
+        }`,
+      fetchPolicy: 'network-only',
+    }).then(ret => this.taskListToObject(ret.data.list))
   }
 
   static addTask(title) {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({title: title})
+    return client.mutate({
+      mutation: gql`mutation ($title: String!) {
+        createTask(title: $title)
+      }`,
+      variables: {title}
     })
   }
 
   static startTask(id, time) {
-    return this._changeTaskState('start', id, time)
+    return client.mutate({
+      mutation: gql`mutation ($id: ID!, $time: DateTime!) {
+        startTask(id: $id, time: $time)
+      }`,
+      variables: {id, time}
+    })
   }
 
   static pauseTask(id, time) {
-    return this._changeTaskState('pause', id, time)
+    return client.mutate({
+      mutation: gql`
+        mutation ($id: ID!, $time: DateTime!) {
+          pauseTask(id: $id, time: $time)
+        }`,
+      variables: {id, time}
+    })
   }
 
   static resumeTask(id, time) {
-    return this._changeTaskState('resume', id, time)
+    return client.mutate({
+      mutation: gql`
+        mutation ($id: ID!, $time: DateTime!) {
+          resumeTask(id: $id, time: $time)
+        }`,
+      variables: {id, time}
+    })
   }
 
   static finishTask(id, time) {
-    return this._changeTaskState('finish', id, time)
+    return client.mutate({
+      mutation: gql`
+        mutation($id: ID!, $time: DateTime!) {
+          finishTask(id: $id, time: $time)
+        }`,
+      variables: {id, time}
+    })
   }
 
   static unfinishTask(id, time) {
-    return this._changeTaskState('unfinish', id, time)
-  }
-
-  static _changeTaskState(method, id, time) {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks/${id}/${method}`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({time: time.toISOString()})
+    return client.mutate({
+      mutation: gql`
+        mutation($id: ID!, $time: DateTime!) {
+          unfinishTask(id: $id, time: $time)
+        }`,
+      variables: {id, time}
     })
   }
 
   static deleteTask(id) {
-    return fetchRequest(`${process.env.REACT_APP_API_ORIGIN}/v1/tasks/${id}`, {
-      method: 'DELETE'
+    return client.mutate({
+      mutation: gql`
+        mutation($id: ID!) {
+          deleteTask(id: $id)
+        }`,
+      variables: {id}
     })
   }
 
-  static taskListJsonToObject(json) {
+  static taskListToObject(list) {
     const toDate = (t) => {
       if (!t) {
         return null
@@ -67,20 +114,20 @@ export default class API {
       return new Date(t)
     }
 
-    const tasks = (json.tasks || []).map(task => ({
+    const tasks = (list.tasks || []).map(task => ({
       id: task.id,
       title: task.title,
       state: task.state,
-      baseWorkingTime: toDate(task.base_working_time),
-      startedAt: toDate(task.started_at),
-      pausedAt: toDate(task.paused_at),
-      createdAt: toDate(task.created_at),
-      updatedAt: toDate(task.updated_at),
+      baseWorkingTime: toDate(task.baseWorkingTime),
+      startedAt: toDate(task.startedAt),
+      pausedAt: toDate(task.pausedAt),
+      createdAt: toDate(task.createdAt),
+      updatedAt: toDate(task.updatedAt),
     }))
 
     return {
       tasks: tasks,
-      nextPageToken: json.nextPageToken
+      nextPageToken: list.nextPageToken
     }
   }
 }

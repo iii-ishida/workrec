@@ -1,5 +1,5 @@
-export const UNSTARTED = 1
-export const STARTED = 2
-export const PAUSED = 3
-export const RESUMED = 4
-export const FINISHED = 5
+export const UNSTARTED = 'UNSTARTED'
+export const STARTED = 'STARTED'
+export const PAUSED = 'PAUSED'
+export const RESUMED = 'RESUMED'
+export const FINISHED = 'FINISHED'
