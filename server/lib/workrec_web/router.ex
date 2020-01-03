@@ -3,17 +3,28 @@ defmodule WorkrecWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :authenticate
   end
 
-  scope "/v1/tasks/", WorkrecWeb do
+  scope "/" do
     pipe_through :api
 
-    resources "/", TaskController, only: [:index, :create, :update, :delete] do
-      post "/start", TaskController, :start, as: :start
-      post "/pause", TaskController, :pause, as: :pause
-      post "/resume", TaskController, :resume, as: :resume
-      post "/finish", TaskController, :finish, as: :finish
-      post "/unfinish", TaskController, :unfinish, as: :unfinish
+    forward "/graph", Absinthe.Plug, schema: WorkrecWeb.Schema
+
+    if Mix.env() == :dev do
+      forward "/graphiql", Absinthe.Plug.GraphiQL, schema: WorkrecWeb.Schema
+    end
+  end
+
+  defp authenticate(conn, _params) do
+    project_id = System.get_env("GOOGLE_CLOUD_PROJECT")
+
+    with ["Bearer " <> id_token] <- get_req_header(conn, "authorization"),
+         {:ok, user_id} <- Utils.FirebaseAuth.verify_id_token(id_token, project_id) do
+      Absinthe.Plug.put_options(conn, context: %{user_id: user_id})
+    else
+      _ ->
+        conn
     end
   end
 end

@@ -28,7 +28,7 @@ defmodule Workrec.Task.List do
   defp do_save_snapshots!(tx, user_id, events) do
     task_list_items = apply_events!(tx, events)
     Repo.upsert!(tx, Enum.filter(task_list_items, &(!&1.deleted?)))
-    Repo.delete!(tx, Enum.filter(task_list_items, &(&1.deleted?)))
+    Repo.delete!(tx, Enum.filter(task_list_items, & &1.deleted?))
 
     snapshot_meta = SnapshotMeta.new(user_id, TaskListItem.kind_name(), List.last(events))
     Repo.upsert!(tx, snapshot_meta)
@@ -121,13 +121,6 @@ defmodule Workrec.Task.ChangeStateWork do
   alias Workrec.Repositories.CloudDatastore, as: Repo
 
   def change_state(user_id, task_id, time, event_factory) do
-    case DateTime.from_iso8601(time) do
-      {:ok, time, 0} -> do_change_state(user_id, task_id, time, event_factory)
-      _ -> {:error, :bad_request}
-    end
-  end
-
-  defp do_change_state(user_id, task_id, time, event_factory) do
     Repo.run_in_transaction(fn tx ->
       case Repo.find_last_event!(tx, user_id, task_id) do
         nil ->

@@ -33,19 +33,21 @@ defmodule Workrec.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.10"},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:gettext, "~> 0.11"},
-      {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
-      {:google_api_datastore, "~> 0.12"},
-      {:elixir_uuid, "~> 1.2"},
-      {:jose, "~> 1.9"},
-      {:httpoison, "~> 1.5"},
+      {:absinthe, "~> 1.4.0"},
+      {:absinthe_plug, "~> 1.4"},
       {:cors_plug, "~> 2.0"},
       {:ds_wrapper, "~> 0.1.0"},
-      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false},
+      {:elixir_uuid, "~> 1.2"},
+      {:gettext, "~> 0.11"},
+      {:google_api_datastore, "~> 0.12"},
+      {:httpoison, "~> 1.5"},
+      {:jason, "~> 1.0"},
+      {:jose, "~> 1.9"},
+      {:phoenix, "~> 1.4.10"},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:plug_cowboy, "~> 2.0"},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4", only: :dev},
       {:ex_doc, "~> 0.21", only: :dev}
     ]
