@@ -181,8 +181,6 @@ defmodule Workrec.Repositories.CloudDatastore do
       |> start(page_token)
 
     with {:ok, result} <- Datastore.run_query(store, query) do
-      require Logger
-      Logger.info(inspect result)
       {:ok, TaskList.from_entity(result)}
     end
   end
