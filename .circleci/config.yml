@@ -42,6 +42,7 @@ jobs:
             - v1-build-cache
       - restore_cache:
           keys:
+            - v1-plt-cache-{{ checksum "server/mix.lock" }}
             - v1-plt-cache
 
       - run: cd server && mkdir -p priv/plts && mix do deps.get, compile, dialyzer --plt
@@ -61,7 +62,7 @@ jobs:
           key: v1-build-cache
           paths: "server/_build"
       - save_cache:
-          key: v1-plt-cache
+          key: v1-plt-cache-{{ checksum "server/mix.lock" }}
           paths: "server/priv/plts"
 
 
@@ -69,7 +70,7 @@ jobs:
           name: Run mix test
           command: |
             cd server
-            MIX_ENV=dev mix dialyzer && mix credo --strict && mix test
+            MIX_ENV=dev mix dialyzer && mix credo --strict && mix format --check-formatted && mix compile --warnings-as-errors && mix test
 
       - store_test_results:
           path: server/_build/test/lib/workrec
@@ -85,11 +86,11 @@ jobs:
             gcloud auth configure-docker --quiet
             docker build --build-arg=CLIENT_ORIGIN=${CLIENT_ORIGIN} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
             docker push gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG > /dev/null 2>&1 && echo "push done."
-            gcloud beta run deploy api-server --quiet \
-                                              --image gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG \
-                                              --platform managed \
-                                              --region asia-northeast1 \
-                                              --set-env-vars "GOOGLE_CLOUD_PROJECT=${GOOGLE_PROJECT_ID}, API_ORIGIN=${API_ORIGIN}, CLIENT_ORIGIN=${CLIENT_ORIGIN}" > /dev/null 2>&1 && echo "deploy done."
+            gcloud run deploy api-server --quiet \
+                                         --image gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG \
+                                         --platform managed \
+                                         --region asia-northeast1 \
+                                         --set-env-vars "GOOGLE_CLOUD_PROJECT=${GOOGLE_PROJECT_ID}, API_ORIGIN=${API_ORIGIN}, CLIENT_ORIGIN=${CLIENT_ORIGIN}" > /dev/null 2>&1 && echo "deploy done."
 
   web-client-test-and-deploy:
     docker:
