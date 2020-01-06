@@ -1,5 +1,5 @@
 import Immutable from 'immutable'
-import * as ActionTypes from 'src/actions'
+import * as ActionTypes from '../actions'
 
 const initialState = Immutable.fromJS({tasks: []})
 
