@@ -42,8 +42,8 @@ jobs:
             - v1-build-cache
       - restore_cache:
           keys:
-            - v1-plt-cache-{{ checksum "server/mix.lock" }}
-            - v1-plt-cache
+            - v2-plt-cache-{{ checksum "server/mix.lock" }}
+            - v2-plt-cache
 
       - run: cd server && mkdir -p priv/plts && mix do deps.get, compile, dialyzer --plt
       - save_cache:
@@ -62,7 +62,7 @@ jobs:
           key: v1-build-cache
           paths: "server/_build"
       - save_cache:
-          key: v1-plt-cache-{{ checksum "server/mix.lock" }}
+          key: v2-plt-cache-{{ checksum "server/mix.lock" }}
           paths: "server/priv/plts"
 
 
