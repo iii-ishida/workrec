@@ -3,17 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@reduxjs/toolkit": "^1.2.1",
     "apollo-boost": "^0.4.7",
     "firebase": "^5.8.2",
     "google-protobuf": "^3.6.1",
     "graphql": "^14.5.8",
-    "immutable": "^4.0.0-rc.12",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-redux": "^7.0.0",
     "react-scripts": "2.1.5",
-    "redux": "^4.0.1",
-    "redux-thunk": "^2.3.0"
+    "redux": "^4.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

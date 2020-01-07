@@ -27,7 +27,7 @@ const nextTaskState = (state) => {
 export default function ToggleStateButton({ task, onClick }) {
   return (
     <button className={styles.toggleButton} onClick={onClick}>
-      {nextTaskState(task.get('state'))}
+      {nextTaskState(task.state)}
     </button>
   )
 }

@@ -15,7 +15,7 @@ export default function TaskList({tasks, fetchTasks, toggleState, finishTask, un
     <ul className={styles.taskList}>
       {tasks.map(task => {
         return (
-          <li key={task.get('id')}>
+          <li key={task.id}>
             <TaskListItem
               task={task}
               toggleState={toggleState}

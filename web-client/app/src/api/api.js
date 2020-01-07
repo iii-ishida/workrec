@@ -107,26 +107,8 @@ export default class API {
   }
 
   static taskListToObject(list) {
-    const toDate = (t) => {
-      if (!t) {
-        return null
-      }
-      return new Date(t)
-    }
-
-    const tasks = (list.tasks || []).map(task => ({
-      id: task.id,
-      title: task.title,
-      state: task.state,
-      baseWorkingTime: toDate(task.baseWorkingTime),
-      startedAt: toDate(task.startedAt),
-      pausedAt: toDate(task.pausedAt),
-      createdAt: toDate(task.createdAt),
-      updatedAt: toDate(task.updatedAt),
-    }))
-
     return {
-      tasks: tasks,
+      tasks: list.tasks,
       nextPageToken: list.nextPageToken
     }
   }

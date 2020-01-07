@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import { addTask as addTaskAction} from 'src/redux/actions'
+import { addTask as addTaskAction} from 'src/redux'
 
 import { default as Child } from 'src/components/AddTask'
 

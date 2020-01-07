@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import * as Actions from 'src/redux/actions'
+import * as Actions from 'src/redux'
 
 import { default as Child } from 'src/components/TaskList'
 
 export default function TaskList() {
-  const tasks = useSelector(state => state.tasks.get('tasks'))
+  const tasks = useSelector(state => state.tasks)
 
   const dispatch = useDispatch()
 

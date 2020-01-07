@@ -7,8 +7,8 @@ import * as Task from 'src/task'
 export default function TaskListItem({ task, toggleState, finishTask, unfinishTask, deleteTask }) {
   const onToggleState = (task) => {
     const now = new Date()
-    const id = task.get('id')
-    const state = task.get('state')
+    const id = task.id
+    const state = task.state
 
     toggleState(id, state, now)
   }
@@ -18,7 +18,7 @@ export default function TaskListItem({ task, toggleState, finishTask, unfinishTa
       <dl className={styles.contents}>
         <div className={styles.title}>
           <dt>タイトル</dt>
-          <dd>{task.get('title')}</dd>
+          <dd>{task.title}</dd>
         </div>
         <div className={styles.startTime}>
           <dt>開始時間</dt>
@@ -32,7 +32,7 @@ export default function TaskListItem({ task, toggleState, finishTask, unfinishTa
 
       <div className={styles.actions}>
         <ToggleStateButton onClick={() => onToggleState(task)} task={task} />
-        <button className={styles.deleteButton} onClick={() => deleteTask(task.get('id'))}>Delete</button>
+        <button className={styles.deleteButton} onClick={() => deleteTask(task.id)}>Delete</button>
       </div>
     </div>
   )

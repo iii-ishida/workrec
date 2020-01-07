@@ -1,9 +1,7 @@
 import { TaskState } from 'src/api'
 
 export const stateText = task => {
-  const state = task.get('state')
-
-  switch (state) {
+  switch (task.state) {
   case TaskState.UNSTARTED: return '-'
   case TaskState.STARTED:   return '作業中'
   case TaskState.PAUSED:    return '停止中'
@@ -15,11 +13,11 @@ export const stateText = task => {
 }
 
 export const startedAtText = task => {
-  if (task.get('state') === TaskState.UNSTARTED) {
+  if (task.state === TaskState.UNSTARTED) {
     return '-'
   }
 
-  const startedAt = task.get('startedAt')
+  const startedAt = new Date(task.startedAt)
 
   const zeroPad = num => `0${num}`.slice(-2)
 
@@ -52,13 +50,12 @@ export const workingTimeText = task => {
 }
 
 const calcWorkingMinutes = task => {
-  const state = task.get('state')
-  if (state === TaskState.UNSTARTED) {
+  if (task.state === TaskState.UNSTARTED) {
     return 0
   }
 
-  const start = task.get('baseWorkingTime')
-  const end = task.get('pausedAt') || new Date()
+  const start = new Date(task.baseWorkingTime)
+  const end = task.pausedAt ? new Date(task.pausedAt) : new Date()
 
   return Math.floor((end.getTime() - start.getTime()) / 1000 / 60)
 }
