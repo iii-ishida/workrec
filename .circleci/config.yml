@@ -33,36 +33,31 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
-            - v1-mix-cache-{{ .Branch }}
-            - v1-mix-cache
+            - v2-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
       - restore_cache:
           keys:
-            - v1-build-cache-{{ .Branch }}
-            - v1-build-cache
+            - v2-build-cache-{{ .Branch }}
+            - v2-build-cache
       - restore_cache:
           keys:
-            - v2-plt-cache-{{ checksum "server/mix.lock" }}
-            - v2-plt-cache
+            - v3-plt-cache-{{ checksum "server/mix.lock" }}
+            - v3-plt-cache
 
-      - run: cd server && mkdir -p priv/plts && mix do deps.get, compile, dialyzer --plt
+      - run: cd server && mkdir -p priv/plts && MIX_ENV=dev mix do deps.get, compile, dialyzer --plt
       - save_cache:
-          key: v1-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
+          key: v2-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
           paths: "server/deps"
       - save_cache:
-          key: v1-mix-cache-{{ .Branch }}
-          paths: "server/deps"
-      - save_cache:
-          key: v1-mix-cache
-          paths: "server/deps"
-      - save_cache:
-          key: v1-build-cache-{{ .Branch }}
+          key: v2-build-cache-{{ .Branch }}
           paths: "server/_build"
       - save_cache:
-          key: v1-build-cache
+          key: v2-build-cache
           paths: "server/_build"
       - save_cache:
-          key: v2-plt-cache-{{ checksum "server/mix.lock" }}
+          key: v3-plt-cache-{{ checksum "server/mix.lock" }}
+          paths: "server/priv/plts"
+      - save_cache:
+          key: v3-plt-cache
           paths: "server/priv/plts"
 
 
@@ -82,6 +77,7 @@ jobs:
           name: Deploy server
           command: |
             cd server
+            rm -rf ./priv/plts
             TAG=v0.1.$CIRCLE_BUILD_NUM
             gcloud auth configure-docker --quiet
             docker build --build-arg=CLIENT_ORIGIN=${CLIENT_ORIGIN} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
