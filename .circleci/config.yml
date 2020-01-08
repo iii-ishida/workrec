@@ -2,7 +2,7 @@ version: 2
 jobs:
   server-test-and-deploy:
     docker:
-      - image: circleci/elixir:1.9.0
+      - image: circleci/elixir:1.9.4
         environment:
           MIX_ENV: test
 
