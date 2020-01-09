@@ -39,7 +39,6 @@ defmodule Workrec.MixProject do
       {:ds_wrapper, "~> 0.1.0"},
       {:elixir_uuid, "~> 1.2"},
       {:gettext, "~> 0.11"},
-      {:google_api_datastore, "~> 0.12"},
       {:httpoison, "~> 1.5"},
       {:jason, "~> 1.0"},
       {:jose, "~> 1.9"},
