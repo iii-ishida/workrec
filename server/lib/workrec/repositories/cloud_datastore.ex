@@ -101,7 +101,7 @@ defmodule Workrec.Repositories.CloudDatastore do
     end
   end
 
-  def list_events(%{connection: connection}, user_id, created_at, limit \\ 100, page_token \\ "") do
+  def list_events!(%{connection: connection}, user_id, created_at, limit \\ 100, page_token \\ "") do
     import DsWrapper.Query
 
     query =
@@ -113,14 +113,28 @@ defmodule Workrec.Repositories.CloudDatastore do
       |> limit(limit)
       |> start(page_token)
 
-    with {:ok, result} <- Datastore.run_query(connection, query) do
-      {:ok, Enum.map(result.entities, &Event.from_entity/1)}
+    case Datastore.run_query(connection, query) do
+      {:ok, result} -> Enum.map(result.entities, &Event.from_entity/1)
+      {:error, reason} -> raise reason
     end
   end
 
-  def list_events!(repo, user_id, created_at, limit \\ 100, page_token \\ "") do
-    case list_events(repo, user_id, created_at, limit, page_token) do
-      {:ok, result} -> result
+  def list_events_for_task!(%{connection: connection}, user_id, task_id, created_at, limit \\ 100, page_token \\ "") do
+    import DsWrapper.Query
+
+    query =
+      Datastore.query(Event.kind_name())
+      |> where("user_id", "=", user_id)
+      |> where("task_id", "=", task_id)
+      |> where("created_at", ">", created_at)
+      |> order("user_id")
+      |> order("task_id")
+      |> order("created_at")
+      |> limit(limit)
+      |> start(page_token)
+
+    case Datastore.run_query(connection, query) do
+      {:ok, result} -> Enum.map(result.entities, &Event.from_entity/1)
       {:error, reason} -> raise reason
     end
   end

@@ -176,6 +176,15 @@ defmodule Workrec.TaskEventStore do
     end)
   end
 
+  def save_snapshot(user_id, task_id) do
+    Repo.run_in_transaction(fn tx ->
+      last_updated_at = (Repo.find!(tx, Task, task_id) || %Task{}).updated_at
+
+      events = Repo.list_events_for_task!(tx, user_id, task_id, last_updated_at)
+      do_save_snapshots!(tx, user_id, events)
+    end)
+  end
+
   defp do_save_snapshots!(_, _, events) when length(events) <= 0, do: {:ok, nil}
 
   defp do_save_snapshots!(tx, user_id, events) do
