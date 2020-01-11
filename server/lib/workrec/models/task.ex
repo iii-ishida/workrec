@@ -1,4 +1,4 @@
-defmodule Workrec.TaskListItem do
+defmodule Workrec.Task do
   @moduledoc """
   item of work list
   """
@@ -20,27 +20,7 @@ defmodule Workrec.TaskListItem do
     :updated_at
   ]
 
-  @type state ::
-          :unstarted
-          | :started
-          | :paused
-          | :resumed
-          | :finished
-
-  @type t :: %__MODULE__{
-          id: String.t(),
-          user_id: String.t(),
-          base_working_time: DateTime.t(),
-          paused_at: DateTime.t(),
-          started_at: DateTime.t(),
-          title: String.t(),
-          state: state,
-          deleted?: boolean(),
-          created_at: DateTime.t(),
-          updated_at: DateTime.t()
-        }
-
-  def kind_name, do: "TaskListItem"
+  def kind_name, do: "Task"
 
   def from_entity(properties) do
     state =
@@ -142,7 +122,7 @@ defmodule Workrec.TaskListItem do
   end
 end
 
-defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.TaskListItem do
+defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.Task do
   alias DsWrapper.Entity
   alias DsWrapper.Key
 
@@ -157,7 +137,7 @@ defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.TaskLis
         _ -> 0
       end
 
-    Entity.new(Key.new(Workrec.TaskListItem.kind_name(), value.id), %{
+    Entity.new(Key.new(Workrec.Task.kind_name(), value.id), %{
       "id" => value.id,
       "user_id" => value.user_id,
       "title" => value.title,
@@ -171,7 +151,7 @@ defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.TaskLis
   end
 end
 
-defimpl Jason.Encoder, for: Workrec.TaskListItem do
+defimpl Jason.Encoder, for: Workrec.Task do
   def encode(value, opts) do
     state =
       case value.state do
@@ -206,15 +186,49 @@ defmodule Workrec.TaskList do
 
   defstruct [:tasks, :next_page_token]
 
-  @type t :: %__MODULE__{
-          :tasks => list(Workrec.TaskListItem.t()),
-          :next_page_token => String.t() | nil
-        }
-
   def from_entity(result) do
     %__MODULE__{
-      tasks: Enum.map(result.entities, &Workrec.TaskListItem.from_entity/1),
+      tasks: Enum.map(result.entities, &Workrec.Task.from_entity/1),
       next_page_token: result.cursor
     }
+  end
+end
+
+defmodule Workrec.TaskListMeta do
+  @moduledoc false
+
+  @behaviour Workrec.Repositories.CloudDatastore.EntityModel
+
+  defstruct [:id, :user_id, :last_updated_at]
+
+  def new(user_id, last_updated_at \\ nil) do
+    %__MODULE__{
+      id: "t-#{user_id}",
+      user_id: user_id,
+      last_updated_at: last_updated_at
+    }
+  end
+
+  def kind_name, do: "TaskListMeta"
+
+  def from_entity(properties) do
+    %__MODULE__{
+      id: properties["id"],
+      user_id: properties["user_id"],
+      last_updated_at: properties["last_updated_at"]
+    }
+  end
+end
+
+defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.TaskListMeta do
+  alias DsWrapper.Entity
+  alias DsWrapper.Key
+
+  def to_entity(value) do
+    Entity.new(Key.new(Workrec.TaskListMeta.kind_name(), value.id), %{
+      "id" => value.id,
+      "user_id" => value.user_id,
+      "last_updated_at" => value.last_updated_at
+    })
   end
 end

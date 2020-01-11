@@ -5,51 +5,13 @@ defmodule Workrec.Task.List do
 
   alias Workrec.Event
   alias Workrec.Repositories.CloudDatastore, as: Repo
-  alias Workrec.SnapshotMeta
-  alias Workrec.TaskListItem
+  alias Workrec.TaskEventStore
 
   def call(user_id, page_size \\ 100, page_token \\ "") do
-    with {:ok, repo} <- Repo.new(),
-         {:ok, _} <- save_snapshots(repo, user_id) do
+    with {:ok, _} <- TaskEventStore.save_snapshots(user_id),
+         {:ok, repo} <- Repo.new() do
       Repo.list_tasks(repo, user_id, page_size, page_token)
     end
-  end
-
-  defp save_snapshots(repo, user_id) do
-    Repo.run_in_transaction(repo, fn tx ->
-      snapshot_meta = find_snapshot_meta!(tx, user_id)
-      events = Repo.list_events!(tx, user_id, snapshot_meta.last_updated_at)
-      do_save_snapshots!(tx, user_id, events)
-    end)
-  end
-
-  defp do_save_snapshots!(_, _, events) when length(events) <= 0, do: {:ok, nil}
-
-  defp do_save_snapshots!(tx, user_id, events) do
-    task_list_items = apply_events!(tx, events)
-    Repo.upsert!(tx, Enum.filter(task_list_items, &(!&1.deleted?)))
-    Repo.delete!(tx, Enum.filter(task_list_items, & &1.deleted?))
-
-    snapshot_meta = SnapshotMeta.new(user_id, TaskListItem.kind_name(), List.last(events))
-    Repo.upsert!(tx, snapshot_meta)
-  end
-
-  defp find_snapshot_meta!(tx, user_id) do
-    snapshot_id = SnapshotMeta.new_id(user_id, TaskListItem.kind_name())
-
-    case Repo.find!(tx, SnapshotMeta, snapshot_id) do
-      nil -> SnapshotMeta.new(user_id, TaskListItem.kind_name())
-      snapshot -> snapshot
-    end
-  end
-
-  defp apply_events!(tx, events) do
-    events
-    |> Enum.group_by(fn e -> e.task_id end)
-    |> Enum.map(fn {task_id, grouped_events} ->
-      task_list_item = Repo.find!(tx, Workrec.TaskListItem, task_id) || %TaskListItem{}
-      Workrec.TaskListItem.apply_events(task_list_item, grouped_events)
-    end)
   end
 end
 
@@ -196,5 +158,50 @@ defmodule Workrec.Task.Unfinish do
 
   def call(user_id: user_id, task_id: task_id, time: time) do
     change_state(user_id, task_id, time, &Event.for_unfinish_task/2)
+  end
+end
+
+defmodule Workrec.TaskEventStore do
+  @moduledoc false
+
+  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Task
+  alias Workrec.TaskListMeta
+
+  def save_snapshots(user_id) do
+    Repo.run_in_transaction(fn tx ->
+      task_list_meta = find_task_list_meta!(tx, user_id)
+      events = Repo.list_events!(tx, user_id, task_list_meta.last_updated_at)
+      do_save_snapshots!(tx, user_id, events)
+    end)
+  end
+
+  defp do_save_snapshots!(_, _, events) when length(events) <= 0, do: {:ok, nil}
+
+  defp do_save_snapshots!(tx, user_id, events) do
+    task_list_items = apply_events!(tx, events)
+    Repo.upsert!(tx, Enum.filter(task_list_items, &(!&1.deleted?)))
+    Repo.delete!(tx, Enum.filter(task_list_items, & &1.deleted?))
+
+    task_list_meta = TaskListMeta.new(user_id, List.last(events).created_at)
+    Repo.upsert!(tx, task_list_meta)
+  end
+
+  defp find_task_list_meta!(tx, user_id) do
+    task_list_meta = TaskListMeta.new(user_id)
+
+    case Repo.find!(tx, TaskListMeta, task_list_meta.id) do
+      nil -> task_list_meta
+      found -> found
+    end
+  end
+
+  defp apply_events!(tx, events) do
+    events
+    |> Enum.group_by(fn e -> e.task_id end)
+    |> Enum.map(fn {task_id, grouped_events} ->
+      task_list_item = Repo.find!(tx, Task, task_id) || %Task{}
+      Task.apply_events(task_list_item, grouped_events)
+    end)
   end
 end

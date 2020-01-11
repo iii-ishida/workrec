@@ -9,8 +9,8 @@ defmodule Workrec.Repositories.CloudDatastore do
 
   alias Workrec.Event
   alias Workrec.Repositories.CloudDatastore.Entity.Decoder
+  alias Workrec.Task
   alias Workrec.TaskList
-  alias Workrec.TaskListItem
 
   defstruct [:connection]
 
@@ -155,7 +155,7 @@ defmodule Workrec.Repositories.CloudDatastore do
     import DsWrapper.Query
 
     query =
-      Datastore.query(TaskListItem.kind_name())
+      Datastore.query(Task.kind_name())
       |> where("user_id", "=", user_id)
       |> order("user_id")
       |> order("created_at", :desc)
