@@ -1,4 +1,4 @@
-defmodule Workrec.Repositories.CloudDatastore do
+defmodule Workrec.Repository.CloudDatastore do
   @moduledoc """
   Cloud Datastore repository
   """
@@ -8,7 +8,7 @@ defmodule Workrec.Repositories.CloudDatastore do
   alias DsWrapper.Key
 
   alias Workrec.Event
-  alias Workrec.Repositories.CloudDatastore.Entity.Decoder
+  alias Workrec.Repository.CloudDatastore.Entity.Decoder
   alias Workrec.Task
   alias Workrec.TaskList
 
@@ -182,7 +182,7 @@ defmodule Workrec.Repositories.CloudDatastore do
   end
 end
 
-defmodule Workrec.Repositories.CloudDatastore.EntityModel do
+defmodule Workrec.Repository.CloudDatastore.EntityModel do
   @moduledoc """
   behaviour for Entity <-> Model
   """
@@ -191,12 +191,12 @@ defmodule Workrec.Repositories.CloudDatastore.EntityModel do
   @callback from_entity(%{properties: map}) :: struct
 end
 
-defprotocol Workrec.Repositories.CloudDatastore.Entity.Decoder do
+defprotocol Workrec.Repository.CloudDatastore.Entity.Decoder do
   def to_entity(value)
 end
 
-defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: List do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: List do
   def to_entity(value) do
-    Enum.map(value, &Workrec.Repositories.CloudDatastore.Entity.Decoder.to_entity(&1))
+    Enum.map(value, &Workrec.Repository.CloudDatastore.Entity.Decoder.to_entity(&1))
   end
 end

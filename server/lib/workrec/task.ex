@@ -4,7 +4,7 @@ defmodule Workrec.Task.List do
   """
 
   alias Workrec.Event
-  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Repository.CloudDatastore, as: Repo
   alias Workrec.TaskEventStore
 
   def call(user_id, page_size \\ 100, page_token \\ "") do
@@ -21,7 +21,7 @@ defmodule Workrec.Task.Create do
   """
 
   alias Workrec.Event
-  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Repository.CloudDatastore, as: Repo
 
   def call(user_id: user_id, title: title) do
     event = Event.for_create_task(user_id, %{title: title})
@@ -39,7 +39,7 @@ defmodule Workrec.Task.Update do
   """
 
   alias Workrec.Event
-  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Repository.CloudDatastore, as: Repo
 
   def call(user_id: user_id, task_id: task_id, title: title) do
     Repo.run_in_transaction(fn tx ->
@@ -61,7 +61,7 @@ defmodule Workrec.Task.Delete do
   """
 
   alias Workrec.Event
-  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Repository.CloudDatastore, as: Repo
 
   def call(user_id: user_id, task_id: task_id) do
     Repo.run_in_transaction(fn tx ->
@@ -80,7 +80,7 @@ end
 defmodule Workrec.Task.ChangeStateWork do
   @moduledoc false
 
-  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Repository.CloudDatastore, as: Repo
 
   def change_state(user_id, task_id, time, event_factory) do
     Repo.run_in_transaction(fn tx ->
@@ -164,7 +164,7 @@ end
 defmodule Workrec.TaskEventStore do
   @moduledoc false
 
-  alias Workrec.Repositories.CloudDatastore, as: Repo
+  alias Workrec.Repository.CloudDatastore, as: Repo
   alias Workrec.Task
   alias Workrec.TaskListMeta
 

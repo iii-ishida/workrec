@@ -3,7 +3,7 @@ defmodule Workrec.Event do
   event
   """
 
-  @behaviour Workrec.Repositories.CloudDatastore.EntityModel
+  @behaviour Workrec.Repository.CloudDatastore.EntityModel
 
   defstruct [
     :id,
@@ -137,7 +137,7 @@ defmodule Workrec.Event do
   end
 end
 
-defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.Event do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Event do
   alias DsWrapper.Entity
   alias DsWrapper.Key
 

@@ -3,7 +3,7 @@ defmodule Workrec.Task do
   item of work list
   """
 
-  @behaviour Workrec.Repositories.CloudDatastore.EntityModel
+  @behaviour Workrec.Repository.CloudDatastore.EntityModel
 
   alias Workrec.Event
 
@@ -122,7 +122,7 @@ defmodule Workrec.Task do
   end
 end
 
-defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.Task do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Task do
   alias DsWrapper.Entity
   alias DsWrapper.Key
 
@@ -197,7 +197,7 @@ end
 defmodule Workrec.TaskListMeta do
   @moduledoc false
 
-  @behaviour Workrec.Repositories.CloudDatastore.EntityModel
+  @behaviour Workrec.Repository.CloudDatastore.EntityModel
 
   defstruct [:id, :user_id, :last_updated_at]
 
@@ -220,7 +220,7 @@ defmodule Workrec.TaskListMeta do
   end
 end
 
-defimpl Workrec.Repositories.CloudDatastore.Entity.Decoder, for: Workrec.TaskListMeta do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.TaskListMeta do
   alias DsWrapper.Entity
   alias DsWrapper.Key
 
