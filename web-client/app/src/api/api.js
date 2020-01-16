@@ -21,37 +21,62 @@ export default class API {
     return client.query({
       query: gql`
         query {
-          list {
-            tasks {
-              id
-              title
-              state
-              baseWorkingTime
-              startedAt
-              pausedAt
-              createdAt
-              updatedAt
+          tasks {
+            edges {
+              node {
+                id
+                title
+                state
+                baseWorkingTime
+                startedAt
+                pausedAt
+                createdAt
+                updatedAt
+              }
+            }
+            pageInfo {
+              endCursor
             }
           }
         }`,
       fetchPolicy: 'network-only',
-    }).then(ret => this.taskListToObject(ret.data.list))
+    }).then(ret => this.taskListToObject(ret.data.tasks))
   }
 
   static addTask(title) {
     return client.mutate({
-      mutation: gql`mutation ($title: String!) {
-        createTask(title: $title)
-      }`,
+      mutation: gql`
+        mutation ($title: String!) {
+          createTask(title: $title) {
+            id
+            title
+            state
+            baseWorkingTime
+            startedAt
+            pausedAt
+            createdAt
+            updatedAt
+          }
+        }`,
       variables: {title}
     })
   }
 
   static startTask(id, time) {
     return client.mutate({
-      mutation: gql`mutation ($id: ID!, $time: DateTime!) {
-        startTask(id: $id, time: $time)
-      }`,
+      mutation: gql`
+        mutation ($id: ID!, $time: DateTime!) {
+          startTask(id: $id, time: $time) {
+            id
+            title
+            state
+            baseWorkingTime
+            startedAt
+            pausedAt
+            createdAt
+            updatedAt
+          }
+        }`,
       variables: {id, time}
     })
   }
@@ -60,7 +85,16 @@ export default class API {
     return client.mutate({
       mutation: gql`
         mutation ($id: ID!, $time: DateTime!) {
-          pauseTask(id: $id, time: $time)
+          pauseTask(id: $id, time: $time) {
+            id
+            title
+            state
+            baseWorkingTime
+            startedAt
+            pausedAt
+            createdAt
+            updatedAt
+          }
         }`,
       variables: {id, time}
     })
@@ -70,7 +104,16 @@ export default class API {
     return client.mutate({
       mutation: gql`
         mutation ($id: ID!, $time: DateTime!) {
-          resumeTask(id: $id, time: $time)
+          resumeTask(id: $id, time: $time) {
+            id
+            title
+            state
+            baseWorkingTime
+            startedAt
+            pausedAt
+            createdAt
+            updatedAt
+          }
         }`,
       variables: {id, time}
     })
@@ -80,7 +123,16 @@ export default class API {
     return client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
-          finishTask(id: $id, time: $time)
+          finishTask(id: $id, time: $time) {
+            id
+            title
+            state
+            baseWorkingTime
+            startedAt
+            pausedAt
+            createdAt
+            updatedAt
+          }
         }`,
       variables: {id, time}
     })
@@ -90,7 +142,16 @@ export default class API {
     return client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
-          unfinishTask(id: $id, time: $time)
+          unfinishTask(id: $id, time: $time) {
+            id
+            title
+            state
+            baseWorkingTime
+            startedAt
+            pausedAt
+            createdAt
+            updatedAt
+          }
         }`,
       variables: {id, time}
     })
@@ -106,10 +167,10 @@ export default class API {
     })
   }
 
-  static taskListToObject(list) {
+  static taskListToObject(tasks) {
     return {
-      tasks: list.tasks,
-      nextPageToken: list.nextPageToken
+      tasks: tasks.edges.map(edge => edge.node),
+      endCursor: tasks.pageInfo.endCursor
     }
   }
 }
