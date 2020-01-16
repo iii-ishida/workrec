@@ -23,16 +23,6 @@ defmodule Workrec.Task do
   def kind_name, do: "Task"
 
   def from_entity(properties) do
-    state =
-      case properties["state"] do
-        1 -> :unstarted
-        2 -> :started
-        3 -> :paused
-        4 -> :resumed
-        5 -> :finished
-        _ -> :unknown
-      end
-
     %__MODULE__{
       id: properties["id"],
       user_id: properties["user_id"],
@@ -40,7 +30,7 @@ defmodule Workrec.Task do
       paused_at: properties["paused_at"],
       started_at: properties["started_at"],
       title: properties["title"],
-      state: state,
+      state: String.to_existing_atom(properties["state"]),
       created_at: properties["created_at"],
       updated_at: properties["updated_at"]
     }
@@ -127,16 +117,6 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Task do
   alias DsWrapper.Key
 
   def to_entity(value) do
-    state =
-      case value.state do
-        :unstarted -> 1
-        :started -> 2
-        :paused -> 3
-        :resumed -> 4
-        :finished -> 5
-        _ -> 0
-      end
-
     Entity.new(Key.new(Workrec.Task.kind_name(), value.id), %{
       "id" => value.id,
       "user_id" => value.user_id,
@@ -144,7 +124,7 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Task do
       "base_working_time" => value.base_working_time,
       "started_at" => value.started_at,
       "paused_at" => value.paused_at,
-      "state" => state,
+      "state" => Atom.to_string(value.state),
       "created_at" => value.created_at,
       "updated_at" => value.updated_at
     })
@@ -153,16 +133,6 @@ end
 
 defimpl Jason.Encoder, for: Workrec.Task do
   def encode(value, opts) do
-    state =
-      case value.state do
-        :unstarted -> 1
-        :started -> 2
-        :paused -> 3
-        :resumed -> 4
-        :finished -> 5
-        _ -> 0
-      end
-
     map =
       Map.take(value, [
         :id,
@@ -173,7 +143,7 @@ defimpl Jason.Encoder, for: Workrec.Task do
         :created_at,
         :updated_at
       ])
-      |> Map.merge(%{state: state})
+      |> Map.merge(%{state: Atom.to_string(value.state)})
 
     Jason.Encode.map(map, opts)
   end
