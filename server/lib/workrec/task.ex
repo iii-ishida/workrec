@@ -3,7 +3,6 @@ defmodule Workrec.Task.List do
   Workrec API: get task list 
   """
 
-  alias Workrec.Event
   alias Workrec.Repository.CloudDatastore, as: Repo
   alias Workrec.TaskEventStore
 
@@ -11,6 +10,23 @@ defmodule Workrec.Task.List do
     with {:ok, _} <- TaskEventStore.save_snapshots(user_id),
          {:ok, repo} <- Repo.new() do
       Repo.list_tasks(repo, user_id, page_size, page_token)
+    end
+  end
+end
+
+defmodule Workrec.Task.Get do
+  @moduledoc """
+  Workrec API: get a task
+  """
+
+  alias Workrec.Repository.CloudDatastore, as: Repo
+  alias Workrec.Task
+  alias Workrec.TaskEventStore
+
+  def call(user_id, task_id) do
+    with {:ok, _} <- TaskEventStore.save_snapshot(user_id, task_id),
+         {:ok, repo} <- Repo.new() do
+      Repo.find(repo, Task, task_id)
     end
   end
 end

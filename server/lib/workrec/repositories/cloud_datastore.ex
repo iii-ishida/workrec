@@ -114,7 +114,7 @@ defmodule Workrec.Repository.CloudDatastore do
       |> start(page_token)
 
     case Datastore.run_query(connection, query) do
-      {:ok, result} -> Enum.map(result.entities, &Event.from_entity/1)
+      {:ok, found} -> Enum.map(found.results, fn %{entity: entity} -> Event.from_entity(entity) end)
       {:error, reason} -> raise reason
     end
   end
@@ -134,7 +134,7 @@ defmodule Workrec.Repository.CloudDatastore do
       |> start(page_token)
 
     case Datastore.run_query(connection, query) do
-      {:ok, result} -> Enum.map(result.entities, &Event.from_entity/1)
+      {:ok, found} -> Enum.map(found.results, fn %{entity: entity} -> Event.from_entity(entity) end)
       {:error, reason} -> raise reason
     end
   end
@@ -152,8 +152,8 @@ defmodule Workrec.Repository.CloudDatastore do
       |> limit(1)
 
     case Datastore.run_query(connection, query) do
-      {:ok, %{entities: []}} -> {:ok, nil}
-      {:ok, %{entities: [entity | _]}} -> {:ok, Event.from_entity(entity)}
+      {:ok, %{results: []}} -> {:ok, nil}
+      {:ok, %{results: [result | _]}} -> {:ok, Event.from_entity(result.entity)}
       error -> error
     end
   end
@@ -176,8 +176,22 @@ defmodule Workrec.Repository.CloudDatastore do
       |> limit(limit)
       |> start(page_token)
 
-    with {:ok, result} <- Datastore.run_query(connection, query) do
-      {:ok, TaskList.from_entity(result)}
+    with {:ok, found} <- Datastore.run_query(connection, query),
+         {:ok, has_next} <- has_next?(connection, query, found, limit) do
+      cursor = if has_next, do: found.cursor, else: nil
+      {:ok, TaskList.from_entity(found.results, cursor)}
+    end
+  end
+
+  defp has_next?(_connection, _query, %{results: results}, limit) when length(results) < limit, do: {:ok, false}
+
+  defp has_next?(connection, query, %{cursor: cursor}, _limit) do
+    import DsWrapper.Query
+
+    query_for_next = query |> start(cursor) |> limit(1)
+
+    with {:ok, found} <- Datastore.run_query(connection, query_for_next) do
+      {:ok, length(found.results) > 0}
     end
   end
 end

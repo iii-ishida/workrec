@@ -36,7 +36,7 @@ defmodule Workrec.MixProject do
       {:absinthe, "~> 1.4.0"},
       {:absinthe_plug, "~> 1.4"},
       {:cors_plug, "~> 2.0"},
-      {:ds_wrapper, "~> 0.1.0"},
+      {:ds_wrapper, "~> 0.3.1"},
       {:elixir_uuid, "~> 1.2"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 1.5"},

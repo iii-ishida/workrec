@@ -186,10 +186,10 @@ defmodule Workrec.TaskList do
 
   defstruct [:tasks, :next_page_token]
 
-  def from_entity(result) do
+  def from_entity(results, cursor) do
     %__MODULE__{
-      tasks: Enum.map(result.entities, &Workrec.Task.from_entity/1),
-      next_page_token: result.cursor
+      tasks: Enum.map(results, fn %{entity: entity} -> Workrec.Task.from_entity(entity) end),
+      next_page_token: cursor
     }
   end
 end

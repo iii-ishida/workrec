@@ -9,7 +9,7 @@
   "cowlib": {:hex, :cowlib, "2.8.0", "fd0ff1787db84ac415b8211573e9a30a3ebe71b5cbff7f720089972b2319c8a4", [:rebar3], [], "hexpm"},
   "credo": {:hex, :credo, "1.1.5", "caec7a3cadd2e58609d7ee25b3931b129e739e070539ad1a0cd7efeeb47014f4", [:mix], [{:bunt, "~> 0.2.0", [hex: :bunt, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
   "dialyxir": {:hex, :dialyxir, "1.0.0-rc.7", "6287f8f2cb45df8584317a4be1075b8c9b8a69de8eeb82b4d9e6c761cf2664cd", [:mix], [{:erlex, ">= 0.2.5", [hex: :erlex, repo: "hexpm", optional: false]}], "hexpm"},
-  "ds_wrapper": {:hex, :ds_wrapper, "0.1.1", "fe3663447118a81b01bb326a6838610a5d722175dd71f7c231fbea3e05c07edd", [:mix], [{:google_api_datastore, "~> 0.12", [hex: :google_api_datastore, repo: "hexpm", optional: false]}, {:goth, "~> 1.1.0", [hex: :goth, repo: "hexpm", optional: false]}], "hexpm"},
+  "ds_wrapper": {:hex, :ds_wrapper, "0.3.1", "08f46af31f1c4dfa82f79c5a57b67a436306f7155ce3d006d53b8eb7c180ffb1", [:mix], [{:google_api_datastore, "~> 0.13", [hex: :google_api_datastore, repo: "hexpm", optional: false]}, {:goth, "~> 1.1.0", [hex: :goth, repo: "hexpm", optional: false]}], "hexpm"},
   "earmark": {:hex, :earmark, "1.4.3", "364ca2e9710f6bff494117dbbd53880d84bebb692dafc3a78eb50aa3183f2bfd", [:mix], [], "hexpm"},
   "elixir_uuid": {:hex, :elixir_uuid, "1.2.1", "dce506597acb7e6b0daeaff52ff6a9043f5919a4c3315abb4143f0b00378c097", [:mix], [], "hexpm"},
   "erlex": {:hex, :erlex, "0.2.5", "e51132f2f472e13d606d808f0574508eeea2030d487fc002b46ad97e738b0510", [:mix], [], "hexpm"},

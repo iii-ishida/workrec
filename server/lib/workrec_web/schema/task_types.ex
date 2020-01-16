@@ -11,6 +11,11 @@ defmodule WorkrecWeb.Schema.TaskTypes do
     value(:finished)
   end
 
+  object :page_info do
+    field(:end_cursor, :string)
+    field(:has_next_page, non_null(:boolean))
+  end
+
   object :task do
     field(:id, non_null(:id))
     field(:user_id, non_null(:id))
@@ -23,8 +28,12 @@ defmodule WorkrecWeb.Schema.TaskTypes do
     field(:updated_at, non_null(:datetime))
   end
 
-  object :task_list do
-    field(:tasks, non_null(list_of(:task)))
-    field(:next_page_token, :string)
+  object :task_connection do
+    field(:page_info, :page_info)
+    field(:edges, list_of(:task_edge))
+  end
+
+  object :task_edge do
+    field(:node, non_null(:task))
   end
 end
