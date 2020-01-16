@@ -16,27 +16,6 @@ defmodule Workrec.Event do
     :created_at
   ]
 
-  @type action ::
-          :create_task
-          | :update_task
-          | :delete_task
-          | :start_task
-          | :pause_task
-          | :resume_task
-          | :finish_task
-          | :unfinish_task
-
-  @type t :: %__MODULE__{
-          id: String.t(),
-          prev_id: String.t(),
-          user_id: String.t(),
-          task_id: String.t(),
-          action: action,
-          title: String.t(),
-          time: DateTime.t(),
-          created_at: DateTime.t()
-        }
-
   def kind_name, do: "Event"
 
   def for_create_task(user_id, %{title: title}) do
