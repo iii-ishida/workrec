@@ -58,20 +58,11 @@ defmodule Workrec.Event do
     }
   end
 
-  def for_start_task(prev_event, params),
-    do: for_change_task_state(prev_event, :start_task, params)
-
-  def for_pause_task(prev_event, params),
-    do: for_change_task_state(prev_event, :pause_task, params)
-
-  def for_resume_task(prev_event, params),
-    do: for_change_task_state(prev_event, :resume_task, params)
-
-  def for_finish_task(prev_event, params),
-    do: for_change_task_state(prev_event, :finish_task, params)
-
-  def for_unfinish_task(prev_event, params),
-    do: for_change_task_state(prev_event, :unfinish_task, params)
+  def for_start_task(prev_event, params), do: for_change_task_state(prev_event, :start_task, params)
+  def for_pause_task(prev_event, params), do: for_change_task_state(prev_event, :pause_task, params)
+  def for_resume_task(prev_event, params), do: for_change_task_state(prev_event, :resume_task, params)
+  def for_finish_task(prev_event, params), do: for_change_task_state(prev_event, :finish_task, params)
+  def for_unfinish_task(prev_event, params), do: for_change_task_state(prev_event, :unfinish_task, params)
 
   defp for_change_task_state(prev_event, action, %{time: time}) do
     now = DateTime.utc_now()
@@ -94,25 +85,11 @@ defmodule Workrec.Event do
       id: properties["id"],
       user_id: properties["user_id"],
       task_id: properties["task_id"],
-      action: int_to_action(properties["action"]),
+      action: String.to_existing_atom(properties["action"]),
       title: properties["title"],
       time: properties["time"],
       created_at: properties["created_at"]
     }
-  end
-
-  defp int_to_action(i) do
-    case i do
-      1 -> :create_task
-      2 -> :update_task
-      3 -> :delete_task
-      4 -> :start_task
-      5 -> :pause_task
-      6 -> :resume_task
-      7 -> :finish_task
-      8 -> :unfinish_task
-      _ -> :unknown
-    end
   end
 end
 
@@ -128,22 +105,8 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Event do
       "task_id" => value.task_id,
       "title" => value.title,
       "time" => value.time,
-      "action" => action_to_int(value.action),
+      "action" => Atom.to_string(value.action),
       "created_at" => value.created_at
     })
-  end
-
-  defp action_to_int(action) do
-    case action do
-      :create_task -> 1
-      :update_task -> 2
-      :delete_task -> 3
-      :start_task -> 4
-      :pause_task -> 5
-      :resume_task -> 6
-      :finish_task -> 7
-      :unfinish_task -> 8
-      _ -> 0
-    end
   end
 end
