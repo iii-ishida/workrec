@@ -20,11 +20,13 @@ defmodule Workrec.Event do
 
   def for_create_task(user_id, %{title: title}) do
     now = DateTime.utc_now()
+    id = new_id()
+    task_id = "t-#{id}"
 
     %__MODULE__{
-      id: new_id(),
+      id: id,
       user_id: user_id,
-      task_id: new_id(),
+      task_id: task_id,
       action: :create_task,
       title: title,
       created_at: now
