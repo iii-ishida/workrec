@@ -10,6 +10,7 @@ defmodule Workrec.Event do
     :prev_id,
     :user_id,
     :task_id,
+    :task_action_id,
     :action,
     :title,
     :time,
@@ -68,12 +69,15 @@ defmodule Workrec.Event do
 
   defp for_change_task_state(prev_event, action, %{time: time}) do
     now = DateTime.utc_now()
+    id = new_id()
+    task_action_id = "s-#{id}"
 
     %__MODULE__{
-      id: new_id(),
+      id: id,
       prev_id: prev_event.id,
       user_id: prev_event.user_id,
       task_id: prev_event.task_id,
+      task_action_id: task_action_id,
       action: action,
       time: time,
       created_at: now
@@ -87,6 +91,7 @@ defmodule Workrec.Event do
       id: properties["id"],
       user_id: properties["user_id"],
       task_id: properties["task_id"],
+      task_action_id: properties["task_action_id"],
       action: String.to_existing_atom(properties["action"]),
       title: properties["title"],
       time: properties["time"],
@@ -105,6 +110,7 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Event do
       "prev_id" => value.prev_id,
       "user_id" => value.user_id,
       "task_id" => value.task_id,
+      "task_action_id" => value.task_action_id,
       "title" => value.title,
       "time" => value.time,
       "action" => Atom.to_string(value.action),
