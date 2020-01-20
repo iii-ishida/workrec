@@ -182,12 +182,12 @@ defmodule Workrec.TaskEventStore do
 
   alias Workrec.Repository.CloudDatastore, as: Repo
   alias Workrec.Task
-  alias Workrec.TaskListMeta
+  alias Workrec.AggregationMeta
 
   def save_snapshots(user_id) do
     Repo.run_in_transaction(fn tx ->
-      task_list_meta = find_task_list_meta!(tx, user_id)
-      events = Repo.list_events!(tx, user_id, task_list_meta.last_updated_at)
+      aggregation_meta = find_aggregation_meta!(tx, user_id)
+      events = Repo.list_events!(tx, user_id, aggregation_meta.timestamp)
       do_save_snapshots!(tx, user_id, events)
     end)
   end
@@ -208,15 +208,15 @@ defmodule Workrec.TaskEventStore do
     Repo.upsert!(tx, Enum.filter(task_list_items, &(!&1.deleted?)))
     Repo.delete!(tx, Enum.filter(task_list_items, & &1.deleted?))
 
-    task_list_meta = TaskListMeta.new(user_id, List.last(events).created_at)
-    Repo.upsert!(tx, task_list_meta)
+    aggregation_meta = AggregationMeta.new(Task.kind_name(), user_id, List.last(events).created_at)
+    Repo.upsert!(tx, aggregation_meta)
   end
 
-  defp find_task_list_meta!(tx, user_id) do
-    task_list_meta = TaskListMeta.new(user_id)
+  defp find_aggregation_meta!(tx, user_id) do
+    aggregation_meta = AggregationMeta.new(Task.kind_name(), user_id)
 
-    case Repo.find!(tx, TaskListMeta, task_list_meta.id) do
-      nil -> task_list_meta
+    case Repo.find!(tx, AggregationMeta, aggregation_meta.id) do
+      nil -> aggregation_meta
       found -> found
     end
   end
