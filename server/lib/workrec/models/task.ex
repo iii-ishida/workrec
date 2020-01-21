@@ -131,24 +131,6 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Task do
   end
 end
 
-defimpl Jason.Encoder, for: Workrec.Task do
-  def encode(value, opts) do
-    map =
-      Map.take(value, [
-        :id,
-        :title,
-        :base_working_time,
-        :started_at,
-        :paused_at,
-        :created_at,
-        :updated_at
-      ])
-      |> Map.merge(%{state: Atom.to_string(value.state)})
-
-    Jason.Encode.map(map, opts)
-  end
-end
-
 defmodule Workrec.TaskList do
   @moduledoc """
   task list
