@@ -1,11 +1,11 @@
-defmodule Workrec.Task do
+defmodule Workrec.Model.Task do
   @moduledoc """
   task
   """
 
   @behaviour Workrec.Repository.CloudDatastore.EntityModel
 
-  alias Workrec.Event
+  alias Workrec.Model.Event
 
   defstruct [
     :id,
@@ -112,12 +112,13 @@ defmodule Workrec.Task do
   end
 end
 
-defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Task do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Model.Task do
   alias DsWrapper.Entity
   alias DsWrapper.Key
+  alias Workrec.Model.Task
 
   def to_entity(value) do
-    Entity.new(Key.new(Workrec.Task.kind_name(), value.id), %{
+    Entity.new(Key.new(Task.kind_name(), value.id), %{
       "id" => value.id,
       "user_id" => value.user_id,
       "title" => value.title,
@@ -131,16 +132,18 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Task do
   end
 end
 
-defmodule Workrec.TaskList do
+defmodule Workrec.Model.TaskList do
   @moduledoc """
   task list
   """
 
   defstruct [:tasks, :next_page_token]
 
+  alias Workrec.Model.Task
+
   def from_entity(results, cursor) do
     %__MODULE__{
-      tasks: Enum.map(results, fn %{entity: entity} -> Workrec.Task.from_entity(entity) end),
+      tasks: Enum.map(results, fn %{entity: entity} -> Task.from_entity(entity) end),
       next_page_token: cursor
     }
   end

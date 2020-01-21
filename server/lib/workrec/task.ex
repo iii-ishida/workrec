@@ -19,8 +19,8 @@ defmodule Workrec.Task.Get do
   Workrec API: get a task
   """
 
+  alias Workrec.Model.Task
   alias Workrec.Repository.CloudDatastore, as: Repo
-  alias Workrec.Task
   alias Workrec.TaskEventStore
 
   def call(user_id, task_id) do
@@ -36,7 +36,7 @@ defmodule Workrec.Task.Create do
   Workrec API: create a Task
   """
 
-  alias Workrec.Event
+  alias Workrec.Model.Event
   alias Workrec.Repository.CloudDatastore, as: Repo
 
   def call(user_id: user_id, title: title) do
@@ -54,7 +54,7 @@ defmodule Workrec.Task.Update do
   Workrec API: update a task
   """
 
-  alias Workrec.Event
+  alias Workrec.Model.Event
   alias Workrec.Repository.CloudDatastore, as: Repo
 
   def call(user_id: user_id, task_id: task_id, title: title) do
@@ -76,7 +76,7 @@ defmodule Workrec.Task.Delete do
   Workrec API: delete a task
   """
 
-  alias Workrec.Event
+  alias Workrec.Model.Event
   alias Workrec.Repository.CloudDatastore, as: Repo
 
   def call(user_id: user_id, task_id: task_id) do
@@ -118,7 +118,7 @@ defmodule Workrec.Task.Start do
   """
 
   import Workrec.Task.ChangeStateWork
-  alias Workrec.Event
+  alias Workrec.Model.Event
 
   def call(user_id: user_id, task_id: task_id, time: time) do
     change_state(user_id, task_id, time, &Event.for_start_task/2)
@@ -131,7 +131,7 @@ defmodule Workrec.Task.Pause do
   """
 
   import Workrec.Task.ChangeStateWork
-  alias Workrec.Event
+  alias Workrec.Model.Event
 
   def call(user_id: user_id, task_id: task_id, time: time) do
     change_state(user_id, task_id, time, &Event.for_pause_task/2)
@@ -144,7 +144,7 @@ defmodule Workrec.Task.Resume do
   """
 
   import Workrec.Task.ChangeStateWork
-  alias Workrec.Event
+  alias Workrec.Model.Event
 
   def call(user_id: user_id, task_id: task_id, time: time) do
     change_state(user_id, task_id, time, &Event.for_resume_task/2)
@@ -157,7 +157,7 @@ defmodule Workrec.Task.Finish do
   """
 
   import Workrec.Task.ChangeStateWork
-  alias Workrec.Event
+  alias Workrec.Model.Event
 
   def call(user_id: user_id, task_id: task_id, time: time) do
     change_state(user_id, task_id, time, &Event.for_finish_task/2)
@@ -170,7 +170,7 @@ defmodule Workrec.Task.Unfinish do
   """
 
   import Workrec.Task.ChangeStateWork
-  alias Workrec.Event
+  alias Workrec.Model.Event
 
   def call(user_id: user_id, task_id: task_id, time: time) do
     change_state(user_id, task_id, time, &Event.for_unfinish_task/2)
@@ -180,9 +180,8 @@ end
 defmodule Workrec.TaskEventStore do
   @moduledoc false
 
+  alias Workrec.Model.{AggregationMeta, Task}
   alias Workrec.Repository.CloudDatastore, as: Repo
-  alias Workrec.Task
-  alias Workrec.AggregationMeta
 
   def save_snapshots(user_id) do
     Repo.run_in_transaction(fn tx ->

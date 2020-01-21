@@ -1,4 +1,4 @@
-defmodule Workrec.Event do
+defmodule Workrec.Model.Event do
   @moduledoc """
   event
   """
@@ -100,12 +100,13 @@ defmodule Workrec.Event do
   end
 end
 
-defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Event do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Model.Event do
   alias DsWrapper.Entity
   alias DsWrapper.Key
+  alias Workrec.Model.Event
 
   def to_entity(value) do
-    Entity.new(Key.new(Workrec.Event.kind_name(), value.id), %{
+    Entity.new(Key.new(Event.kind_name(), value.id), %{
       "id" => value.id,
       "prev_id" => value.prev_id,
       "user_id" => value.user_id,

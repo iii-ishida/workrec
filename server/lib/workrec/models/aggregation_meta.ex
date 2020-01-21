@@ -1,4 +1,4 @@
-defmodule Workrec.AggregationMeta do
+defmodule Workrec.Model.AggregationMeta do
   @moduledoc false
 
   @behaviour Workrec.Repository.CloudDatastore.EntityModel
@@ -26,12 +26,13 @@ defmodule Workrec.AggregationMeta do
   end
 end
 
-defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.AggregationMeta do
+defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Model.AggregationMeta do
   alias DsWrapper.Entity
   alias DsWrapper.Key
+  alias Workrec.Model.AggregationMeta
 
   def to_entity(value) do
-    Entity.new(Key.new(Workrec.AggregationMeta.kind_name(), value.id), %{
+    Entity.new(Key.new(AggregationMeta.kind_name(), value.id), %{
       "id" => value.id,
       "aggregation_name" => value.aggregation_name,
       "aggregation_id" => value.aggregation_id,

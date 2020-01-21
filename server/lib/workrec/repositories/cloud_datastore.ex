@@ -7,10 +7,8 @@ defmodule Workrec.Repository.CloudDatastore do
   alias DsWrapper.Datastore
   alias DsWrapper.Key
 
-  alias Workrec.Event
+  alias Workrec.Model.{Event, Task, TaskList}
   alias Workrec.Repository.CloudDatastore.Entity.Decoder
-  alias Workrec.Task
-  alias Workrec.TaskList
 
   defstruct [:connection]
 
