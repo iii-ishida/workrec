@@ -7,7 +7,7 @@ defmodule Workrec.Repository.CloudDatastore do
   alias DsWrapper.Datastore
   alias DsWrapper.Key
 
-  alias Workrec.Model.{Event, Task, TaskList}
+  alias Workrec.Model.{Event, Task, TaskAction, TaskActionList, TaskList}
   alias Workrec.Repository.CloudDatastore.Entity.Decoder
 
   defstruct [:connection]
@@ -137,6 +137,30 @@ defmodule Workrec.Repository.CloudDatastore do
     end
   end
 
+  def list_events_for_task_actions!(%{connection: connection}, user_id, task_id, created_at, limit \\ 100, page_token \\ "") do
+    import DsWrapper.Query
+
+    query =
+      Datastore.query(Event.kind_name())
+      |> where("user_id", "=", user_id)
+      |> where("task_id", "=", task_id)
+      |> where("created_at", ">", created_at)
+      |> order("user_id")
+      |> order("task_id")
+      |> order("created_at")
+      |> limit(limit)
+      |> start(page_token)
+
+    case Datastore.run_query(connection, query) do
+      {:ok, found} ->
+        Enum.map(found.results, fn %{entity: entity} -> Event.from_entity(entity) end)
+        |> Enum.filter(&(&1.task_action_id != nil))
+
+      {:error, reason} ->
+        raise reason
+    end
+  end
+
   def find_last_event(%{connection: connection}, user_id, task_id) do
     import DsWrapper.Query
 
@@ -178,6 +202,26 @@ defmodule Workrec.Repository.CloudDatastore do
          {:ok, has_next} <- has_next?(connection, query, found, limit) do
       cursor = if has_next, do: found.cursor, else: nil
       {:ok, TaskList.from_entity(found.results, cursor)}
+    end
+  end
+
+  def list_task_actions(%{connection: connection}, user_id, task_id, limit \\ 100, page_token \\ "") do
+    import DsWrapper.Query
+
+    query =
+      Datastore.query(TaskAction.kind_name())
+      |> where("user_id", "=", user_id)
+      |> where("task_id", "=", task_id)
+      |> order("user_id")
+      |> order("task_id")
+      |> order("time")
+      |> limit(limit)
+      |> start(page_token)
+
+    with {:ok, found} <- Datastore.run_query(connection, query),
+         {:ok, has_next} <- has_next?(connection, query, found, limit) do
+      cursor = if has_next, do: found.cursor, else: nil
+      {:ok, TaskActionList.from_entity(found.results, cursor)}
     end
   end
 
