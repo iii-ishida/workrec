@@ -2,9 +2,18 @@ import React from 'react'
 import ToggleStateButton from 'src/components/ToggleStateButton'
 import styles from './TaskListItem.module.css'
 
+import { Task as TaskModel } from 'src/task'
 import * as Task from 'src/task'
 
-export default function TaskListItem({ task, toggleState, finishTask, unfinishTask, deleteTask }) {
+type Props = {
+  task: TaskModel;
+  toggleState: (string, State, Date) => void;
+  finishTask: (string, Date) => void;
+  unfinishTask: (string, Date) => void;
+  deleteTask: (string) => void;
+}
+
+const TaskListItem: React.FC<Props> = ({ task, toggleState, finishTask, unfinishTask, deleteTask }: Props) => {
   const onToggleState = (task) => {
     const now = new Date()
     const id = task.id
@@ -37,3 +46,5 @@ export default function TaskListItem({ task, toggleState, finishTask, unfinishTa
     </div>
   )
 }
+
+export default TaskListItem

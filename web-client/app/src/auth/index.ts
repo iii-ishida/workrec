@@ -1,15 +1,15 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
-import { firebaseConfig } from 'src/firebase-config.js'
+import { firebaseConfig } from 'src/firebase-config'
 
 firebase.initializeApp(firebaseConfig)
 
-export const loginWithGoogle = () => {
+export const loginWithGoogle = (): Promise<void> =>  {
   const provider = new firebase.auth.GoogleAuthProvider()
   return firebase.auth().signInWithRedirect(provider)
 }
 
-export const getIdToken = () => {
+export const getIdToken = (): Promise<string> => {
   return new Promise(resolve => {
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
       unsubscribe()

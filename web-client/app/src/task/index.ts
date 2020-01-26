@@ -1,19 +1,30 @@
-import { TaskState } from 'src/api'
+export type State = 'UNSTARTED' | 'STARTED' | 'PAUSED' |  'RESUMED' | 'FINISHED'
+
+export interface Task {
+  id: string;
+  title: string;
+  state: State;
+  baseWorkingTime: Date;
+  startedAt: Date;
+  pausedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export const stateText = task => {
   switch (task.state) {
-  case TaskState.UNSTARTED: return '-'
-  case TaskState.STARTED:   return '作業中'
-  case TaskState.PAUSED:    return '停止中'
-  case TaskState.RESUMED:   return '作業中'
-  case TaskState.FINISHED:  return '完了'
+  case 'UNSTARTED': return '-'
+  case 'STARTED':   return '作業中'
+  case 'PAUSED':    return '停止中'
+  case 'RESUMED':   return '作業中'
+  case 'FINISHED':  return '完了'
   default:
     return '-'
   }
 }
 
 export const startedAtText = task => {
-  if (task.state === TaskState.UNSTARTED) {
+  if (task.state === 'UNSTARTED') {
     return '-'
   }
 
@@ -49,8 +60,8 @@ export const workingTimeText = task => {
   return workingTimeText
 }
 
-const calcWorkingMinutes = task => {
-  if (task.state === TaskState.UNSTARTED) {
+function calcWorkingMinutes(task: Task): number {
+  if (task.state === 'UNSTARTED') {
     return 0
   }
 

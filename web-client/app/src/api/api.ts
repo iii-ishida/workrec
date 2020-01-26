@@ -1,11 +1,11 @@
-import { getIdToken } from 'src/auth'
-
 import ApolloClient from 'apollo-boost'
 import gql from 'graphql-tag'
+import { getIdToken } from 'src/auth'
+import { Task } from 'src/task'
 
 const client = new ApolloClient({
   uri: `${process.env.REACT_APP_API_ORIGIN}/graph`,
-  request: (operation) => {
+  request: (operation): Promise<any> =>  {
     return getIdToken().then(token => {
       operation.setContext({
         headers: {
@@ -16,8 +16,13 @@ const client = new ApolloClient({
   }
 })
 
+type TaskListResponse = {
+  tasks: Task[];
+  endCursor?: string;
+}
+
 export default class API {
-  static getTaskList() {
+  static getTaskList(): Promise<TaskListResponse> {
     return client.query({
       query: gql`
         query {
@@ -43,7 +48,7 @@ export default class API {
     }).then(ret => this.taskListToObject(ret.data.tasks))
   }
 
-  static addTask(title) {
+  static addTask(title: string): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation ($title: String!) {
@@ -62,7 +67,7 @@ export default class API {
     })
   }
 
-  static startTask(id, time) {
+  static startTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation ($id: ID!, $time: DateTime!) {
@@ -81,7 +86,7 @@ export default class API {
     })
   }
 
-  static pauseTask(id, time) {
+  static pauseTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation ($id: ID!, $time: DateTime!) {
@@ -100,7 +105,7 @@ export default class API {
     })
   }
 
-  static resumeTask(id, time) {
+  static resumeTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation ($id: ID!, $time: DateTime!) {
@@ -119,7 +124,7 @@ export default class API {
     })
   }
 
-  static finishTask(id, time) {
+  static finishTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
@@ -138,7 +143,7 @@ export default class API {
     })
   }
 
-  static unfinishTask(id, time) {
+  static unfinishTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
@@ -157,7 +162,7 @@ export default class API {
     })
   }
 
-  static deleteTask(id) {
+  static deleteTask(id: string): Promise<any> {
     return client.mutate({
       mutation: gql`
         mutation($id: ID!) {
@@ -167,7 +172,7 @@ export default class API {
     })
   }
 
-  static taskListToObject(tasks) {
+  private static taskListToObject(tasks): TaskListResponse {
     return {
       tasks: tasks.edges.map(edge => edge.node),
       endCursor: tasks.pageInfo.endCursor

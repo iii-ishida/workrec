@@ -4,7 +4,7 @@ import { addTask as addTaskAction} from 'src/redux'
 
 import { default as Child } from 'src/components/AddTask'
 
-export default function AddTask() {
+const AddTask: React.FC = () => {
   const dispatch = useDispatch()
 
   const addTask = useCallback(
@@ -16,3 +16,5 @@ export default function AddTask() {
     <Child addTask={addTask} />
   )
 }
+
+export default AddTask

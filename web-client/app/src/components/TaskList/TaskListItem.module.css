@@ -75,6 +75,6 @@ dd {
 }
 
 .deleteButton {
-  composes: destruction from 'src/components/shared-styles/button.css';
+  composes: destruction from '../shared-styles/button.css';
   width: 6em;
 }

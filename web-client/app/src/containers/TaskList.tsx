@@ -4,7 +4,7 @@ import * as Actions from 'src/redux'
 
 import { default as Child } from 'src/components/TaskList'
 
-export default function TaskList() {
+const TaskList: React.FC = () => {
   const tasks = useSelector(state => state.tasks)
 
   const dispatch = useDispatch()
@@ -41,3 +41,5 @@ export default function TaskList() {
     />
   )
 }
+
+export default TaskList

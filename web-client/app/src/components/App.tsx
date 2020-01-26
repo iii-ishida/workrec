@@ -3,7 +3,7 @@ import TaskList from 'src/containers/TaskList'
 import AddTask from 'src/containers/AddTask'
 import Login from 'src/components/Login'
 
-const App = () => (
+const App: React.FC = () => (
   <div>
     <TaskList />
     <AddTask />

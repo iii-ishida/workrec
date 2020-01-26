@@ -1,8 +1,12 @@
 import React, { useRef } from 'react'
 import styles from './AddTask.module.css'
 
-export default function AddTask({ addTask }) {
-  const inputEl = useRef(null)
+type Props = {
+  addTask: (string) => void;
+}
+
+const AddTask: React.FC<Props> = ({ addTask }: Props) => {
+  const inputEl = useRef<HTMLInputElement>(null)
 
   return (
     <div>
@@ -22,3 +26,5 @@ export default function AddTask({ addTask }) {
     </div>
   )
 }
+
+export default AddTask

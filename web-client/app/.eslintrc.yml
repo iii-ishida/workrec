@@ -1,6 +1,29 @@
-extends: 'react-app'
+env:
+  browser: true
+  es6: true
+extends:
+  - 'eslint:recommended'
+  - 'plugin:react/recommended'
+  - 'plugin:@typescript-eslint/eslint-recommended'
+  - 'plugin:@typescript-eslint/recommended'
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 2018
+  sourceType: module
 plugins:
+  - react
   - react-hooks
+  - '@typescript-eslint'
+
+settings:
+  react:
+    version: detect
+
 rules:
   indent:
     - error
@@ -15,3 +38,15 @@ rules:
     - error
   react-hooks/exhaustive-deps:
     - warn
+  '@typescript-eslint/no-explicit-any': off
+  '@typescript-eslint/explicit-function-return-type': off
+  '@typescript-eslint/no-use-before-define':
+    - error
+    - functions: false
+
+overrides:
+  - files:
+    - '*.spec.ts'
+    - '*.spec.tsx'
+    rules:
+      '@typescript-eslint/no-empty-function': off

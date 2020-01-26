@@ -1,5 +1,5 @@
 import { TaskState } from 'src/api'
-import * as Task from './index.js'
+import * as Task from './index.ts'
 
 describe('stateText', () => {
   it('state が UNSTARTED の場合は - を返すこと', () => {
