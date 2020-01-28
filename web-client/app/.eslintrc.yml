@@ -6,6 +6,7 @@ extends:
   - 'plugin:react/recommended'
   - 'plugin:@typescript-eslint/eslint-recommended'
   - 'plugin:@typescript-eslint/recommended'
+  - 'plugin:prettier/recommended'
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
@@ -25,9 +26,6 @@ settings:
     version: detect
 
 rules:
-  indent:
-    - error
-    - 2
   quotes:
     - error
     - single
@@ -43,6 +41,13 @@ rules:
   '@typescript-eslint/no-use-before-define':
     - error
     - functions: false
+  '@typescript-eslint/member-delimiter-style':
+    - 2
+    - multiline:
+        delimiter: none
+      singleline:
+        delimiter: semi
+        requireLast: false
 
 overrides:
   - files:
