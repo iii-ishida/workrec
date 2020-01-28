@@ -6,15 +6,21 @@ import { Task as TaskModel } from 'src/task'
 import * as Task from 'src/task'
 
 type Props = {
-  task: TaskModel;
-  toggleState: (string, State, Date) => void;
-  finishTask: (string, Date) => void;
-  unfinishTask: (string, Date) => void;
-  deleteTask: (string) => void;
+  task: TaskModel
+  toggleState: (string, State, Date) => void
+  finishTask: (string, Date) => void
+  unfinishTask: (string, Date) => void
+  deleteTask: (string) => void
 }
 
-const TaskListItem: React.FC<Props> = ({ task, toggleState, finishTask, unfinishTask, deleteTask }: Props) => {
-  const onToggleState = (task) => {
+const TaskListItem: React.FC<Props> = ({
+  task,
+  toggleState,
+  finishTask,
+  unfinishTask,
+  deleteTask,
+}: Props) => {
+  const onToggleState = task => {
     const now = new Date()
     const id = task.id
     const state = task.state
@@ -41,7 +47,12 @@ const TaskListItem: React.FC<Props> = ({ task, toggleState, finishTask, unfinish
 
       <div className={styles.actions}>
         <ToggleStateButton onClick={() => onToggleState(task)} task={task} />
-        <button className={styles.deleteButton} onClick={() => deleteTask(task.id)}>Delete</button>
+        <button
+          className={styles.deleteButton}
+          onClick={() => deleteTask(task.id)}
+        >
+          Delete
+        </button>
       </div>
     </div>
   )

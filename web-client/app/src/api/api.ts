@@ -5,53 +5,56 @@ import { Task } from 'src/task'
 
 const client = new ApolloClient({
   uri: `${process.env.REACT_APP_API_ORIGIN}/graph`,
-  request: (operation): Promise<any> =>  {
+  request: (operation): Promise<any> => {
     return getIdToken().then(token => {
       operation.setContext({
         headers: {
-          authorization: token ? `Bearer ${token}` : ''
-        }
+          authorization: token ? `Bearer ${token}` : '',
+        },
       })
     })
-  }
+  },
 })
 
 type TaskListResponse = {
-  tasks: Task[];
-  endCursor?: string;
+  tasks: Task[]
+  endCursor?: string
 }
 
 export default class API {
   static getTaskList(): Promise<TaskListResponse> {
-    return client.query({
-      query: gql`
-        query {
-          tasks {
-            edges {
-              node {
-                id
-                title
-                state
-                baseWorkingTime
-                startedAt
-                pausedAt
-                createdAt
-                updatedAt
+    return client
+      .query({
+        query: gql`
+          query {
+            tasks {
+              edges {
+                node {
+                  id
+                  title
+                  state
+                  baseWorkingTime
+                  startedAt
+                  pausedAt
+                  createdAt
+                  updatedAt
+                }
+              }
+              pageInfo {
+                endCursor
               }
             }
-            pageInfo {
-              endCursor
-            }
           }
-        }`,
-      fetchPolicy: 'network-only',
-    }).then(ret => this.taskListToObject(ret.data.tasks))
+        `,
+        fetchPolicy: 'network-only',
+      })
+      .then(ret => this.taskListToObject(ret.data.tasks))
   }
 
   static addTask(title: string): Promise<any> {
     return client.mutate({
       mutation: gql`
-        mutation ($title: String!) {
+        mutation($title: String!) {
           createTask(title: $title) {
             id
             title
@@ -62,15 +65,16 @@ export default class API {
             createdAt
             updatedAt
           }
-        }`,
-      variables: {title}
+        }
+      `,
+      variables: { title },
     })
   }
 
   static startTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
-        mutation ($id: ID!, $time: DateTime!) {
+        mutation($id: ID!, $time: DateTime!) {
           startTask(id: $id, time: $time) {
             id
             title
@@ -81,15 +85,16 @@ export default class API {
             createdAt
             updatedAt
           }
-        }`,
-      variables: {id, time}
+        }
+      `,
+      variables: { id, time },
     })
   }
 
   static pauseTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
-        mutation ($id: ID!, $time: DateTime!) {
+        mutation($id: ID!, $time: DateTime!) {
           pauseTask(id: $id, time: $time) {
             id
             title
@@ -100,15 +105,16 @@ export default class API {
             createdAt
             updatedAt
           }
-        }`,
-      variables: {id, time}
+        }
+      `,
+      variables: { id, time },
     })
   }
 
   static resumeTask(id: string, time: Date): Promise<any> {
     return client.mutate({
       mutation: gql`
-        mutation ($id: ID!, $time: DateTime!) {
+        mutation($id: ID!, $time: DateTime!) {
           resumeTask(id: $id, time: $time) {
             id
             title
@@ -119,8 +125,9 @@ export default class API {
             createdAt
             updatedAt
           }
-        }`,
-      variables: {id, time}
+        }
+      `,
+      variables: { id, time },
     })
   }
 
@@ -138,8 +145,9 @@ export default class API {
             createdAt
             updatedAt
           }
-        }`,
-      variables: {id, time}
+        }
+      `,
+      variables: { id, time },
     })
   }
 
@@ -157,8 +165,9 @@ export default class API {
             createdAt
             updatedAt
           }
-        }`,
-      variables: {id, time}
+        }
+      `,
+      variables: { id, time },
     })
   }
 
@@ -167,15 +176,16 @@ export default class API {
       mutation: gql`
         mutation($id: ID!) {
           deleteTask(id: $id)
-        }`,
-      variables: {id}
+        }
+      `,
+      variables: { id },
     })
   }
 
   private static taskListToObject(tasks): TaskListResponse {
     return {
       tasks: tasks.edges.map(edge => edge.node),
-      endCursor: tasks.pageInfo.endCursor
+      endCursor: tasks.pageInfo.endCursor,
     }
   }
 }

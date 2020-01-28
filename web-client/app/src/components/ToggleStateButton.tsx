@@ -4,19 +4,24 @@ import { Task, State } from 'src/task'
 
 const nextTaskState = (state: State) => {
   switch (state) {
-  case 'UNSTARTED': return 'Start'
-  case 'STARTED':   return 'Pause'
-  case 'PAUSED':    return 'Resume'
-  case 'RESUMED':   return 'Pause'
-  case 'FINISHED':  return 'Unfinish'
-  default:
-    return '-'
+    case 'UNSTARTED':
+      return 'Start'
+    case 'STARTED':
+      return 'Pause'
+    case 'PAUSED':
+      return 'Resume'
+    case 'RESUMED':
+      return 'Pause'
+    case 'FINISHED':
+      return 'Unfinish'
+    default:
+      return '-'
   }
 }
 
 type Props = {
-  task: Task;
-  onClick: () => void;
+  task: Task
+  onClick: () => void
 }
 
 const ToggleStateButton: React.FC<Props> = ({ task, onClick }: Props) => (

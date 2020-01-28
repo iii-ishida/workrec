@@ -4,7 +4,7 @@ import { firebaseConfig } from 'src/firebase-config'
 
 firebase.initializeApp(firebaseConfig)
 
-export const loginWithGoogle = (): Promise<void> =>  {
+export const loginWithGoogle = (): Promise<void> => {
   const provider = new firebase.auth.GoogleAuthProvider()
   return firebase.auth().signInWithRedirect(provider)
 }

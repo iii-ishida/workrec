@@ -1,4 +1,4 @@
-import { createSlice, configureStore  } from '@reduxjs/toolkit'
+import { createSlice, configureStore } from '@reduxjs/toolkit'
 import API, { TaskState } from 'src/api'
 
 const tasks = createSlice({
@@ -6,8 +6,9 @@ const tasks = createSlice({
   initialState: [],
   reducers: {
     recieveTasks: (_, action) => action.payload.tasks,
-    deleteTask: (state, action) => state.filter(task => task.id !== action.payload)
-  }
+    deleteTask: (state, action) =>
+      state.filter(task => task.id !== action.payload),
+  },
 })
 
 export const fetchTasks = () => async dispatch => {
@@ -25,7 +26,7 @@ export const toggleState = (id, currentState, time) => async dispatch => {
     [TaskState.UNSTARTED]: API.startTask,
     [TaskState.STARTED]: API.pauseTask,
     [TaskState.PAUSED]: API.resumeTask,
-    [TaskState.RESUMED]: API.pauseTask
+    [TaskState.RESUMED]: API.pauseTask,
   }
 
   await toggleAPI[currentState](id, time)
@@ -42,16 +43,16 @@ export const unfinishTask = (id, time) => async dispatch => {
   dispatch(fetchTasks())
 }
 
-export const deleteTask = (id) => async dispatch => {
+export const deleteTask = id => async dispatch => {
   await API.deleteTask(id)
   dispatch(tasks.actions.deleteTask(id))
 }
 
 const reducer = {
-  tasks: tasks.reducer
+  tasks: tasks.reducer,
 }
 
 export const store = configureStore({
   reducer,
-  devTools: process.env.NODE_ENV !== 'production'
+  devTools: process.env.NODE_ENV !== 'production',
 })

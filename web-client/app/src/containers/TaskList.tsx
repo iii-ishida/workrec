@@ -9,12 +9,12 @@ const TaskList: React.FC = () => {
 
   const dispatch = useDispatch()
 
-  const fetchTasks = useCallback(
-    () => dispatch(Actions.fetchTasks()),
-    [dispatch]
-  )
+  const fetchTasks = useCallback(() => dispatch(Actions.fetchTasks()), [
+    dispatch,
+  ])
   const toggleState = useCallback(
-    (id, currentState, time) => dispatch(Actions.toggleState(id, currentState, time)),
+    (id, currentState, time) =>
+      dispatch(Actions.toggleState(id, currentState, time)),
     [dispatch]
   )
   const finishTask = useCallback(
@@ -25,10 +25,9 @@ const TaskList: React.FC = () => {
     (id, time) => dispatch(Actions.unfinishTask(id, time)),
     [dispatch]
   )
-  const deleteTask = useCallback(
-    (id) => dispatch(Actions.deleteTask(id)),
-    [dispatch]
-  )
+  const deleteTask = useCallback(id => dispatch(Actions.deleteTask(id)), [
+    dispatch,
+  ])
 
   return (
     <Child

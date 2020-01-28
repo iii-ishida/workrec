@@ -4,21 +4,25 @@ import styles from './TaskList.module.css'
 import { Task } from 'src/task'
 
 type Props = {
-  tasks: Task[];
-  fetchTasks: () => void;
-  toggleState: (string, State, Date) => void;
-  finishTask: (string, Date) => void;
-  unfinishTask: (string, Date) => void;
-  deleteTask: (string) => void;
+  tasks: Task[]
+  fetchTasks: () => void
+  toggleState: (string, State, Date) => void
+  finishTask: (string, Date) => void
+  unfinishTask: (string, Date) => void
+  deleteTask: (string) => void
 }
 
-const TaskList: React.FC<Props> = ({ tasks, fetchTasks, toggleState, finishTask, unfinishTask, deleteTask }: Props) => {
-  useEffect(
-    () => {
-      fetchTasks()
-    },
-    [fetchTasks]
-  )
+const TaskList: React.FC<Props> = ({
+  tasks,
+  fetchTasks,
+  toggleState,
+  finishTask,
+  unfinishTask,
+  deleteTask,
+}: Props) => {
+  useEffect(() => {
+    fetchTasks()
+  }, [fetchTasks])
 
   return (
     <ul className={styles.taskList}>

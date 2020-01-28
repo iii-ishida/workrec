@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import styles from './AddTask.module.css'
 
 type Props = {
-  addTask: (string) => void;
+  addTask: (string) => void
 }
 
 const AddTask: React.FC<Props> = ({ addTask }: Props) => {
@@ -10,16 +10,23 @@ const AddTask: React.FC<Props> = ({ addTask }: Props) => {
 
   return (
     <div>
-      <form className={styles.addTask} onSubmit={e => {
-        e.preventDefault()
-        if (!inputEl.current.value.trim()) {
-          return
-        }
-        addTask(inputEl.current.value)
-        inputEl.current.value = ''
-      }}>
-        <input className={styles.titleText} placeholder='タイトル' ref={inputEl} />
-        <button className={styles.addButton} type='submit'>
+      <form
+        className={styles.addTask}
+        onSubmit={e => {
+          e.preventDefault()
+          if (!inputEl.current.value.trim()) {
+            return
+          }
+          addTask(inputEl.current.value)
+          inputEl.current.value = ''
+        }}
+      >
+        <input
+          className={styles.titleText}
+          placeholder="タイトル"
+          ref={inputEl}
+        />
+        <button className={styles.addButton} type="submit">
           Add Task
         </button>
       </form>
