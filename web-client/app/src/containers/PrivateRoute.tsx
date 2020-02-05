@@ -7,7 +7,6 @@ const PrivateRoute: React.FC<RouteProps> = ({
   ...rest
 }: RouteProps) => {
   const user = useSelector(state => state.user)
-  console.log('USER', user)
 
   return (
     <Route

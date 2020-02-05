@@ -39,7 +39,6 @@ describe('<TaskList />', () => {
       <TaskList
         userIdToken="some-user-id-token"
         tasks={tasks}
-        fetchTasks={() => {}}
         toggleState={() => {}}
         finishTask={() => {}}
         unfinishTask={() => {}}
@@ -61,7 +60,6 @@ describe('<TaskList />', () => {
     } as Task
     const tasks = [task]
 
-    const fetchTasks = () => {}
     const toggleState = () => {}
     const finishTask = () => {}
     const unfinishTask = () => {}
@@ -71,7 +69,6 @@ describe('<TaskList />', () => {
       <TaskList
         userIdToken="some-user-id-token"
         tasks={tasks}
-        fetchTasks={fetchTasks}
         toggleState={toggleState}
         finishTask={finishTask}
         unfinishTask={unfinishTask}

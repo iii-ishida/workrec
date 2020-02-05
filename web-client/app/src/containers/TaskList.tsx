@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as Actions from 'src/redux'
 import { State } from 'src/task'
@@ -11,10 +11,9 @@ const TaskList: React.FC = () => {
 
   const dispatch = useDispatch()
 
-  const fetchTasks = useCallback(
-    (userIdToken: string) => dispatch(Actions.fetchTasks(userIdToken)),
-    [dispatch]
-  )
+  useEffect(() => {
+    dispatch(Actions.fetchTasks(userIdToken))
+  }, [dispatch, userIdToken])
 
   const toggleState = useCallback(
     (userIdToken: string, taskId: string, currentState: State, time: Date) =>
@@ -41,7 +40,6 @@ const TaskList: React.FC = () => {
     <Child
       userIdToken={userIdToken}
       tasks={tasks}
-      fetchTasks={fetchTasks}
       toggleState={toggleState}
       finishTask={finishTask}
       unfinishTask={unfinishTask}

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import TaskListItem from './TaskListItem'
 import styles from './TaskList.module.css'
 import { Task, State } from 'src/task'
@@ -6,7 +6,6 @@ import { Task, State } from 'src/task'
 type Props = {
   userIdToken: string
   tasks: Task[]
-  fetchTasks: (string) => void
   toggleState: (
     userIdToken: string,
     taskId: string,
@@ -21,16 +20,11 @@ type Props = {
 const TaskList: React.FC<Props> = ({
   userIdToken,
   tasks,
-  fetchTasks,
   toggleState,
   finishTask,
   unfinishTask,
   deleteTask,
 }: Props) => {
-  useEffect(() => {
-    fetchTasks(userIdToken)
-  }, [userIdToken, fetchTasks])
-
   return (
     <ul className={styles.taskList}>
       {tasks.map(task => {
