@@ -1,18 +1,25 @@
 import React, { useEffect } from 'react'
 import TaskListItem from './TaskListItem'
 import styles from './TaskList.module.css'
-import { Task } from 'src/task'
+import { Task, State } from 'src/task'
 
 type Props = {
+  userIdToken: string
   tasks: Task[]
-  fetchTasks: () => void
-  toggleState: (string, State, Date) => void
-  finishTask: (string, Date) => void
-  unfinishTask: (string, Date) => void
-  deleteTask: (string) => void
+  fetchTasks: (string) => void
+  toggleState: (
+    userIdToken: string,
+    taskId: string,
+    state: State,
+    time: Date
+  ) => void
+  finishTask: (userIdToken: string, taskId: string, time: Date) => void
+  unfinishTask: (userIdToken: string, taskId: string, time: Date) => void
+  deleteTask: (userIdToken: string, taskId: string) => void
 }
 
 const TaskList: React.FC<Props> = ({
+  userIdToken,
   tasks,
   fetchTasks,
   toggleState,
@@ -21,8 +28,8 @@ const TaskList: React.FC<Props> = ({
   deleteTask,
 }: Props) => {
   useEffect(() => {
-    fetchTasks()
-  }, [fetchTasks])
+    fetchTasks(userIdToken)
+  }, [userIdToken, fetchTasks])
 
   return (
     <ul className={styles.taskList}>
@@ -30,6 +37,7 @@ const TaskList: React.FC<Props> = ({
         return (
           <li key={task.id}>
             <TaskListItem
+              userIdToken={userIdToken}
               task={task}
               toggleState={toggleState}
               finishTask={finishTask}

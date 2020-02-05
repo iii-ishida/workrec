@@ -1,20 +1,6 @@
 import ApolloClient from 'apollo-boost'
 import gql from 'graphql-tag'
-import { getIdToken } from 'src/auth'
 import { Task } from 'src/task'
-
-const client = new ApolloClient({
-  uri: `${process.env.REACT_APP_API_ORIGIN}/graph`,
-  request: (operation): Promise<any> => {
-    return getIdToken().then(token => {
-      operation.setContext({
-        headers: {
-          authorization: token ? `Bearer ${token}` : '',
-        },
-      })
-    })
-  },
-})
 
 type TaskListResponse = {
   tasks: Task[]
@@ -22,8 +8,23 @@ type TaskListResponse = {
 }
 
 export default class API {
-  static getTaskList(): Promise<TaskListResponse> {
-    return client
+  private client: ApolloClient<any>
+
+  constructor(idToken?: string) {
+    this.client = new ApolloClient({
+      uri: `${process.env.REACT_APP_API_ORIGIN}/graph`,
+      request: (operation): any => {
+        return operation.setContext({
+          headers: {
+            authorization: idToken ? `Bearer ${idToken}` : '',
+          },
+        })
+      },
+    })
+  }
+
+  getTaskList(): Promise<TaskListResponse> {
+    return this.client
       .query({
         query: gql`
           query {
@@ -51,8 +52,8 @@ export default class API {
       .then(ret => this.taskListToObject(ret.data.tasks))
   }
 
-  static addTask(title: string): Promise<any> {
-    return client.mutate({
+  addTask(title: string): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($title: String!) {
           createTask(title: $title) {
@@ -71,8 +72,8 @@ export default class API {
     })
   }
 
-  static startTask(id: string, time: Date): Promise<any> {
-    return client.mutate({
+  startTask(id: string, time: Date): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
           startTask(id: $id, time: $time) {
@@ -91,8 +92,8 @@ export default class API {
     })
   }
 
-  static pauseTask(id: string, time: Date): Promise<any> {
-    return client.mutate({
+  pauseTask(id: string, time: Date): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
           pauseTask(id: $id, time: $time) {
@@ -111,8 +112,8 @@ export default class API {
     })
   }
 
-  static resumeTask(id: string, time: Date): Promise<any> {
-    return client.mutate({
+  resumeTask(id: string, time: Date): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
           resumeTask(id: $id, time: $time) {
@@ -131,8 +132,8 @@ export default class API {
     })
   }
 
-  static finishTask(id: string, time: Date): Promise<any> {
-    return client.mutate({
+  finishTask(id: string, time: Date): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
           finishTask(id: $id, time: $time) {
@@ -151,8 +152,8 @@ export default class API {
     })
   }
 
-  static unfinishTask(id: string, time: Date): Promise<any> {
-    return client.mutate({
+  unfinishTask(id: string, time: Date): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($id: ID!, $time: DateTime!) {
           unfinishTask(id: $id, time: $time) {
@@ -171,8 +172,8 @@ export default class API {
     })
   }
 
-  static deleteTask(id: string): Promise<any> {
-    return client.mutate({
+  deleteTask(id: string): Promise<any> {
+    return this.client.mutate({
       mutation: gql`
         mutation($id: ID!) {
           deleteTask(id: $id)
@@ -182,7 +183,7 @@ export default class API {
     })
   }
 
-  private static taskListToObject(tasks): TaskListResponse {
+  private taskListToObject(tasks): TaskListResponse {
     return {
       tasks: tasks.edges.map(edge => edge.node),
       endCursor: tasks.pageInfo.endCursor,

@@ -22,3 +22,8 @@ export const getIdToken = (): Promise<string> => {
     })
   })
 }
+
+export const onAuthStateChanged = callback =>
+  firebase.auth().onAuthStateChanged(user => {
+    callback(user)
+  })

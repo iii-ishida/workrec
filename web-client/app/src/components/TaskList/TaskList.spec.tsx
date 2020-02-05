@@ -37,6 +37,7 @@ describe('<TaskList />', () => {
 
     const taskList = shallow(
       <TaskList
+        userIdToken="some-user-id-token"
         tasks={tasks}
         fetchTasks={() => {}}
         toggleState={() => {}}
@@ -68,6 +69,7 @@ describe('<TaskList />', () => {
 
     const taskList = shallow(
       <TaskList
+        userIdToken="some-user-id-token"
         tasks={tasks}
         fetchTasks={fetchTasks}
         toggleState={toggleState}

@@ -1,36 +1,45 @@
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as Actions from 'src/redux'
+import { State } from 'src/task'
 
 import { default as Child } from 'src/components/TaskList'
 
 const TaskList: React.FC = () => {
+  const userIdToken = useSelector(state => state.user?.idToken)
   const tasks = useSelector(state => state.tasks)
 
   const dispatch = useDispatch()
 
-  const fetchTasks = useCallback(() => dispatch(Actions.fetchTasks()), [
-    dispatch,
-  ])
+  const fetchTasks = useCallback(
+    (userIdToken: string) => dispatch(Actions.fetchTasks(userIdToken)),
+    [dispatch]
+  )
+
   const toggleState = useCallback(
-    (id, currentState, time) =>
-      dispatch(Actions.toggleState(id, currentState, time)),
+    (userIdToken: string, taskId: string, currentState: State, time: Date) =>
+      dispatch(Actions.toggleState(userIdToken, taskId, currentState, time)),
     [dispatch]
   )
   const finishTask = useCallback(
-    (id, time) => dispatch(Actions.finishTask(id, time)),
+    (userIdToken: string, taskId: string, time: Date) =>
+      dispatch(Actions.finishTask(userIdToken, taskId, time)),
     [dispatch]
   )
   const unfinishTask = useCallback(
-    (id, time) => dispatch(Actions.unfinishTask(id, time)),
+    (userIdToken: string, taskId: string, time: Date) =>
+      dispatch(Actions.unfinishTask(userIdToken, taskId, time)),
     [dispatch]
   )
-  const deleteTask = useCallback(id => dispatch(Actions.deleteTask(id)), [
-    dispatch,
-  ])
+  const deleteTask = useCallback(
+    (userIdToken: string, taskId: string) =>
+      dispatch(Actions.deleteTask(userIdToken, taskId)),
+    [dispatch]
+  )
 
   return (
     <Child
+      userIdToken={userIdToken}
       tasks={tasks}
       fetchTasks={fetchTasks}
       toggleState={toggleState}
