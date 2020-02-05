@@ -1,5 +1,5 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit'
-import API, { TaskState } from 'src/api'
+import API from 'src/api'
 
 const user = createSlice({
   name: 'user',
@@ -37,14 +37,21 @@ export const toggleState = (
   time
 ) => async dispatch => {
   const api = new API(userIdToken)
-  const toggleAPI = {
-    [TaskState.UNSTARTED]: api.startTask,
-    [TaskState.STARTED]: api.pauseTask,
-    [TaskState.PAUSED]: api.resumeTask,
-    [TaskState.RESUMED]: api.pauseTask,
+  switch (currentState) {
+    case 'UNSTARTED':
+      await api.startTask(id, time)
+      break
+    case 'STARTED':
+      await api.pauseTask(id, time)
+      break
+    case 'PAUSED':
+      await api.resumeTask(id, time)
+      break
+    case 'RESUMED':
+      await api.pauseTask(id, time)
+      break
   }
 
-  await toggleAPI[currentState](id, time)
   dispatch(fetchTasks(userIdToken))
 }
 
