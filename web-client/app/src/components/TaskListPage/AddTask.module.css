@@ -11,7 +11,7 @@
 }
 
 .titleText {
-  composes: text from './shared-styles/input.css';
+  composes: text from '../shared-styles/input.css';
   flex: 1 1 auto;
   margin-right: 10px;
   border-style: none;
@@ -24,7 +24,7 @@
 }
 
 .addButton {
-  composes: normal from './shared-styles/button.css';
+  composes: normal from '../shared-styles/button.css';
   width: 8em;
   margin-left: auto;
 }
