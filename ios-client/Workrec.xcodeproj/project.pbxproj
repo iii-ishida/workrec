@@ -17,6 +17,11 @@
 		62365C2D23EC357200754BF9 /* WorkrecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C2C23EC357200754BF9 /* WorkrecTests.swift */; };
 		62365C3823EC357200754BF9 /* WorkrecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C3723EC357200754BF9 /* WorkrecUITests.swift */; };
 		62CD77BE23FACA360064BD6B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 62CD77BD23FACA360064BD6B /* GoogleService-Info.plist */; };
+		62CD77CD23FACAFF0064BD6B /* WorkrecSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */; };
+		62CD77D423FACAFF0064BD6B /* WorkrecSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CD77D323FACAFF0064BD6B /* WorkrecSDKTests.swift */; };
+		62CD77D623FACAFF0064BD6B /* WorkrecSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 62CD77C623FACAFE0064BD6B /* WorkrecSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		62CD77D923FACAFF0064BD6B /* WorkrecSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */; };
+		62CD77DA23FACAFF0064BD6B /* WorkrecSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A281DDB131C2AC62C37B77C2 /* Pods_Workrec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7768985C3165DA76E1DAFFE3 /* Pods_Workrec.framework */; };
 		BEAF14224AF326EC9BD82720 /* Pods_WorkrecTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2173F6559B1319D1A6278A1F /* Pods_WorkrecTests.framework */; };
 /* End PBXBuildFile section */
@@ -36,7 +41,42 @@
 			remoteGlobalIDString = 62365C1123EC357100754BF9;
 			remoteInfo = Workrec;
 		};
+		62CD77CE23FACAFF0064BD6B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 62365C0A23EC357100754BF9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62CD77C323FACAFE0064BD6B;
+			remoteInfo = WorkrecSDK;
+		};
+		62CD77D023FACAFF0064BD6B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 62365C0A23EC357100754BF9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62365C1123EC357100754BF9;
+			remoteInfo = Workrec;
+		};
+		62CD77D723FACAFF0064BD6B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 62365C0A23EC357100754BF9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62CD77C323FACAFE0064BD6B;
+			remoteInfo = WorkrecSDK;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		62CD77DE23FACAFF0064BD6B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				62CD77DA23FACAFF0064BD6B /* WorkrecSDK.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2173F6559B1319D1A6278A1F /* Pods_WorkrecTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WorkrecTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -58,6 +98,12 @@
 		62365C3723EC357200754BF9 /* WorkrecUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecUITests.swift; sourceTree = "<group>"; };
 		62365C3923EC357200754BF9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		62CD77BD23FACA360064BD6B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WorkrecSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		62CD77C623FACAFE0064BD6B /* WorkrecSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkrecSDK.h; sourceTree = "<group>"; };
+		62CD77C723FACAFE0064BD6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		62CD77CC23FACAFF0064BD6B /* WorkrecSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WorkrecSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		62CD77D323FACAFF0064BD6B /* WorkrecSDKTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecSDKTests.swift; sourceTree = "<group>"; };
+		62CD77D523FACAFF0064BD6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6C0E6A2EFA9F0BE391B4ABC1 /* Pods-Workrec-WorkrecUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Workrec-WorkrecUITests.debug.xcconfig"; path = "Target Support Files/Pods-Workrec-WorkrecUITests/Pods-Workrec-WorkrecUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		7768985C3165DA76E1DAFFE3 /* Pods_Workrec.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Workrec.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A51072B5F0246AC21EBCBCBF /* Pods-Workrec.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Workrec.release.xcconfig"; path = "Target Support Files/Pods-Workrec/Pods-Workrec.release.xcconfig"; sourceTree = "<group>"; };
@@ -71,6 +117,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A281DDB131C2AC62C37B77C2 /* Pods_Workrec.framework in Frameworks */,
+				62CD77D923FACAFF0064BD6B /* WorkrecSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +134,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				580CC13C4D3C625D52B9E1A2 /* Pods_Workrec_WorkrecUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62CD77C123FACAFE0064BD6B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62CD77C923FACAFF0064BD6B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62CD77CD23FACAFF0064BD6B /* WorkrecSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +171,8 @@
 				62365C1423EC357100754BF9 /* Workrec */,
 				62365C2B23EC357200754BF9 /* WorkrecTests */,
 				62365C3623EC357200754BF9 /* WorkrecUITests */,
+				62CD77C523FACAFE0064BD6B /* WorkrecSDK */,
+				62CD77D223FACAFF0064BD6B /* WorkrecSDKTests */,
 				62365C1323EC357100754BF9 /* Products */,
 				F2B02600AA97C2E05E57017E /* Pods */,
 				317345D0B731BEADE85212C5 /* Frameworks */,
@@ -121,6 +185,8 @@
 				62365C1223EC357100754BF9 /* Workrec.app */,
 				62365C2823EC357200754BF9 /* WorkrecTests.xctest */,
 				62365C3323EC357200754BF9 /* WorkrecUITests.xctest */,
+				62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */,
+				62CD77CC23FACAFF0064BD6B /* WorkrecSDKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,6 +224,24 @@
 			path = WorkrecUITests;
 			sourceTree = "<group>";
 		};
+		62CD77C523FACAFE0064BD6B /* WorkrecSDK */ = {
+			isa = PBXGroup;
+			children = (
+				62CD77C623FACAFE0064BD6B /* WorkrecSDK.h */,
+				62CD77C723FACAFE0064BD6B /* Info.plist */,
+			);
+			path = WorkrecSDK;
+			sourceTree = "<group>";
+		};
+		62CD77D223FACAFF0064BD6B /* WorkrecSDKTests */ = {
+			isa = PBXGroup;
+			children = (
+				62CD77D323FACAFF0064BD6B /* WorkrecSDKTests.swift */,
+				62CD77D523FACAFF0064BD6B /* Info.plist */,
+			);
+			path = WorkrecSDKTests;
+			sourceTree = "<group>";
+		};
 		F2B02600AA97C2E05E57017E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +257,17 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		62CD77BF23FACAFE0064BD6B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62CD77D623FACAFF0064BD6B /* WorkrecSDK.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		62365C1123EC357100754BF9 /* Workrec */ = {
 			isa = PBXNativeTarget;
@@ -183,10 +278,12 @@
 				62365C0F23EC357100754BF9 /* Frameworks */,
 				62365C1023EC357100754BF9 /* Resources */,
 				1B773949BA8D6B4FF3633F76 /* [CP] Embed Pods Frameworks */,
+				62CD77DE23FACAFF0064BD6B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				62CD77D823FACAFF0064BD6B /* PBXTargetDependency */,
 			);
 			name = Workrec;
 			productName = Workrec;
@@ -232,6 +329,43 @@
 			productReference = 62365C3323EC357200754BF9 /* WorkrecUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		62CD77C323FACAFE0064BD6B /* WorkrecSDK */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62CD77DB23FACAFF0064BD6B /* Build configuration list for PBXNativeTarget "WorkrecSDK" */;
+			buildPhases = (
+				62CD77BF23FACAFE0064BD6B /* Headers */,
+				62CD77C023FACAFE0064BD6B /* Sources */,
+				62CD77C123FACAFE0064BD6B /* Frameworks */,
+				62CD77C223FACAFE0064BD6B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WorkrecSDK;
+			productName = WorkrecSDK;
+			productReference = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		62CD77CB23FACAFF0064BD6B /* WorkrecSDKTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62CD77DF23FACAFF0064BD6B /* Build configuration list for PBXNativeTarget "WorkrecSDKTests" */;
+			buildPhases = (
+				62CD77C823FACAFF0064BD6B /* Sources */,
+				62CD77C923FACAFF0064BD6B /* Frameworks */,
+				62CD77CA23FACAFF0064BD6B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62CD77CF23FACAFF0064BD6B /* PBXTargetDependency */,
+				62CD77D123FACAFF0064BD6B /* PBXTargetDependency */,
+			);
+			name = WorkrecSDKTests;
+			productName = WorkrecSDKTests;
+			productReference = 62CD77CC23FACAFF0064BD6B /* WorkrecSDKTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -249,6 +383,13 @@
 						TestTargetID = 62365C1123EC357100754BF9;
 					};
 					62365C3223EC357200754BF9 = {
+						CreatedOnToolsVersion = 11.3.1;
+						TestTargetID = 62365C1123EC357100754BF9;
+					};
+					62CD77C323FACAFE0064BD6B = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+					62CD77CB23FACAFF0064BD6B = {
 						CreatedOnToolsVersion = 11.3.1;
 						TestTargetID = 62365C1123EC357100754BF9;
 					};
@@ -270,6 +411,8 @@
 				62365C1123EC357100754BF9 /* Workrec */,
 				62365C2723EC357200754BF9 /* WorkrecTests */,
 				62365C3223EC357200754BF9 /* WorkrecUITests */,
+				62CD77C323FACAFE0064BD6B /* WorkrecSDK */,
+				62CD77CB23FACAFF0064BD6B /* WorkrecSDKTests */,
 			);
 		};
 /* End PBXProject section */
@@ -294,6 +437,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		62365C3123EC357200754BF9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62CD77C223FACAFE0064BD6B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62CD77CA23FACAFF0064BD6B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -432,6 +589,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		62CD77C023FACAFE0064BD6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62CD77C823FACAFF0064BD6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62CD77D423FACAFF0064BD6B /* WorkrecSDKTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -444,6 +616,21 @@
 			isa = PBXTargetDependency;
 			target = 62365C1123EC357100754BF9 /* Workrec */;
 			targetProxy = 62365C3423EC357200754BF9 /* PBXContainerItemProxy */;
+		};
+		62CD77CF23FACAFF0064BD6B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62CD77C323FACAFE0064BD6B /* WorkrecSDK */;
+			targetProxy = 62CD77CE23FACAFF0064BD6B /* PBXContainerItemProxy */;
+		};
+		62CD77D123FACAFF0064BD6B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62365C1123EC357100754BF9 /* Workrec */;
+			targetProxy = 62CD77D023FACAFF0064BD6B /* PBXContainerItemProxy */;
+		};
+		62CD77D823FACAFF0064BD6B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62CD77C323FACAFE0064BD6B /* WorkrecSDK */;
+			targetProxy = 62CD77D723FACAFF0064BD6B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -707,6 +894,100 @@
 			};
 			name = Release;
 		};
+		62CD77DC23FACAFF0064BD6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = Y89RR7VQFA;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = WorkrecSDK/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.j.ishida.WorkrecSDK;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		62CD77DD23FACAFF0064BD6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = Y89RR7VQFA;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = WorkrecSDK/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.j.ishida.WorkrecSDK;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		62CD77E023FACAFF0064BD6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y89RR7VQFA;
+				INFOPLIST_FILE = WorkrecSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.j.ishida.WorkrecSDKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Workrec.app/Workrec";
+			};
+			name = Debug;
+		};
+		62CD77E123FACAFF0064BD6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y89RR7VQFA;
+				INFOPLIST_FILE = WorkrecSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.j.ishida.WorkrecSDKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Workrec.app/Workrec";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -742,6 +1023,24 @@
 			buildConfigurations = (
 				62365C4323EC357200754BF9 /* Debug */,
 				62365C4423EC357200754BF9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62CD77DB23FACAFF0064BD6B /* Build configuration list for PBXNativeTarget "WorkrecSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62CD77DC23FACAFF0064BD6B /* Debug */,
+				62CD77DD23FACAFF0064BD6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62CD77DF23FACAFF0064BD6B /* Build configuration list for PBXNativeTarget "WorkrecSDKTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62CD77E023FACAFF0064BD6B /* Debug */,
+				62CD77E123FACAFF0064BD6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
