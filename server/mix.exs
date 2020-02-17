@@ -33,8 +33,8 @@ defmodule Workrec.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.4.0"},
-      {:absinthe_plug, "~> 1.4"},
+      {:absinthe, "~> 1.5.0-rc"},
+      {:absinthe_plug, "~> 1.5.0-rc"},
       {:cors_plug, "~> 2.0"},
       {:ds_wrapper, "~> 0.3.1"},
       {:elixir_uuid, "~> 1.2"},
