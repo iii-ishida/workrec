@@ -3,11 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		580CC13C4D3C625D52B9E1A2 /* Pods_Workrec_WorkrecUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37289D20D9080A2077674646 /* Pods_Workrec_WorkrecUITests.framework */; };
+		621BED1A23FD42F400BFB986 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621BED1923FD42F400BFB986 /* API.swift */; };
+		621F6CD323FACB9B00745832 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 621F6CD223FACB9B00745832 /* Apollo */; };
+		6228B01623FD61B100FC4607 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6228B01523FD61B100FC4607 /* Network.swift */; };
 		62365C1623EC357100754BF9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C1523EC357100754BF9 /* AppDelegate.swift */; };
 		62365C1823EC357100754BF9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C1723EC357100754BF9 /* SceneDelegate.swift */; };
 		62365C1A23EC357100754BF9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C1923EC357100754BF9 /* ViewController.swift */; };
@@ -16,10 +19,10 @@
 		62365C2223EC357200754BF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 62365C2023EC357200754BF9 /* LaunchScreen.storyboard */; };
 		62365C2D23EC357200754BF9 /* WorkrecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C2C23EC357200754BF9 /* WorkrecTests.swift */; };
 		62365C3823EC357200754BF9 /* WorkrecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365C3723EC357200754BF9 /* WorkrecUITests.swift */; };
+		62B344C623FD3D23007CD51A /* schema.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 62B344C523FD3D23007CD51A /* schema.graphql */; };
 		62CD77BE23FACA360064BD6B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 62CD77BD23FACA360064BD6B /* GoogleService-Info.plist */; };
 		62CD77CD23FACAFF0064BD6B /* WorkrecSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */; };
 		62CD77D423FACAFF0064BD6B /* WorkrecSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CD77D323FACAFF0064BD6B /* WorkrecSDKTests.swift */; };
-		62CD77D623FACAFF0064BD6B /* WorkrecSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 62CD77C623FACAFE0064BD6B /* WorkrecSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		62CD77D923FACAFF0064BD6B /* WorkrecSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */; };
 		62CD77DA23FACAFF0064BD6B /* WorkrecSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A281DDB131C2AC62C37B77C2 /* Pods_Workrec.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7768985C3165DA76E1DAFFE3 /* Pods_Workrec.framework */; };
@@ -83,6 +86,8 @@
 		2406E08D366790D5F082BA7A /* Pods-Workrec-WorkrecUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Workrec-WorkrecUITests.release.xcconfig"; path = "Target Support Files/Pods-Workrec-WorkrecUITests/Pods-Workrec-WorkrecUITests.release.xcconfig"; sourceTree = "<group>"; };
 		37289D20D9080A2077674646 /* Pods_Workrec_WorkrecUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Workrec_WorkrecUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		51901B88E617750DB28155FC /* Pods-WorkrecTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorkrecTests.release.xcconfig"; path = "Target Support Files/Pods-WorkrecTests/Pods-WorkrecTests.release.xcconfig"; sourceTree = "<group>"; };
+		621BED1923FD42F400BFB986 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		6228B01523FD61B100FC4607 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		62365C1223EC357100754BF9 /* Workrec.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Workrec.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		62365C1523EC357100754BF9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		62365C1723EC357100754BF9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -97,9 +102,9 @@
 		62365C3323EC357200754BF9 /* WorkrecUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WorkrecUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		62365C3723EC357200754BF9 /* WorkrecUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecUITests.swift; sourceTree = "<group>"; };
 		62365C3923EC357200754BF9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		62B344C523FD3D23007CD51A /* schema.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = schema.graphql; sourceTree = "<group>"; };
 		62CD77BD23FACA360064BD6B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WorkrecSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		62CD77C623FACAFE0064BD6B /* WorkrecSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkrecSDK.h; sourceTree = "<group>"; };
 		62CD77C723FACAFE0064BD6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		62CD77CC23FACAFF0064BD6B /* WorkrecSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WorkrecSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		62CD77D323FACAFF0064BD6B /* WorkrecSDKTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecSDKTests.swift; sourceTree = "<group>"; };
@@ -141,6 +146,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				621F6CD323FACB9B00745832 /* Apollo in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,8 +233,10 @@
 		62CD77C523FACAFE0064BD6B /* WorkrecSDK */ = {
 			isa = PBXGroup;
 			children = (
-				62CD77C623FACAFE0064BD6B /* WorkrecSDK.h */,
+				621BED1923FD42F400BFB986 /* API.swift */,
+				62B344C523FD3D23007CD51A /* schema.graphql */,
 				62CD77C723FACAFE0064BD6B /* Info.plist */,
+				6228B01523FD61B100FC4607 /* Network.swift */,
 			);
 			path = WorkrecSDK;
 			sourceTree = "<group>";
@@ -262,7 +270,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62CD77D623FACAFF0064BD6B /* WorkrecSDK.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,12 +344,16 @@
 				62CD77C023FACAFE0064BD6B /* Sources */,
 				62CD77C123FACAFE0064BD6B /* Frameworks */,
 				62CD77C223FACAFE0064BD6B /* Resources */,
+				62B344C423FD3C9A007CD51A /* Apollo CLI */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = WorkrecSDK;
+			packageProductDependencies = (
+				621F6CD223FACB9B00745832 /* Apollo */,
+			);
 			productName = WorkrecSDK;
 			productReference = 62CD77C423FACAFE0064BD6B /* WorkrecSDK.framework */;
 			productType = "com.apple.product-type.framework";
@@ -388,6 +399,7 @@
 					};
 					62CD77C323FACAFE0064BD6B = {
 						CreatedOnToolsVersion = 11.3.1;
+						LastSwiftMigration = 1130;
 					};
 					62CD77CB23FACAFF0064BD6B = {
 						CreatedOnToolsVersion = 11.3.1;
@@ -404,6 +416,9 @@
 				Base,
 			);
 			mainGroup = 62365C0923EC357100754BF9;
+			packageReferences = (
+				621F6CD123FACB9B00745832 /* XCRemoteSwiftPackageReference "apollo-ios" */,
+			);
 			productRefGroup = 62365C1323EC357100754BF9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -447,6 +462,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62B344C623FD3D23007CD51A /* schema.graphql in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +492,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Workrec/Pods-Workrec-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		62B344C423FD3C9A007CD51A /* Apollo CLI */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Apollo CLI";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.\nDERIVED_DATA_CANDIDATE=\"${BUILD_ROOT}\"\n\nwhile ! [ -d \"${DERIVED_DATA_CANDIDATE}/SourcePackages\" ]; do\n  if [ \"${DERIVED_DATA_CANDIDATE}\" = / ]; then\n    echo >&2 \"error: Unable to locate SourcePackages directory from BUILD_ROOT: '${BUILD_ROOT}'\"\n    exit 1\n  fi\n\n  DERIVED_DATA_CANDIDATE=\"$(dirname \"${DERIVED_DATA_CANDIDATE}\")\"\ndone\n\n# Grab a reference to the directory where scripts are checked out\nSCRIPT_PATH=\"${DERIVED_DATA_CANDIDATE}/SourcePackages/checkouts/apollo-ios/scripts\"\n\nif [ -z \"${SCRIPT_PATH}\" ]; then\n    echo >&2 \"error: Couldn't find the CLI script in your checked out SPM packages; make sure to add the framework to your project.\"\n    exit 1\nfi\n\ncd \"${SRCROOT}/${TARGET_NAME}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"../../graphql/schema.json\" API.swift\n";
 		};
 		9BCA40D760E72C9177190C92 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -593,6 +627,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				621BED1A23FD42F400BFB986 /* API.swift in Sources */,
+				6228B01623FD61B100FC4607 /* Network.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,6 +808,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A58C3FED79B9811DA9F6A0F5 /* Pods-Workrec.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y89RR7VQFA;
@@ -791,6 +828,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A51072B5F0246AC21EBCBCBF /* Pods-Workrec.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y89RR7VQFA;
@@ -897,6 +935,7 @@
 		62CD77DC23FACAFF0064BD6B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -914,6 +953,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.j.ishida.WorkrecSDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -924,6 +964,7 @@
 		62CD77DD23FACAFF0064BD6B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1046,6 +1087,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		621F6CD123FACB9B00745832 /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apollographql/apollo-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.22.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		621F6CD223FACB9B00745832 /* Apollo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 621F6CD123FACB9B00745832 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = Apollo;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 62365C0A23EC357100754BF9 /* Project object */;
 }

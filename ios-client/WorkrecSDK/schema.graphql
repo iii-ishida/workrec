@@ -1,0 +1,30 @@
+query TaskList($first: Int!, $cursor: String) {
+  tasks(first: $first, cursor: $cursor){
+    edges{
+      node{
+        id
+        title
+        state
+        actions(first: 5){
+          edges{
+            node{
+              id
+              taskId
+              time
+              type
+            }
+          }
+          pageInfo{
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+    pageInfo{
+     endCursor
+     hasNextPage
+    }
+  }
+}
+
