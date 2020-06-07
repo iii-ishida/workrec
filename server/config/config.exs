@@ -12,7 +12,7 @@ config :workrec, WorkrecWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "rgR55RtUAwlq7ILalgQG/zhzQvt/JTJQQWLXCRPaVb0cZQsaOqZi5iczEWYD0OjB",
   render_errors: [view: WorkrecWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Workrec.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: Workrec.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,

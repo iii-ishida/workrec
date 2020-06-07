@@ -12,6 +12,8 @@ defmodule Workrec.Application do
       WorkrecWeb.Endpoint
       # Starts a worker by calling: Workrec.Worker.start_link(arg)
       # {Workrec.Worker, arg},
+
+      # {Phoenix.PubSub, [name: Workrec.PubSub, adapter: Phoenix.PubSub.PG2]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
