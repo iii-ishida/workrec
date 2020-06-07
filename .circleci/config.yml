@@ -63,6 +63,7 @@ jobs:
 
       - run:
           name: Run mix test
+          no_output_timeout: 30m
           command: |
             cd server
             MIX_ENV=dev mix dialyzer && mix credo --strict && mix format --check-formatted && mix compile --warnings-as-errors && mix test
