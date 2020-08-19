@@ -16,26 +16,23 @@ const tasks = createSlice({
   reducers: {
     recieveTasks: (_, action) => action.payload.tasks,
     deleteTask: (state, action) =>
-      state.filter(task => task.id !== action.payload),
+      state.filter((task) => task.id !== action.payload),
   },
 })
 
-export const fetchTasks = userIdToken => async dispatch => {
+export const fetchTasks = (userIdToken) => async (dispatch) => {
   const list = await new API(userIdToken).getTaskList()
   dispatch(tasks.actions.recieveTasks(list))
 }
 
-export const addTask = (userIdToken, title) => async dispatch => {
+export const addTask = (userIdToken, title) => async (dispatch) => {
   await new API(userIdToken).addTask(title)
   dispatch(fetchTasks(userIdToken))
 }
 
-export const toggleState = (
-  userIdToken,
-  id,
-  currentState,
-  time
-) => async dispatch => {
+export const toggleState = (userIdToken, id, currentState, time) => async (
+  dispatch
+) => {
   const api = new API(userIdToken)
   switch (currentState) {
     case 'UNSTARTED':
@@ -55,17 +52,17 @@ export const toggleState = (
   dispatch(fetchTasks(userIdToken))
 }
 
-export const finishTask = (userIdToken, id, time) => async dispatch => {
+export const finishTask = (userIdToken, id, time) => async (dispatch) => {
   await new API(userIdToken).finishTask(id, time)
   dispatch(fetchTasks(userIdToken))
 }
 
-export const unfinishTask = (userIdToken, id, time) => async dispatch => {
+export const unfinishTask = (userIdToken, id, time) => async (dispatch) => {
   await new API(userIdToken).unfinishTask(id, time)
   dispatch(fetchTasks(userIdToken))
 }
 
-export const deleteTask = (userIdToken, id) => async dispatch => {
+export const deleteTask = (userIdToken, id) => async (dispatch) => {
   await new API(userIdToken).deleteTask(id)
   dispatch(tasks.actions.deleteTask(id))
 }

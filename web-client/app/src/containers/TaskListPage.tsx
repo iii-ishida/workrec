@@ -6,8 +6,8 @@ import { State } from 'src/task'
 import { default as Child } from 'src/components/TaskListPage'
 
 const TaskListPage: React.FC = () => {
-  const userIdToken = useSelector(state => state.user?.idToken)
-  const tasks = useSelector(state => state.tasks)
+  const userIdToken = useSelector((state) => state.user?.idToken)
+  const tasks = useSelector((state) => state.tasks)
 
   const dispatch = useDispatch()
 

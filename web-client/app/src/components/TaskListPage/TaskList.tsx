@@ -27,7 +27,7 @@ const TaskList: React.FC<Props> = ({
 }: Props) => {
   return (
     <ul className={styles.taskList}>
-      {tasks.map(task => {
+      {tasks.map((task) => {
         return (
           <li key={task.id}>
             <TaskListItem

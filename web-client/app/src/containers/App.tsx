@@ -10,9 +10,9 @@ const App: React.FC = () => {
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(user => {
+    const unsubscribe = onAuthStateChanged((user) => {
       if (user) {
-        user.getIdToken().then(idToken => {
+        user.getIdToken().then((idToken) => {
           dispatch(UserActions.signIn({ user: { idToken } }))
           setInitialized(true)
         })

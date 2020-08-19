@@ -6,7 +6,7 @@ const PrivateRoute: React.FC<RouteProps> = ({
   children,
   ...rest
 }: RouteProps) => {
-  const user = useSelector(state => state.user)
+  const user = useSelector((state) => state.user)
 
   return (
     <Route

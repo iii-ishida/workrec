@@ -9,9 +9,9 @@ export const loginWithGoogle = (): Promise<void> => {
   return firebase.auth().signInWithRedirect(provider)
 }
 
-export const getIdToken = (): Promise<string> => {
-  return new Promise(resolve => {
-    const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+export const getIdToken = (): Promise<string | null> => {
+  return new Promise((resolve) => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       unsubscribe()
 
       if (user) {
@@ -23,7 +23,7 @@ export const getIdToken = (): Promise<string> => {
   })
 }
 
-export const onAuthStateChanged = callback =>
-  firebase.auth().onAuthStateChanged(user => {
+export const onAuthStateChanged = (callback) =>
+  firebase.auth().onAuthStateChanged((user) => {
     callback(user)
   })

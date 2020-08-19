@@ -11,7 +11,7 @@ export interface Task {
   updatedAt: Date
 }
 
-export const stateText = task => {
+export const stateText = (task) => {
   switch (task.state) {
     case 'UNSTARTED':
       return '-'
@@ -28,14 +28,14 @@ export const stateText = task => {
   }
 }
 
-export const startedAtText = task => {
+export const startedAtText = (task) => {
   if (task.state === 'UNSTARTED') {
     return '-'
   }
 
   const startedAt = new Date(task.startedAt)
 
-  const zeroPad = num => `0${num}`.slice(-2)
+  const zeroPad = (num) => `0${num}`.slice(-2)
 
   const year = startedAt.getFullYear()
   const month = zeroPad(startedAt.getMonth() + 1)
@@ -46,7 +46,7 @@ export const startedAtText = task => {
   return `${year}-${month}-${day} ${hour}:${minute}`
 }
 
-export const workingTimeText = task => {
+export const workingTimeText = (task) => {
   const workingTimeInMinute = calcWorkingMinutes(task)
   const workingDay = Math.floor(workingTimeInMinute / 60 / 24)
   const workingHour = Math.floor((workingTimeInMinute % (60 * 24)) / 60)

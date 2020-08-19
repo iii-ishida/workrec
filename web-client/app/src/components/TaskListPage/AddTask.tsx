@@ -13,9 +13,9 @@ const AddTask: React.FC<Props> = ({ userIdToken, addTask }: Props) => {
     <div>
       <form
         className={styles.addTask}
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault()
-          if (!inputEl.current.value.trim()) {
+          if (!inputEl.current?.value.trim()) {
             return
           }
           addTask(userIdToken, inputEl.current.value)

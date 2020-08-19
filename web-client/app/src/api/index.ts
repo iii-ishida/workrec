@@ -1,5 +1,11 @@
-import ApolloClient from 'apollo-boost'
-import gql from 'graphql-tag'
+import {
+  ApolloClient,
+  ApolloLink,
+  InMemoryCache,
+  HttpLink,
+  gql,
+  concat,
+} from '@apollo/client'
 import { Task } from 'src/task'
 
 type TaskListResponse = {
@@ -11,15 +17,25 @@ export default class API {
   private client: ApolloClient<any>
 
   constructor(idToken?: string) {
-    this.client = new ApolloClient({
+    const httpLink = new HttpLink({
       uri: `${process.env.REACT_APP_API_ORIGIN}/graph`,
-      request: (operation): any => {
-        return operation.setContext({
-          headers: {
-            authorization: idToken ? `Bearer ${idToken}` : '',
-          },
-        })
-      },
+    })
+
+    const authMiddleware = new ApolloLink((operation, forward) => {
+      operation.setContext({
+        headers: {
+          authorization: idToken ? `Bearer ${idToken}` : '',
+        },
+      })
+
+      return forward(operation)
+    })
+
+    const link = concat(authMiddleware, httpLink)
+
+    this.client = new ApolloClient({
+      cache: new InMemoryCache(),
+      link,
     })
   }
 
@@ -49,7 +65,7 @@ export default class API {
         `,
         fetchPolicy: 'network-only',
       })
-      .then(ret => this.taskListToObject(ret.data.tasks))
+      .then((ret) => this.taskListToObject(ret.data.tasks))
   }
 
   addTask(title: string): Promise<any> {
@@ -185,7 +201,7 @@ export default class API {
 
   private taskListToObject(tasks): TaskListResponse {
     return {
-      tasks: tasks.edges.map(edge => edge.node),
+      tasks: tasks.edges.map((edge) => edge.node),
       endCursor: tasks.pageInfo.endCursor,
     }
   }
