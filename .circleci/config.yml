@@ -99,12 +99,12 @@ jobs:
 
       - restore_cache:
           keys:
-            - yarn-packages-{{ checksum "web-client/app/yarn.lock" }}
+            - yarn-packages-{{ checksum "web-client/yarn.lock" }}
 
-      - run: cd ./web-client/app && yarn install
+      - run: cd ./web-client && yarn install
 
       - save_cache:
-          key: yarn-packages-{{ checksum "web-client/app/yarn.lock" }}
+          key: yarn-packages-{{ checksum "web-client/yarn.lock" }}
           paths:
             - ~/.cache/yarn
 
@@ -117,7 +117,7 @@ jobs:
       - run:
           name: Deploy client
           command: |
-            sh ./web-client/scripts/build.sh && cd ./web-client/app && yarn run deploy --project=${GOOGLE_PROJECT_ID} --token=${FIREBASE_TOKEN} > /dev/null 2>&1 && echo "deploy done."
+            sh ./web-client/scripts/build.sh && cd ./web-client && yarn run deploy --project=${GOOGLE_PROJECT_ID} --token=${FIREBASE_TOKEN} > /dev/null 2>&1 && echo "deploy done."
 
   android-client-test:
     working_directory: ~/workrec
