@@ -6,14 +6,14 @@ import {
   gql,
   concat,
 } from '@apollo/client'
-import { Task } from 'src/task'
+import { Task } from '../task'
 
 type TaskListResponse = {
   tasks: Task[]
   endCursor?: string
 }
 
-export default class API {
+export class API {
   private client: ApolloClient<any>
 
   constructor(idToken?: string) {

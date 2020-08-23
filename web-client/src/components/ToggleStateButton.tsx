@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './ToggleStateButton.module.css'
-import { Task, State } from 'src/task'
+import { Task, State } from 'src/workrec'
 
 const nextTaskState = (state: State) => {
   switch (state) {

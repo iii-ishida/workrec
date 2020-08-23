@@ -13,7 +13,7 @@ const App: React.FC = () => {
     const unsubscribe = onAuthStateChanged((user) => {
       if (user) {
         user.getIdToken().then((idToken) => {
-          dispatch(UserActions.signIn({ user: { idToken } }))
+          dispatch(UserActions.signIn({ idToken }))
           setInitialized(true)
         })
       } else {

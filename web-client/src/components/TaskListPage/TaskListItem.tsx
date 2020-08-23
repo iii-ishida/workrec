@@ -1,13 +1,11 @@
 import React from 'react'
 import ToggleStateButton from 'src/components/ToggleStateButton'
 import styles from './TaskListItem.module.css'
-
-import { Task as TaskModel, State } from 'src/task'
-import * as Task from 'src/task'
+import { Task, State, startedAtText, workingTimeText } from 'src/workrec'
 
 type Props = {
   userIdToken: string
-  task: TaskModel
+  task: Task
   toggleState: (
     userIdToken: string,
     taskId: string,
@@ -44,11 +42,11 @@ const TaskListItem: React.FC<Props> = ({
         </div>
         <div className={styles.startTime}>
           <dt>開始時間</dt>
-          <dd>{Task.startedAtText(task)}</dd>
+          <dd>{startedAtText(task)}</dd>
         </div>
         <div className={styles.workingTime}>
           <dt>作業時間</dt>
-          <dd>{Task.workingTimeText(task)}</dd>
+          <dd>{workingTimeText(task)}</dd>
         </div>
       </dl>
 

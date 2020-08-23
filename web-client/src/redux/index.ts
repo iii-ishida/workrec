@@ -1,11 +1,15 @@
-import { createSlice, configureStore } from '@reduxjs/toolkit'
-import API from 'src/api'
+import { createSlice, configureStore, PayloadAction } from '@reduxjs/toolkit'
+import { Task, API } from 'src/workrec'
+
+type User = {
+  idToken: string
+}
 
 const user = createSlice({
   name: 'user',
-  initialState: null,
+  initialState: { idToken: '' },
   reducers: {
-    signIn: (_, action) => action.payload.user,
+    signIn: (_, action: PayloadAction<User>) => action.payload,
     signOut: () => null,
   },
 })
@@ -14,15 +18,15 @@ const tasks = createSlice({
   name: 'tasks',
   initialState: [],
   reducers: {
-    recieveTasks: (_, action) => action.payload.tasks,
-    deleteTask: (state, action) =>
+    recieveTasks: (_, action: PayloadAction<Task[]>) => action.payload,
+    deleteTask: (state, action: PayloadAction<string>) =>
       state.filter((task) => task.id !== action.payload),
   },
 })
 
 export const fetchTasks = (userIdToken) => async (dispatch) => {
   const list = await new API(userIdToken).getTaskList()
-  dispatch(tasks.actions.recieveTasks(list))
+  dispatch(tasks.actions.recieveTasks(list.tasks))
 }
 
 export const addTask = (userIdToken, title) => async (dispatch) => {

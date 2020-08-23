@@ -1,7 +1,7 @@
 import React from 'react'
 import TaskListItem from './TaskListItem'
 import styles from './TaskList.module.css'
-import { Task, State } from 'src/task'
+import { Task, State } from 'src/workrec'
 
 type Props = {
   userIdToken: string

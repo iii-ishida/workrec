@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as Actions from 'src/redux'
-import { State } from 'src/task'
+import { State } from 'src/workrec'
 
 import { default as Child } from 'src/components/TaskListPage'
 
