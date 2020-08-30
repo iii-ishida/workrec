@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { onAuthStateChanged } from 'src/auth'
+import { onAuthStateChanged } from 'src/workrec/auth'
 import { UserActions } from 'src/redux'
 
 export function useInitialized(): boolean {

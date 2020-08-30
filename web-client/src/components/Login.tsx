@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
-import { loginWithGoogle } from 'src/auth'
+import { loginWithGoogle } from 'src/workrec/auth'
 
 const LoginContainer: React.FC = () => {
   const user = useSelector((state) => state.user)
