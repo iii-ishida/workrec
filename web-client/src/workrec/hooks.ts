@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { onAuthStateChanged } from 'src/workrec/auth'
-import { UserActions } from 'src/redux'
-import * as Actions from 'src/redux'
+import { UserActions } from 'src/workrec/redux'
+import * as Actions from 'src/workrec/redux'
 import { Task, State } from 'src/workrec'
 
 export function useInitialized(): boolean {
