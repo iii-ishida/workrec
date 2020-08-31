@@ -4,7 +4,7 @@ import PrivateRoute from 'src/components/PrivateRoute'
 import TaskListPage from 'src/components/TaskListPage'
 import Login from 'src/components/Login'
 import Loading from 'src/components/Loading'
-import { useInitialized } from './hooks'
+import { useInitialized } from 'src/workrec//hooks'
 
 const AppContainer: React.FC = () => {
   const isInitialized = useInitialized()

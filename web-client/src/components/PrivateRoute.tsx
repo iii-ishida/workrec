@@ -1,18 +1,18 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
 import { Route, Redirect, RouteProps } from 'react-router-dom'
+import { useAuthIdToken } from 'src/workrec/hooks'
 
 const PrivateRoute: React.FC<RouteProps> = ({
   children,
   ...rest
 }: RouteProps) => {
-  const user = useSelector((state) => state.user)
+  const idToken = useAuthIdToken()
 
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        user ? (
+        idToken ? (
           children
         ) : (
           <Redirect

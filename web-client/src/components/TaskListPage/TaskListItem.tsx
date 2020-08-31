@@ -4,33 +4,26 @@ import styles from './TaskListItem.module.css'
 import { Task, State, startedAtText, workingTimeText } from 'src/workrec'
 
 type Props = {
-  userIdToken: string
   task: Task
-  toggleState: (
-    userIdToken: string,
-    taskId: string,
-    state: State,
-    time: Date
-  ) => void
-  finishTask: (userIdToken: string, taskId: string, time: Date) => void
-  unfinishTask: (userIdToken: string, taskId: string, time: Date) => void
-  deleteTask: (userIdToken: string, taskId: string) => void
+  toggleState: (taskId: string, state: State, time: Date) => void
+  finishTask: (taskId: string, time: Date) => void
+  unfinishTask: (taskId: string, time: Date) => void
+  deleteTask: (taskId: string) => void
 }
 
 const TaskListItem: React.FC<Props> = ({
-  userIdToken,
   task,
   toggleState,
   finishTask,
   unfinishTask,
   deleteTask,
 }: Props) => {
-  const onToggleState = (userIdToken, task) => {
+  const onToggleState = (task) => {
     const now = new Date()
     const id = task.id
     const state = task.state
 
-    toggleState(userIdToken, id, state, now)
+    toggleState(id, state, now)
   }
 
   return (
@@ -51,13 +44,10 @@ const TaskListItem: React.FC<Props> = ({
       </dl>
 
       <div className={styles.actions}>
-        <ToggleStateButton
-          onClick={() => onToggleState(userIdToken, task)}
-          task={task}
-        />
+        <ToggleStateButton onClick={() => onToggleState(task)} task={task} />
         <button
           className={styles.deleteButton}
-          onClick={() => deleteTask(userIdToken, task.id)}
+          onClick={() => deleteTask(task.id)}
         >
           Delete
         </button>

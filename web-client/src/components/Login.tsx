@@ -1,12 +1,12 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import { loginWithGoogle } from 'src/workrec/auth'
+import { useAuthIdToken } from 'src/workrec/hooks'
 
 const LoginContainer: React.FC = () => {
-  const user = useSelector((state) => state.user)
+  const idToken = useAuthIdToken()
 
-  return <Login isLoggedIn={!!user} />
+  return <Login isLoggedIn={!!idToken} />
 }
 
 type Props = {

@@ -1,17 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Provider } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
+import { WorkrecProvider } from 'src/workrec'
 import App from './components/App'
-import { store } from 'src/redux'
 import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <Provider store={store}>
+      <WorkrecProvider>
         <App />
-      </Provider>
+      </WorkrecProvider>
     </Router>
   </React.StrictMode>,
   document.getElementById('root')

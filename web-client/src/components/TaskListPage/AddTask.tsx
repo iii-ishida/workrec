@@ -2,11 +2,10 @@ import React, { useRef } from 'react'
 import styles from './AddTask.module.css'
 
 type Props = {
-  userIdToken: string
-  addTask: (userIdToken: string, title: string) => void
+  addTask: (title: string) => void
 }
 
-const AddTask: React.FC<Props> = ({ userIdToken, addTask }: Props) => {
+const AddTask: React.FC<Props> = ({ addTask }: Props) => {
   const inputEl = useRef<HTMLInputElement>(null)
 
   return (
@@ -18,7 +17,7 @@ const AddTask: React.FC<Props> = ({ userIdToken, addTask }: Props) => {
           if (!inputEl.current?.value.trim()) {
             return
           }
-          addTask(userIdToken, inputEl.current.value)
+          addTask(inputEl.current.value)
           inputEl.current.value = ''
         }}
       >

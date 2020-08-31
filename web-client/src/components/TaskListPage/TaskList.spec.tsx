@@ -35,7 +35,6 @@ describe('TaskList', () => {
 
     const { container } = render(
       <TaskList
-        userIdToken="some-user-id-token"
         tasks={tasks}
         toggleState={() => {}}
         finishTask={() => {}}
