@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useState, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { onAuthStateChanged } from 'src/workrec/auth'
-import { UserActions } from 'src/workrec/redux'
+import { useCallback, useContext, useMemo } from 'react'
+import { IdTokenContext } from 'src/workrec/provider'
 import { Task, State } from 'src/workrec'
 import {
   GET_TASK_LIST,
@@ -19,28 +17,13 @@ import { useQuery, useMutation } from '@apollo/client'
 const mutationOptions = { refetchQueries: [{ query: GET_TASK_LIST }] }
 
 export function useInitialized(): boolean {
-  const dispatch = useDispatch()
-  const [isInitialized, setInitialized] = useState(false)
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (user) => {
-      if (user) {
-        const idToken = await user.getIdToken()
-        dispatch(UserActions.signIn({ idToken }))
-      } else {
-        dispatch(UserActions.signOut())
-      }
-      setInitialized(true)
-    })
-
-    return () => unsubscribe()
-  }, [dispatch])
-
-  return isInitialized
+  const { loaded } = useContext(IdTokenContext)
+  return loaded
 }
 
 export function useAuthIdToken(): string {
-  return useSelector((state) => state.user?.idToken)
+  const { idToken } = useContext(IdTokenContext)
+  return idToken
 }
 
 export function useTaskList(): Task[] {

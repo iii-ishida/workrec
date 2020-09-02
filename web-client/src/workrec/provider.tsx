@@ -1,29 +1,32 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ApolloProvider } from '@apollo/client'
-import { Provider } from 'react-redux'
 import { newApolloClient } from 'src/workrec/apollo'
-import { useAuthIdToken } from 'src/workrec/hooks'
-import { store } from 'src/workrec/redux'
+import { onAuthStateChanged } from 'src/workrec/auth'
 
 type Props = {
   children: React.ReactNode
 }
 
-export const WorkrecProvider: React.FC<Props> = ({ children }: Props) => {
-  return (
-    <Provider store={store}>
-      <ChildWorkrecProvider>{children}</ChildWorkrecProvider>
-    </Provider>
-  )
-}
+export const IdTokenContext = React.createContext(null)
 
-const ChildWorkrecProvider: React.FC<Props> = ({ children }: Props) => {
-  const idToken = useAuthIdToken()
+export const WorkrecProvider: React.FC<Props> = ({ children }: Props) => {
+  const [loaded, setLoaded] = useState(false)
+  const [idToken, setIdToken] = useState('')
   const client = newApolloClient(idToken)
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(async (user) => {
+      const idToken = (await user?.getIdToken()) ?? ''
+      setIdToken(idToken)
+      setLoaded(true)
+    })
+
+    return () => unsubscribe()
+  })
+
   return (
-    <Provider store={store}>
+    <IdTokenContext.Provider value={{ loaded, idToken }}>
       <ApolloProvider client={client}>{children}</ApolloProvider>
-    </Provider>
+    </IdTokenContext.Provider>
   )
 }
