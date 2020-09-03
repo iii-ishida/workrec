@@ -1,9 +1,7 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 import { render } from '@testing-library/react'
-
 import TaskList from './TaskList'
-import TaskListItem from './TaskListItem'
 import { Task } from 'src/workrec'
 
 describe('TaskList', () => {
