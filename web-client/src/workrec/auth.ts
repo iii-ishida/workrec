@@ -4,12 +4,12 @@ import { firebaseConfig } from 'src/firebase-config'
 
 firebase.initializeApp(firebaseConfig)
 
-export const loginWithGoogle = (): Promise<void> => {
+export function loginWithGoogle(): Promise<void> {
   const provider = new firebase.auth.GoogleAuthProvider()
   return firebase.auth().signInWithRedirect(provider)
 }
 
-export const getIdToken = (): Promise<string | null> => {
+export function getIdToken(): Promise<string | null> {
   return new Promise((resolve) => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       unsubscribe()
@@ -23,7 +23,8 @@ export const getIdToken = (): Promise<string | null> => {
   })
 }
 
-export const onAuthStateChanged = (callback) =>
-  firebase.auth().onAuthStateChanged((user) => {
+export function onAuthStateChanged(callback): firebase.Unsubscribe {
+  return firebase.auth().onAuthStateChanged((user) => {
     callback(user)
   })
+}

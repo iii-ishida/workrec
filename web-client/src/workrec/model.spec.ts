@@ -1,4 +1,4 @@
-import * as Task from './index'
+import * as Task from './model'
 
 describe('stateText', () => {
   it('state が UNSTARTED の場合は - を返すこと', () => {
