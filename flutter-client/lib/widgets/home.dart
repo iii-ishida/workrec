@@ -9,7 +9,7 @@ class Home extends StatelessWidget {
         title: const Text('Workrec'),
       ),
       drawer: _Drawer(),
-      body: Center(
+      body: const Center(
         child: Text('Hello'),
       ),
     );
@@ -26,14 +26,14 @@ class _Drawer extends StatelessWidget {
           Container(
             height: kToolbarHeight + MediaQuery.of(context).padding.top,
             child: DrawerHeader(
-              child: Text('Workrec', style: TextStyle(color: Colors.white)),
+              child: const Text('Workrec', style: TextStyle(color: Colors.white)),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
             ),
           ),
           ListTile(
-            title: Text('ログアウト'),
+            title: const Text('ログアウト'),
             onTap: () {
               Auth().signOut();
               Navigator.pop(context);

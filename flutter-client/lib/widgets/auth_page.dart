@@ -48,7 +48,7 @@ class _AuthPageState extends State<AuthPage> {
                 controller: _model.emailController,
                 keyboardType: TextInputType.emailAddress,
                 textCapitalization: TextCapitalization.none,
-                decoration: InputDecoration(labelText: 'メールアドレス'),
+                decoration: const InputDecoration(labelText: 'メールアドレス'),
                 validator: (_) =>
                     _model.validateEmail() ? null : 'メールアドレスを入力してください',
               ),
@@ -59,7 +59,7 @@ class _AuthPageState extends State<AuthPage> {
                 enableSuggestions: false,
                 autocorrect: false,
                 textCapitalization: TextCapitalization.none,
-                decoration: InputDecoration(labelText: 'パスワード'),
+                decoration: const InputDecoration(labelText: 'パスワード'),
                 validator: (_) =>
                     _model.validatePassword() ? null : 'パスワードを入力してください',
               ),
@@ -67,7 +67,7 @@ class _AuthPageState extends State<AuthPage> {
               ElevatedButton(
                 onPressed: () => _model.handleSignIn(),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   alignment: Alignment.center,
                   width: double.infinity,
                   child: Text(
