@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
+typedef _SignInFunc = Future<bool> Function(String email, String password);
+
 class AuthPage extends StatefulWidget {
+  AuthPage({Key? key, required this.signIn}) : super(key: key);
+
+  final _SignInFunc signIn;
+
   @override
   State<AuthPage> createState() => _AuthPageState();
 }
@@ -11,7 +17,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     super.initState();
-    _model = ViewModel();
+    _model = ViewModel(signIn: widget.signIn);
   }
 
   @override
@@ -58,7 +64,7 @@ class _AuthPageState extends State<AuthPage> {
             ),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: () => _model.signIn(),
+              onPressed: () => _model.handleSignIn(),
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 alignment: Alignment.center,
@@ -80,17 +86,19 @@ class _AuthPageState extends State<AuthPage> {
 
 class ViewModel {
   @visibleForTesting
-  ViewModel();
+  ViewModel({required this.signIn});
+
+  final _SignInFunc signIn;
 
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  Future<void> signIn() async {
+  Future<void> handleSignIn() async {
     if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
-    //TODO: signIn
+    await signIn(emailController.text, passwordController.text);
   }
 
   bool validateEmail() => emailController.text.isNotEmpty;
