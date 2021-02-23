@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:workrec/workrec/auth/auth.dart';
+import 'package:workrec/workrec/auth/provider.dart';
+import './widgets/auth_page.dart';
 import './widgets/home.dart';
 
 void main() {
@@ -14,7 +17,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Home(),
+      home: AuthProvider(
+        builder: (_, userId) =>
+            userId == '' ? AuthPage(signIn: Auth().signIn) : Home(),
+      ),
     );
   }
 }
