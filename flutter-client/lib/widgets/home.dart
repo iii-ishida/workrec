@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workrec/widgets/task_list_page.dart';
+import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/workrec/auth/auth.dart';
 import 'package:workrec/workrec/task/provider.dart';
 
@@ -19,6 +20,15 @@ class Home extends StatelessWidget {
         builder: (context, taskList) => TaskListPage(
           taskList: taskList,
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute<AddTaskPage>(builder: (_) => AddTaskPage()),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
