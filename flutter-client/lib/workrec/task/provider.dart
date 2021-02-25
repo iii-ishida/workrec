@@ -15,9 +15,9 @@ class TaskListProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<TaskList>(
+    return StreamProvider<TaskList>.value(
       initialData: TaskList(tasks: []),
-      create: (_) => TaskListRepo().watch(userId),
+      value: TaskListRepo().taskList(userId),
       child: Consumer<TaskList>(
         builder: (context, value, _) => builder(context, value),
       ),

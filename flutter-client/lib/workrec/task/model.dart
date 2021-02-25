@@ -8,6 +8,8 @@ class TaskList extends DelegatingList<Task> {
 
   @override
   List<Task> get delegate => _tasks;
+
+  TaskList append(Task task) => TaskList(tasks: [..._tasks, task]);
 }
 
 class Task extends Equatable {

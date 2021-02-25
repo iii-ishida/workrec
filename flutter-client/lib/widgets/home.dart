@@ -3,6 +3,7 @@ import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/workrec/auth/auth.dart';
 import 'package:workrec/workrec/task/provider.dart';
+import 'package:workrec/workrec/task/repo.dart';
 
 class Home extends StatelessWidget {
   Home({Key? key, required this.userId}) : super(key: key);
@@ -25,7 +26,8 @@ class Home extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute<AddTaskPage>(builder: (_) => AddTaskPage()),
+            MaterialPageRoute<AddTaskPage>(
+                builder: (_) => AddTaskPage(addTask: TaskListRepo().addTask)),
           );
         },
         child: const Icon(Icons.add),
