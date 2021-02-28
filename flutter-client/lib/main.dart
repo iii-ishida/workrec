@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       home: AuthProvider(
         auth: Auth(),
         builder: (_, auth, userId) => userId == ''
-            ? AuthPage(signIn: auth.signIn)
+            ? AuthPage(signIn: auth.signInWithEmailAndPassword)
             : Home(
                 userId: userId,
                 signOut: auth.signOut,

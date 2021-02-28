@@ -6,7 +6,7 @@ void main() {
     late ViewModel model;
 
     setUp(() {
-      model = ViewModel(signIn: (email, password) async => false);
+      model = ViewModel(signIn: ({required email, required password}) async {});
     });
 
     test('.validateEmail should be false when the email is empty', () {

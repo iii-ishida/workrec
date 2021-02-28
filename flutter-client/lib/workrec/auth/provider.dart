@@ -16,7 +16,7 @@ class AuthProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamProvider<String>.value(
       initialData: '',
-      value: auth.watchAuthState(),
+      value: auth.authStateChanges,
       child: Consumer<String>(
         builder: (context, value, _) => builder(context, auth, value),
       ),

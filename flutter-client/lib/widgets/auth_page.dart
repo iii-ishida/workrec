@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
-typedef _SignInFunc = Future<bool> Function(String email, String password);
+typedef _SignInFunc = Future<void> Function({
+  required String email,
+  required String password,
+});
 
 class AuthPage extends StatefulWidget {
   AuthPage({Key? key, required this.signIn}) : super(key: key);
@@ -100,7 +103,10 @@ class ViewModel {
     if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
-    await signIn(emailController.text, passwordController.text);
+    await signIn(
+      email: emailController.text,
+      password: passwordController.text,
+    );
   }
 
   bool validateEmail() => emailController.text.isNotEmpty;

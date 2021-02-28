@@ -4,7 +4,7 @@ import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/workrec/task/provider.dart';
 import 'package:workrec/workrec/task/repo.dart';
 
-typedef _SignOutFunc = Future<bool> Function();
+typedef _SignOutFunc = Future<void> Function();
 
 class Home extends StatelessWidget {
   Home({

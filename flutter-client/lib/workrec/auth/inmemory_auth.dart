@@ -3,21 +3,20 @@ import 'dart:async';
 final StreamController<String> _controller = StreamController<String>();
 
 class InmemoryAuth {
-  Future<bool> signIn(String userId, String password) async {
-    if (userId.isEmpty || password.isEmpty) {
-      return false;
+  Future<void> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    if (email.isEmpty || password.isEmpty) {
+      throw ArgumentError('email: $email, password: $password');
     }
 
-    _controller.add(userId);
-
-    return true;
+    _controller.add(email);
   }
 
-  Future<bool> signOut() async {
+  Future<void> signOut() async {
     _controller.add('');
-
-    return true;
   }
 
-  Stream<String> watchAuthState() => _controller.stream;
+  Stream<String> get authStateChanges => _controller.stream;
 }
