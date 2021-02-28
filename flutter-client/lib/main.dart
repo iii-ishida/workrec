@@ -19,9 +19,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: AuthProvider(
-        builder: (_, userId) => userId == ''
-            ? AuthPage(signIn: Auth().signIn)
-            : Home(userId: userId),
+        auth: Auth(),
+        builder: (_, auth, userId) => userId == ''
+            ? AuthPage(signIn: auth.signIn)
+            : Home(
+                userId: userId,
+                signOut: auth.signOut,
+              ),
       ),
     );
   }

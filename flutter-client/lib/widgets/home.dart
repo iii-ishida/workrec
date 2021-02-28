@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/widgets/add_task_page.dart';
-import 'package:workrec/workrec/auth/auth.dart';
+import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/workrec/task/provider.dart';
 import 'package:workrec/workrec/task/repo.dart';
 
+typedef _SignOutFunc = Future<bool> Function();
+
 class Home extends StatelessWidget {
-  Home({Key? key, required this.userId}) : super(key: key);
+  Home({
+    Key? key,
+    required this.userId,
+    required this.signOut,
+  }) : super(key: key);
+
   final String userId;
+  final _SignOutFunc signOut;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,7 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Workrec'),
       ),
-      drawer: _Drawer(),
+      drawer: _Drawer(signOut: signOut),
       body: TaskListProvider(
         userId: userId,
         builder: (context, taskList) => TaskListPage(
@@ -37,6 +44,10 @@ class Home extends StatelessWidget {
 }
 
 class _Drawer extends StatelessWidget {
+  const _Drawer({Key? key, required this.signOut}) : super(key: key);
+
+  final _SignOutFunc signOut;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -56,7 +67,7 @@ class _Drawer extends StatelessWidget {
           ListTile(
             title: const Text('ログアウト'),
             onTap: () {
-              Auth().signOut();
+              signOut();
               Navigator.pop(context);
             },
           ),
