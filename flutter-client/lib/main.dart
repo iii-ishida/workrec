@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workrec/workrec/auth/auth.dart';
 import 'package:workrec/workrec/auth/provider.dart';
@@ -5,7 +6,9 @@ import 'package:workrec/workrec/auth/provider.dart';
 import './widgets/auth_page.dart';
 import './widgets/home.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 

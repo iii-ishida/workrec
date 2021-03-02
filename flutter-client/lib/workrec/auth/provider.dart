@@ -6,6 +6,7 @@ import 'auth.dart';
 class AuthProvider extends StatelessWidget {
   final Widget Function(BuildContext context, Auth auth, String userId) builder;
   final Auth auth;
+
   AuthProvider({
     Key? key,
     required this.auth,
