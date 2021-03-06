@@ -11,7 +11,11 @@ TaskList _taskList = TaskList(
 final StreamController<TaskList> _controller = StreamController<TaskList>();
 
 class InmemoryTaskRepo {
-  Stream<TaskList> taskList(String userId) {
+  final String userId;
+
+  InmemoryTaskRepo({required this.userId});
+
+  Stream<TaskList> taskList() {
     _controller.add(_taskList);
     return _controller.stream;
   }

@@ -18,27 +18,29 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workrec'),
-      ),
-      drawer: _Drawer(signOut: signOut),
-      body: TaskListProvider(
-        userId: userId,
-        builder: (context, taskList) => TaskListPage(
-          taskList: taskList,
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute<AddTaskPage>(
-                builder: (_) => AddTaskPage(addTask: TaskListRepo().addTask)),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+    return TaskListProvider(
+      repo: TaskListRepo(userId: userId),
+      builder: (context, repo, taskList) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Workrec'),
+          ),
+          drawer: _Drawer(signOut: signOut),
+          body: TaskListPage(
+            taskList: taskList,
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute<AddTaskPage>(
+                    builder: (_) => AddTaskPage(addTask: repo.addTask)),
+              );
+            },
+            child: const Icon(Icons.add),
+          ),
+        );
+      },
     );
   }
 }

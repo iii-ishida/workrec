@@ -5,11 +5,16 @@ import 'package:workrec/workrec/task/repo.dart';
 import 'model.dart';
 
 class TaskListProvider extends StatelessWidget {
-  final String userId;
-  final Widget Function(BuildContext context, TaskList taskList) builder;
+  final TaskListRepo repo;
+  final Widget Function(
+    BuildContext context,
+    TaskListRepo repo,
+    TaskList taskList,
+  ) builder;
+
   TaskListProvider({
     Key? key,
-    required this.userId,
+    required this.repo,
     required this.builder,
   }) : super(key: key);
 
@@ -17,9 +22,9 @@ class TaskListProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamProvider<TaskList>.value(
       initialData: TaskList(tasks: []),
-      value: TaskListRepo().taskList(userId),
+      value: repo.taskList(),
       child: Consumer<TaskList>(
-        builder: (context, value, _) => builder(context, value),
+        builder: (context, value, _) => builder(context, repo, value),
       ),
     );
   }
