@@ -43,7 +43,9 @@ jobs:
             - v3-plt-cache-{{ checksum "server/mix.lock" }}
             - v3-plt-cache
 
-      - run: cd server && mkdir -p priv/plts && MIX_ENV=dev mix do deps.get, compile, dialyzer --plt
+      - run:
+          no_output_timeout: 30m
+          command: cd server && mkdir -p priv/plts && MIX_ENV=dev mix do deps.get, compile, dialyzer --plt
       - save_cache:
           key: v2-mix-cache-{{ .Branch }}-{{ checksum "server/mix.lock" }}
           paths: "server/deps"
