@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+orbs:
+  gcp-gcr: circleci/gcp-gcr@0.13.0
+  gcp-cloud-run: circleci/gcp-cloud-run@1.0.2
 jobs:
   server-test-and-deploy:
     docker:
@@ -10,23 +13,6 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          name: Install gcloud
-          command: |
-            sudo apt-get install -qqy lsb-release && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-            sudo apt-get update && sudo apt-get install google-cloud-sdk
-
-      - run:
-          name: Setup glcoud
-          command: |
-            echo $GCLOUD_SERVICE_KEY | base64 --decode | gcloud auth activate-service-account --key-file=-
-            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-            gcloud --quiet config set core/disable_usage_reporting true
-            gcloud --quiet config set component_manager/disable_update_check true
 
       - run: cd server && mix local.hex --force
       - run: cd server && mix local.rebar --force
@@ -79,17 +65,27 @@ jobs:
       - run:
           name: Deploy server
           command: |
+            echo ${GCLOUD_SERVICE_KEY} | base64 --decode --ignore-garbage > $HOME/gcloud-service-key.json
+            echo 'export GOOGLE_CLOUD_KEYS=$(cat $HOME/gcloud-service-key.json)' >> $BASH_ENV
+            echo 'export TAG=${CIRCLE_SHA1}' >> $BASH_ENV && source $BASH_ENV
             cd server
             rm -rf ./priv/plts
-            TAG=v0.1.$CIRCLE_BUILD_NUM
-            gcloud auth configure-docker --quiet
             docker build --build-arg=CLIENT_ORIGIN=${CLIENT_ORIGIN} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG . > /dev/null 2>&1 && echo "build done."
-            docker push gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG > /dev/null 2>&1 && echo "push done."
-            gcloud run deploy api-server --quiet \
-                                         --image gcr.io/${GOOGLE_PROJECT_ID}/api-server:$TAG \
-                                         --platform managed \
-                                         --region asia-northeast1 \
-                                         --set-env-vars "GOOGLE_CLOUD_PROJECT=${GOOGLE_PROJECT_ID}, API_ORIGIN=${API_ORIGIN}, CLIENT_ORIGIN=${CLIENT_ORIGIN}" > /dev/null 2>&1 && echo "deploy done."
+      - gcp-gcr/gcr-auth:
+          gcloud-service-key: GOOGLE_CLOUD_KEYS
+          google-project-id: GOOGLE_PROJECT_ID
+          google-compute-zone: GOOGLE_COMPUTE_ZONE
+      - gcp-gcr/push-image:
+          google-project-id: GOOGLE_PROJECT_ID
+          registry-url: "gcr.io"
+          image: ${GOOGLE_PROJECT_ID}/api-server
+      - cloudrun/deploy:
+          platform: "managed"
+          image: "gcr.io/${GOOGLE_PROJECT_ID}/api-server:${TAG}"
+          service-name: "api-server"
+          region: $GOOGLE_COMPUTE_ZONE
+          unauthenticated: true
+          args: "GOOGLE_CLOUD_PROJECT=${GOOGLE_PROJECT_ID}, API_ORIGIN=${API_ORIGIN}, CLIENT_ORIGIN=${CLIENT_ORIGIN}"
 
   web-client-test-and-deploy:
     docker:
