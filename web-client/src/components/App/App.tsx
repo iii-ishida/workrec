@@ -6,12 +6,6 @@ import Login from 'src/components/Login'
 import Loading from 'src/components/Loading'
 import { useInitialized } from 'src/workrec//hooks'
 
-const AppContainer: React.FC = () => {
-  const isInitialized = useInitialized()
-
-  return <App initialized={isInitialized} />
-}
-
 type Props = {
   initialized: boolean
 }
@@ -29,5 +23,11 @@ const App: React.FC<Props> = ({ initialized }: Props) =>
   ) : (
     <Loading />
   )
+
+const AppContainer: React.FC = () => {
+  const isInitialized = useInitialized()
+
+  return <App initialized={isInitialized} />
+}
 
 export default AppContainer

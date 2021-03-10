@@ -11,26 +11,6 @@ import {
   useDeleteTask,
 } from 'src/workrec/hooks'
 
-const TaskListPageContainer: React.FC = () => {
-  const tasks = useTaskList()
-  const addTask = useAddTask()
-  const toggleState = useToggleTask()
-  const finishTask = useFinishTask()
-  const unfinishTask = useUnfinishTask()
-  const deleteTask = useDeleteTask()
-
-  return (
-    <TaskListPage
-      tasks={tasks}
-      addTask={addTask}
-      toggleState={toggleState}
-      finishTask={finishTask}
-      unfinishTask={unfinishTask}
-      deleteTask={deleteTask}
-    />
-  )
-}
-
 type Props = {
   tasks: Task[]
   addTask: (title: string) => void
@@ -60,6 +40,26 @@ const TaskListPage: React.FC<Props> = ({
 
       <AddTask addTask={addTask} />
     </div>
+  )
+}
+
+const TaskListPageContainer: React.FC = () => {
+  const tasks = useTaskList()
+  const addTask = useAddTask()
+  const toggleState = useToggleTask()
+  const finishTask = useFinishTask()
+  const unfinishTask = useUnfinishTask()
+  const deleteTask = useDeleteTask()
+
+  return (
+    <TaskListPage
+      tasks={tasks}
+      addTask={addTask}
+      toggleState={toggleState}
+      finishTask={finishTask}
+      unfinishTask={unfinishTask}
+      deleteTask={deleteTask}
+    />
   )
 }
 
