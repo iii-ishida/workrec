@@ -78,7 +78,8 @@ jobs:
       - gcp-gcr/push-image:
           google-project-id: GOOGLE_PROJECT_ID
           registry-url: "gcr.io"
-          image: ${GOOGLE_PROJECT_ID}/api-server
+          image: api-server
+          tag: $TAG
       - cloudrun/deploy:
           platform: "managed"
           image: "gcr.io/${GOOGLE_PROJECT_ID}/api-server:${TAG}"
