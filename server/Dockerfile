@@ -1,6 +1,6 @@
 FROM elixir:1.10.4-alpine as build
 
-RUN apk add --update git build-base nodejs yarn python
+RUN apk add --update git build-base nodejs yarn python3
 
 RUN mkdir /app
 WORKDIR /app
