@@ -1,4 +1,4 @@
-FROM elixir:1.10.4-alpine as build
+FROM elixir:1.11.3-alpine as build
 
 RUN apk add --update git build-base nodejs yarn python3
 
@@ -22,7 +22,7 @@ COPY lib lib
 RUN mix do compile, release
 
 # prepare release image
-FROM alpine:3.12 AS app
+FROM alpine:3.13 AS app
 RUN apk add --update bash openssl
 
 RUN mkdir /app
