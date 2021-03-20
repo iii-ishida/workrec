@@ -1,5 +1,9 @@
-import './firestore_repo.dart';
+import 'model.dart';
 
-class TaskListRepo extends FirestoreTaskRepo {
-  TaskListRepo({required String userId}) : super(userId: userId);
+abstract class TaskListRepo {
+  final String userId;
+
+  TaskListRepo({required this.userId});
+  Stream<TaskList> taskList();
+  Future<void> addTask(String title);
 }

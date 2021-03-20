@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/workrec/task/provider.dart';
-import 'package:workrec/workrec/task/repo.dart';
+import 'package:workrec/workrec/task/firestore_repo.dart';
 
 typedef _SignOutFunc = Future<void> Function();
 
@@ -19,7 +19,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TaskListProvider(
-      repo: TaskListRepo(userId: userId),
+      repo: FirestoreTaskRepo(userId: userId),
       builder: (context, repo, taskList) {
         return Scaffold(
           appBar: AppBar(
@@ -59,10 +59,12 @@ class _Drawer extends StatelessWidget {
           Container(
             height: kToolbarHeight + MediaQuery.of(context).padding.top,
             child: DrawerHeader(
-              child:
-                  const Text('Workrec', style: TextStyle(color: Colors.white)),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
+              ),
+              child: const Text(
+                'Workrec',
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ),

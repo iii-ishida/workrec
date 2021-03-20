@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'model.dart';
+import 'repo.dart';
 
 final _store = FirebaseFirestore.instance;
 
-class FirestoreTaskRepo {
+class FirestoreTaskRepo implements TaskListRepo {
+  @override
   final String userId;
 
   FirestoreTaskRepo({required this.userId});
 
+  @override
   Stream<TaskList> taskList() {
     return _taskCollection(userId)
         .snapshots()
@@ -16,8 +19,9 @@ class FirestoreTaskRepo {
         .map((docs) => TaskList.fromFirestoreDocs(docs));
   }
 
+  @override
   Future<void> addTask(String title) {
-    final Map<String, dynamic> data = <String, dynamic>{
+    final data = <String, dynamic>{
       ...Task.create(title: title).toFirestoreData(),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
