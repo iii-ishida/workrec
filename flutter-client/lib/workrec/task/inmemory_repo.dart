@@ -5,7 +5,7 @@ import 'package:quiver/iterables.dart';
 import 'model.dart';
 
 TaskList _taskList = TaskList(
-  tasks: range(20).map((i) => Task(id: '$i', title: 'some task $i')).toList(),
+  tasks: range(20).map((i) => Task.create(title: 'some task $i')).toList(),
 );
 
 final StreamController<TaskList> _controller = StreamController<TaskList>();
@@ -21,8 +21,7 @@ class InmemoryTaskRepo {
   }
 
   Future<void> addTask(String title) async {
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-    _taskList = _taskList.append(Task(id: id, title: title));
+    _taskList = _taskList.append(Task.create(title: title));
     _controller.add(_taskList);
   }
 }
