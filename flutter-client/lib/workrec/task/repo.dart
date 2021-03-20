@@ -1,5 +1,5 @@
-import './inmemory_repo.dart';
+import './firestore_repo.dart';
 
-class TaskListRepo extends InmemoryTaskRepo {
+class TaskListRepo extends FirestoreTaskRepo {
   TaskListRepo({required String userId}) : super(userId: userId);
 }
