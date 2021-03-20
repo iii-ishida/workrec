@@ -32,7 +32,7 @@ enum State {
 }
 
 extension Strings on State {
-  String toShortString() => this.toString().split('.').last;
+  String toShortString() => toString().split('.').last;
 }
 
 State _stateFromShortString(String from) {
