@@ -1,22 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:workrec/workrec/task/model.dart';
 
+typedef _StartFunc = Future<void> Function(Task);
+
 class TaskListPage extends StatelessWidget {
-  TaskListPage({Key? key, required this.taskList}) : super(key: key);
+  TaskListPage({
+    Key? key,
+    required this.taskList,
+    required this.start,
+  }) : super(key: key);
+
   final TaskList taskList;
+  final _StartFunc start;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: taskList.length,
-      itemBuilder: (context, index) => _TaskListRow(task: taskList[index]),
+      itemBuilder: (context, index) => _TaskListRow(
+        task: taskList[index],
+        start: start,
+      ),
     );
   }
 }
 
 class _TaskListRow extends StatelessWidget {
-  _TaskListRow({Key? key, required Task task})
-      : model = ViewModel(task: task),
+  _TaskListRow({
+    Key? key,
+    required Task task,
+    required _StartFunc start,
+  })   : model = ViewModel(
+          task: task,
+          start: start,
+        ),
         super(key: key);
 
   final ViewModel model;
@@ -44,7 +61,7 @@ class _TaskListRow extends StatelessWidget {
             Text(model.title),
             const Spacer(),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => model.handleStart(),
               child: Text(model.actionName),
             ),
           ],
@@ -56,9 +73,13 @@ class _TaskListRow extends StatelessWidget {
 
 class ViewModel {
   @visibleForTesting
-  ViewModel({required this.task});
+  ViewModel({
+    required this.task,
+    required this.start,
+  });
 
   final Task task;
+  final _StartFunc start;
 
   String get title => task.title;
   Color get stateColor {
@@ -86,5 +107,9 @@ class ViewModel {
       default:
         return '-';
     }
+  }
+
+  Future<void> handleStart() async {
+    await start(task);
   }
 }

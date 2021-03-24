@@ -28,6 +28,7 @@ class Home extends StatelessWidget {
           drawer: _Drawer(signOut: signOut),
           body: TaskListPage(
             taskList: taskList,
+            start: repo.start,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {

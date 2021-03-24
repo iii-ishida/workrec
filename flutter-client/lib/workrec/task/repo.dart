@@ -6,4 +6,5 @@ abstract class TaskListRepo {
   TaskListRepo({required this.userId});
   Stream<TaskList> taskList();
   Future<void> addTask(String title);
+  Future<void> start(Task task);
 }

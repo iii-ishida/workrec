@@ -30,6 +30,15 @@ class FirestoreTaskRepo implements TaskListRepo {
     return _taskCollection(userId).add(data);
   }
 
+  @override
+  Future<void> start(Task task) {
+    final data = <String, dynamic>{
+      ...task.started(DateTime.now()).toFirestoreData(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+    return _taskCollection(userId).doc(task.id).update(data);
+  }
+
   CollectionReference _taskCollection(String userId) =>
       _store.collection('users/$userId/tasks');
 }

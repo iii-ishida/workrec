@@ -125,6 +125,24 @@ class Task extends Equatable {
     }
   }
 
+  Task started(DateTime startedAt) {
+    return _copyWith(state: TaskState.started, startedAt: startedAt);
+  }
+
+  Task _copyWith({
+    String? title,
+    TaskState? state,
+    DateTime? startedAt,
+  }) {
+    return Task(
+        id: id,
+        title: title ?? this.title,
+        state: state ?? this.state,
+        startedAt: startedAt ?? this.startedAt,
+        createdAt: createdAt,
+        updatedAt: updatedAt);
+  }
+
   Map<String, dynamic> toFirestoreData() {
     return <String, dynamic>{
       'title': title,
