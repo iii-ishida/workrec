@@ -22,7 +22,7 @@ class TaskList extends DelegatingList<Task> {
   TaskList append(Task task) => TaskList(tasks: [..._tasks, task]);
 }
 
-enum State {
+enum TaskState {
   unstarted,
   started,
   paused,
@@ -31,31 +31,31 @@ enum State {
   unknown,
 }
 
-extension Strings on State {
+extension Strings on TaskState {
   String toShortString() => toString().split('.').last;
 }
 
-State _stateFromShortString(String from) {
+TaskState _stateFromShortString(String from) {
   switch (from) {
     case 'unstarted':
-      return State.unstarted;
+      return TaskState.unstarted;
     case 'started':
-      return State.started;
+      return TaskState.started;
     case 'paused':
-      return State.paused;
+      return TaskState.paused;
     case 'resumed':
-      return State.resumed;
+      return TaskState.resumed;
     case 'completed':
-      return State.completed;
+      return TaskState.completed;
     default:
-      return State.unknown;
+      return TaskState.unknown;
   }
 }
 
 class Task extends Equatable {
   final String id;
   final String title;
-  final State state;
+  final TaskState state;
   final DateTime startedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -77,7 +77,7 @@ class Task extends Equatable {
     return Task(
       id: '',
       title: title,
-      state: State.unstarted,
+      state: TaskState.unstarted,
       startedAt: _timeZero,
       createdAt: now,
       updatedAt: now,
@@ -87,7 +87,7 @@ class Task extends Equatable {
   static final _emptyTask = Task(
     id: '',
     title: '',
-    state: State.unknown,
+    state: TaskState.unknown,
     startedAt: _timeZero,
     createdAt: _timeZero,
     updatedAt: _timeZero,
