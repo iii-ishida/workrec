@@ -110,6 +110,21 @@ class Task extends Equatable {
     );
   }
 
+  TaskState get nextState {
+    switch (state) {
+      case TaskState.unstarted:
+        return TaskState.started;
+      case TaskState.started:
+        return TaskState.paused;
+      case TaskState.paused:
+        return TaskState.resumed;
+      case TaskState.resumed:
+        return TaskState.paused;
+      default:
+        return TaskState.unknown;
+    }
+  }
+
   Map<String, dynamic> toFirestoreData() {
     return <String, dynamic>{
       'title': title,
