@@ -38,13 +38,13 @@ TaskState _stateFromShortString(String from) {
 class TaskList extends DelegatingList<Task> {
   final List<Task> _tasks;
 
-  TaskList({required List<Task> tasks})
+  TaskList(List<Task> tasks)
       : _tasks = List.unmodifiable(tasks.where((task) => task._isNotEmpty));
 
   @override
   List<Task> get delegate => _tasks;
 
-  TaskList append(Task task) => TaskList(tasks: [..._tasks, task]);
+  TaskList append(Task task) => TaskList([..._tasks, task]);
 }
 
 class Task extends Equatable {

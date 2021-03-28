@@ -5,7 +5,7 @@ import 'package:quiver/iterables.dart';
 import 'models/task.dart';
 
 TaskList _taskList = TaskList(
-  tasks: range(20).map((i) => Task.create(title: 'some task $i')).toList(),
+  range(20).map((i) => Task.create(title: 'some task $i')).toList(),
 );
 
 final StreamController<TaskList> _controller = StreamController<TaskList>();

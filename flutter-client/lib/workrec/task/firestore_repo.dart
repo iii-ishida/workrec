@@ -17,7 +17,7 @@ class FirestoreTaskRepo implements TaskListRepo {
         .snapshots()
         .map((snapshot) => snapshot.docs)
         .map((docs) => docs.map((doc) => _taskFromDoc(doc)))
-        .asyncMap((tasks) async => TaskList(tasks: await Future.wait(tasks)));
+        .asyncMap((tasks) async => TaskList(await Future.wait(tasks)));
   }
 
   Future<Task> _taskFromDoc(QueryDocumentSnapshot doc) async {
