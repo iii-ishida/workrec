@@ -16,7 +16,14 @@ class FirestoreTaskRepo implements TaskListRepo {
     return _taskCollection(userId)
         .snapshots()
         .map((snapshot) => snapshot.docs)
-        .map((docs) => TaskList.fromFirestoreDocs(docs));
+        .map((docs) => docs.map((doc) => _taskFromDoc(doc)))
+        .asyncMap((tasks) async => TaskList(tasks: await Future.wait(tasks)));
+  }
+
+  Future<Task> _taskFromDoc(QueryDocumentSnapshot doc) async {
+    final workTimeSnapshot = await _workTimeCollection(userId, doc.id).get();
+    final workTimeDocs = workTimeSnapshot.docs;
+    return Task.fromFirestoreDoc(doc, workTimeDocs);
   }
 
   @override
@@ -31,14 +38,26 @@ class FirestoreTaskRepo implements TaskListRepo {
   }
 
   @override
-  Future<void> start(Task task) {
+  Future<void> start(Task task) async {
+    final started = task.started(DateTime.now());
     final data = <String, dynamic>{
-      ...task.started(DateTime.now()).toFirestoreData(),
+      ...started.toFirestoreData(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
-    return _taskCollection(userId).doc(task.id).update(data);
+
+    final batch = _store.batch();
+    batch.update(_taskCollection(userId).doc(started.id), data);
+
+    final workTimeData = started.workTimeList.last.toFirestoreData();
+    final workTimeDoc = _workTimeCollection(userId, started.id).doc();
+    batch.set(workTimeDoc, workTimeData);
+
+    await batch.commit();
   }
 
   CollectionReference _taskCollection(String userId) =>
       _store.collection('users/$userId/tasks');
+
+  CollectionReference _workTimeCollection(String userId, String taskId) =>
+      _store.collection('users/$userId/tasks/$taskId/workTimes');
 }
