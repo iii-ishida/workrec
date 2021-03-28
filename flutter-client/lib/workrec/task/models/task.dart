@@ -1,18 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:quiver/collection.dart';
+import './work_time.dart';
 
-class TaskList extends DelegatingList<Task> {
-  final List<Task> _tasks;
-
-  TaskList({required List<Task> tasks})
-      : _tasks = List.unmodifiable(tasks.where((task) => task._isNotEmpty));
-
-  @override
-  List<Task> get delegate => _tasks;
-
-  TaskList append(Task task) => TaskList(tasks: [..._tasks, task]);
-}
+final _timeZero = DateTime.fromMillisecondsSinceEpoch(0);
 
 enum TaskState {
   unstarted,
@@ -44,75 +35,16 @@ TaskState _stateFromShortString(String from) {
   }
 }
 
-final _timeZero = DateTime.fromMillisecondsSinceEpoch(0);
+class TaskList extends DelegatingList<Task> {
+  final List<Task> _tasks;
 
-class WorkTimeList extends DelegatingList<WorkTime> {
-  final List<WorkTime> _workTimes;
-
-  WorkTimeList(List<WorkTime> workTimes)
-      : _workTimes = List.unmodifiable(workTimes);
-
-  factory WorkTimeList.fromFirestoreDocs(List<QueryDocumentSnapshot> docs) {
-    return WorkTimeList(docs
-        .map(
-          (doc) => WorkTime.fromFirestoreDoc(doc),
-        )
-        .toList());
-  }
-
-  WorkTimeList started(DateTime time) {
-    return WorkTimeList([WorkTime(id: '', start: time, end: _timeZero)]);
-  }
-
-  static final _empty = WorkTimeList([]);
+  TaskList({required List<Task> tasks})
+      : _tasks = List.unmodifiable(tasks.where((task) => task._isNotEmpty));
 
   @override
-  List<WorkTime> get delegate => _workTimes;
-}
+  List<Task> get delegate => _tasks;
 
-class WorkTime extends Equatable {
-  final String id;
-  final DateTime start;
-  final DateTime end;
-
-  const WorkTime({required this.id, required this.start, required this.end});
-
-  factory WorkTime.fromFirestoreDoc(QueryDocumentSnapshot doc) {
-    final data = doc.data();
-    if (data == null || doc.metadata.hasPendingWrites) {
-      return WorkTime(id: '', start: _timeZero, end: _timeZero);
-    }
-
-    return WorkTime(
-      id: doc.id,
-      start: (data['start'] as Timestamp).toDate(),
-      end: (data['end'] as Timestamp).toDate(),
-    );
-  }
-
-  Map<String, dynamic> toFirestoreData() {
-    return <String, dynamic>{
-      'start': start,
-      'end': end,
-    };
-  }
-
-  WorkTime _copyWith({
-    DateTime? start,
-    DateTime? end,
-  }) {
-    return WorkTime(
-      id: id,
-      start: start ?? this.start,
-      end: end ?? this.end,
-    );
-  }
-
-  @override
-  List<Object> get props => [id, start, end];
-
-  @override
-  bool get stringify => true;
+  TaskList append(Task task) => TaskList(tasks: [..._tasks, task]);
 }
 
 class Task extends Equatable {
@@ -139,7 +71,7 @@ class Task extends Equatable {
       id: '',
       title: title,
       state: TaskState.unstarted,
-      workTimeList: WorkTimeList._empty,
+      workTimeList: WorkTimeList.empty,
       createdAt: now,
       updatedAt: now,
     );
@@ -149,7 +81,7 @@ class Task extends Equatable {
     id: '',
     title: '',
     state: TaskState.unknown,
-    workTimeList: WorkTimeList._empty,
+    workTimeList: WorkTimeList.empty,
     createdAt: _timeZero,
     updatedAt: _timeZero,
   );
