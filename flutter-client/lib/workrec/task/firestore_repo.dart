@@ -21,7 +21,8 @@ class FirestoreTaskRepo implements TaskListRepo {
   }
 
   Future<Task> _taskFromDoc(QueryDocumentSnapshot doc) async {
-    final workTimeSnapshot = await _workTimeCollection(userId, doc.id).get();
+    final workTimeSnapshot =
+        await _workTimeCollection(userId, doc.id).orderBy('start').get();
     final workTimeDocs = workTimeSnapshot.docs;
     return Task.fromFirestoreDoc(doc, workTimeDocs);
   }
@@ -69,6 +70,24 @@ class FirestoreTaskRepo implements TaskListRepo {
     final workTime = paused.workTimeList.last;
     final workTimeDoc = _workTimeCollection(userId, paused.id).doc(workTime.id);
     batch.update(workTimeDoc, workTime.toFirestoreData());
+
+    await batch.commit();
+  }
+
+  @override
+  Future<void> resume(Task task) async {
+    final resumed = task.resumed(DateTime.now());
+    final data = <String, dynamic>{
+      ...resumed.toFirestoreData(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    final batch = _store.batch();
+    batch.update(_taskCollection(userId).doc(resumed.id), data);
+
+    final workTime = resumed.workTimeList.last;
+    final workTimeDoc = _workTimeCollection(userId, resumed.id).doc();
+    batch.set(workTimeDoc, workTime.toFirestoreData());
 
     await batch.commit();
   }

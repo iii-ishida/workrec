@@ -133,6 +133,13 @@ class Task extends Equatable {
     );
   }
 
+  Task resumed(DateTime resumedAt) {
+    return _copyWith(
+      state: TaskState.resumed,
+      workTimeList: workTimeList.resumed(resumedAt),
+    );
+  }
+
   Task _copyWith({
     String? title,
     TaskState? state,

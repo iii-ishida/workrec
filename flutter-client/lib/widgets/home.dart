@@ -30,6 +30,7 @@ class Home extends StatelessWidget {
             taskList: taskList,
             start: repo.start,
             pause: repo.pause,
+            resume: repo.resume,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {

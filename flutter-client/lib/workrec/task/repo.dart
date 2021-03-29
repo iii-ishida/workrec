@@ -8,4 +8,5 @@ abstract class TaskListRepo {
   Future<void> addTask(String title);
   Future<void> start(Task task);
   Future<void> pause(Task task);
+  Future<void> resume(Task task);
 }

@@ -31,6 +31,13 @@ class WorkTimeList extends DelegatingList<WorkTime> {
     ]);
   }
 
+  WorkTimeList resumed(DateTime time) {
+    return WorkTimeList([
+      ..._workTimes,
+      WorkTime(id: '', start: time, end: _timeZero),
+    ]);
+  }
+
   static final empty = WorkTimeList([]);
 
   @override

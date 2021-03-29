@@ -3,6 +3,7 @@ import 'package:workrec/workrec/task/models/task.dart';
 
 typedef _StartFunc = Future<void> Function(Task);
 typedef _PauseFunc = Future<void> Function(Task);
+typedef _ResumeFunc = Future<void> Function(Task);
 
 class TaskListPage extends StatelessWidget {
   TaskListPage({
@@ -10,11 +11,13 @@ class TaskListPage extends StatelessWidget {
     required this.taskList,
     required this.start,
     required this.pause,
+    required this.resume,
   }) : super(key: key);
 
   final TaskList taskList;
   final _StartFunc start;
   final _PauseFunc pause;
+  final _ResumeFunc resume;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,7 @@ class TaskListPage extends StatelessWidget {
         task: taskList[index],
         start: start,
         pause: pause,
+        resume: resume,
       ),
     );
   }
@@ -35,10 +39,12 @@ class _TaskListRow extends StatelessWidget {
     required Task task,
     required _StartFunc start,
     required _PauseFunc pause,
+    required _ResumeFunc resume,
   })   : model = ViewModel(
           task: task,
           start: start,
           pause: pause,
+          resume: resume,
         ),
         super(key: key);
 
@@ -83,11 +89,13 @@ class ViewModel {
     required this.task,
     required this.start,
     required this.pause,
+    required this.resume,
   });
 
   final Task task;
   final _StartFunc start;
   final _PauseFunc pause;
+  final _ResumeFunc resume;
 
   String get title => task.title;
   Color get stateColor {
@@ -124,6 +132,7 @@ class ViewModel {
       case TaskState.paused:
         return await _handlePause();
       case TaskState.resumed:
+        return await _handleResume();
       default:
     }
   }
@@ -134,5 +143,9 @@ class ViewModel {
 
   Future<void> _handlePause() async {
     await pause(task);
+  }
+
+  Future<void> _handleResume() async {
+    await resume(task);
   }
 }
