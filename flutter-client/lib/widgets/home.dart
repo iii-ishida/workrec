@@ -29,6 +29,7 @@ class Home extends StatelessWidget {
           body: TaskListPage(
             taskList: taskList,
             start: repo.start,
+            pause: repo.pause,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {

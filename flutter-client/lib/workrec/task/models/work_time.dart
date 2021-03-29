@@ -22,6 +22,15 @@ class WorkTimeList extends DelegatingList<WorkTime> {
     return WorkTimeList([WorkTime(id: '', start: time, end: _timeZero)]);
   }
 
+  WorkTimeList paused(DateTime time) {
+    final lastWorkTime = _workTimes.last;
+
+    return WorkTimeList([
+      ..._workTimes.toList()..removeLast(),
+      lastWorkTime._copyWith(end: time)
+    ]);
+  }
+
   static final empty = WorkTimeList([]);
 
   @override
@@ -53,6 +62,17 @@ class WorkTime extends Equatable {
       'start': start,
       'end': end,
     };
+  }
+
+  WorkTime _copyWith({
+    DateTime? start,
+    DateTime? end,
+  }) {
+    return WorkTime(
+      id: id,
+      start: start ?? this.start,
+      end: end ?? this.end,
+    );
   }
 
   @override

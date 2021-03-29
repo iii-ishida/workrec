@@ -55,6 +55,24 @@ class FirestoreTaskRepo implements TaskListRepo {
     await batch.commit();
   }
 
+  @override
+  Future<void> pause(Task task) async {
+    final paused = task.paused(DateTime.now());
+    final data = <String, dynamic>{
+      ...paused.toFirestoreData(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    final batch = _store.batch();
+    batch.update(_taskCollection(userId).doc(paused.id), data);
+
+    final workTime = paused.workTimeList.last;
+    final workTimeDoc = _workTimeCollection(userId, paused.id).doc(workTime.id);
+    batch.update(workTimeDoc, workTime.toFirestoreData());
+
+    await batch.commit();
+  }
+
   CollectionReference _taskCollection(String userId) =>
       _store.collection('users/$userId/tasks');
 

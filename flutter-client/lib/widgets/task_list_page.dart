@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:workrec/workrec/task/models/task.dart';
 
 typedef _StartFunc = Future<void> Function(Task);
+typedef _PauseFunc = Future<void> Function(Task);
 
 class TaskListPage extends StatelessWidget {
   TaskListPage({
     Key? key,
     required this.taskList,
     required this.start,
+    required this.pause,
   }) : super(key: key);
 
   final TaskList taskList;
   final _StartFunc start;
+  final _PauseFunc pause;
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +23,7 @@ class TaskListPage extends StatelessWidget {
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
         start: start,
+        pause: pause,
       ),
     );
   }
@@ -30,9 +34,11 @@ class _TaskListRow extends StatelessWidget {
     Key? key,
     required Task task,
     required _StartFunc start,
+    required _PauseFunc pause,
   })   : model = ViewModel(
           task: task,
           start: start,
+          pause: pause,
         ),
         super(key: key);
 
@@ -61,7 +67,7 @@ class _TaskListRow extends StatelessWidget {
             Text(model.title),
             const Spacer(),
             ElevatedButton(
-              onPressed: () => model.handleStart(),
+              onPressed: () => model.handleToggle(),
               child: Text(model.actionName),
             ),
           ],
@@ -76,10 +82,12 @@ class ViewModel {
   ViewModel({
     required this.task,
     required this.start,
+    required this.pause,
   });
 
   final Task task;
   final _StartFunc start;
+  final _PauseFunc pause;
 
   String get title => task.title;
   Color get stateColor {
@@ -109,7 +117,22 @@ class ViewModel {
     }
   }
 
-  Future<void> handleStart() async {
+  Future<void> handleToggle() async {
+    switch (task.nextState) {
+      case TaskState.started:
+        return await _handleStart();
+      case TaskState.paused:
+        return await _handlePause();
+      case TaskState.resumed:
+      default:
+    }
+  }
+
+  Future<void> _handleStart() async {
     await start(task);
+  }
+
+  Future<void> _handlePause() async {
+    await pause(task);
   }
 }

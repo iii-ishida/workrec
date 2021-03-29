@@ -7,4 +7,5 @@ abstract class TaskListRepo {
   Stream<TaskList> taskList();
   Future<void> addTask(String title);
   Future<void> start(Task task);
+  Future<void> pause(Task task);
 }

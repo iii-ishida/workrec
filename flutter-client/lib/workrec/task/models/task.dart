@@ -126,6 +126,13 @@ class Task extends Equatable {
     );
   }
 
+  Task paused(DateTime pausedAt) {
+    return _copyWith(
+      state: TaskState.paused,
+      workTimeList: workTimeList.paused(pausedAt),
+    );
+  }
+
   Task _copyWith({
     String? title,
     TaskState? state,
