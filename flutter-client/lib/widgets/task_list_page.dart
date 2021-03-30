@@ -72,6 +72,8 @@ class _TaskListRow extends StatelessWidget {
             const SizedBox(width: 16),
             Text(model.title),
             const Spacer(),
+            Text(model.workingTime),
+            const SizedBox(width: 32),
             ElevatedButton(
               onPressed: () => model.handleToggle(),
               child: Text(model.actionName),
@@ -98,6 +100,14 @@ class ViewModel {
   final _ResumeFunc resume;
 
   String get title => task.title;
+
+  String get workingTime {
+    final workingMinutes = task.workingTime.inMinutes;
+    final hour = '${(workingMinutes / 60).floor()}'.padLeft(2, '0');
+    final minutes = '${workingMinutes % 60}'.padLeft(2, '0');
+    return '$hour:$minutes';
+  }
+
   Color get stateColor {
     switch (task.state) {
       case TaskState.started:

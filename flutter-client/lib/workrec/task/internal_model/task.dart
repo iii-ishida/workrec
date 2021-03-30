@@ -54,6 +54,7 @@ class Task extends Equatable {
   final WorkTimeList workTimeList;
   final DateTime createdAt;
   final DateTime updatedAt;
+  Duration get workingTime => workTimeList.workingTime;
 
   const Task({
     required this.id,

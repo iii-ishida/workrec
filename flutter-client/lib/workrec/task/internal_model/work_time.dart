@@ -18,6 +18,11 @@ class WorkTimeList extends DelegatingList<WorkTime> {
         .toList());
   }
 
+  Duration get workingTime => _workTimes.fold(
+        Duration.zero,
+        (acc, time) => acc + (time._endOrNow.difference(time.start)),
+      );
+
   WorkTimeList started(DateTime time) {
     return WorkTimeList([WorkTime(id: '', start: time, end: _timeZero)]);
   }
@@ -48,6 +53,7 @@ class WorkTime extends Equatable {
   final String id;
   final DateTime start;
   final DateTime end;
+  DateTime get _endOrNow => end == _timeZero ? DateTime.now() : end;
 
   const WorkTime({required this.id, required this.start, required this.end});
 
