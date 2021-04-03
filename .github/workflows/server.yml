@@ -1,0 +1,69 @@
+name: server CI
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - 'server/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'erver/**'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVICE: api-server
+  REGION: asia-northeast1
+  CLIENT_ORIGIN: ${{ secrets.CLIENT_ORIGIN }}
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.11.4' # Define the elixir version [required]
+        otp-version: '23.3' # Define the OTP version [required]
+    - name: Restore dependencies cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          server/deps
+          server/priv/plts
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    - name: Install dependencies
+      run: cd server && mkdir -p priv/plts && MIX_ENV=dev mix do local.hex --force, local.rebar --force, deps.get, dialyzer --plt
+    - name: Run tests
+      run: cd server && MIX_ENV=dev mix dialyzer && mix credo --strict && mix format --check-formatted && mix compile --warnings-as-errors && mix test
+
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: Authorize Docker push
+      run: gcloud auth configure-docker
+    - name: Build and Push Container
+      run: |-
+        cd server
+        rm -rf ./priv/plts
+        docker build --build-arg=CLIENT_ORIGIN=${{ env.CLIENT_ORIGIN }} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
+    - name: Deploy to Cloud Run
+      run: |-
+        gcloud run deploy ${{ env.SERVICE }} \
+          --region ${{ env.REGION }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+          --platform "managed" \
+          --quiet

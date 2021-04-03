@@ -1,0 +1,57 @@
+name: web-client CI
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - 'web-client/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'web-client/**'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+  API_ORIGIN: ${{ secrets.API_ORIGIN }}
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - uses: actions/cache@v2
+      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+    - name: Install dependencies
+      run: cd web-client && yarn --frozen-lockfile
+    - name: Run tests
+      run: cd web-client && CI=false sh ./scripts/build.sh && sh ./scripts/test.sh
+
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Build and Deploy
+      run: |-
+        cd web-client
+        CI=false sh ./scripts/build.sh && CI=true yarn run deploy --project=${{ env.PROJECT_ID }} --token=${{ secrets.FIREBASE_TOKEN }}
