@@ -9,28 +9,32 @@ void main() {
       model = ViewModel(signIn: ({required email, required password}) async {});
     });
 
-    test('.validateEmail should be false when the email is empty', () {
-      model.emailController.text = '';
+    group('.validateEmail', () {
+      test('email が空の場合は false を返すこと', () {
+        model.emailController.text = '';
 
-      expect(model.validateEmail(), false);
+        expect(model.validateEmail(), false);
+      });
+
+      test('email が空でない場合は true を返すこと', () {
+        model.emailController.text = 'test@example.com';
+
+        expect(model.validateEmail(), true);
+      });
     });
 
-    test('.validateEmail should be true when the email is not empty', () {
-      model.emailController.text = 'test@example.com';
+    group('.validatePassword', () {
+      test('password が空の場合は false を返すこと', () {
+        model.passwordController.text = '';
 
-      expect(model.validateEmail(), true);
-    });
+        expect(model.validatePassword(), false);
+      });
 
-    test('.validatePassword should be false when the password is empty', () {
-      model.passwordController.text = '';
+      test('password が空でない場合は true を返すこと', () {
+        model.passwordController.text = 'somepassword';
 
-      expect(model.validatePassword(), false);
-    });
-
-    test('.validatePassword should be true when the password is not empty', () {
-      model.passwordController.text = 'somepassword';
-
-      expect(model.validatePassword(), true);
+        expect(model.validatePassword(), true);
+      });
     });
   });
 }
