@@ -3,7 +3,7 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "hosting": {
+  "hosting": [{
     "public": "build/web",
     "ignore": [
       "firebase.json",
@@ -17,6 +17,10 @@
       }
     ]
   },
+  {
+    "target": "doc",
+    "public": "doc/api"
+  }],
   "emulators": {
     "auth": {
       "port": 9099

@@ -1,0 +1,8 @@
+dartdoc:
+  categories: {}
+  nodoc: 
+  - 'lib/main.dart'
+  - 'lib/widgets/*'
+  exclude:
+  - generated_plugin_registrant
+  
