@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/workrec/task/model.dart';
+import 'package:workrec/workrec/task/models/task.dart';
 
 typedef _StartFunc = Future<void> Function(Task);
 typedef _PauseFunc = Future<void> Function(Task);

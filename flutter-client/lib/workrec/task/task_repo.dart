@@ -1,4 +1,4 @@
-import 'model.dart';
+import 'models/task.dart';
 
 abstract class TaskListRepo {
   final String userId;

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:quiver/iterables.dart';
 
-import 'model.dart';
+import 'models/task.dart';
 
 TaskList _taskList = TaskList(
   range(20).map((i) => Task.create(title: 'some task $i')).toList(),

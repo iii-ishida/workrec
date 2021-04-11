@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'model.dart';
-import 'repo.dart';
+import 'models/task.dart';
+import 'task_repo.dart';
 
 final _store = FirebaseFirestore.instance;
 
