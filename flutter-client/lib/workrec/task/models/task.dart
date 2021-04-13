@@ -65,6 +65,7 @@ class Task extends Equatable {
     required this.updatedAt,
   });
 
+  /// 初期状態の Task を返します
   factory Task.create({required String title}) {
     final now = DateTime.now();
 
@@ -120,6 +121,7 @@ class Task extends Equatable {
     }
   }
 
+  /// Task を開始して返します
   Task started(DateTime startedAt) {
     return _copyWith(
       state: TaskState.started,
@@ -127,6 +129,7 @@ class Task extends Equatable {
     );
   }
 
+  /// Task を停止して返します
   Task paused(DateTime pausedAt) {
     return _copyWith(
       state: TaskState.paused,
@@ -134,6 +137,7 @@ class Task extends Equatable {
     );
   }
 
+  /// Task を再開して返します
   Task resumed(DateTime resumedAt) {
     return _copyWith(
       state: TaskState.resumed,
@@ -156,6 +160,7 @@ class Task extends Equatable {
     );
   }
 
+  /// Firestore 向けの Map を返します
   Map<String, dynamic> toFirestoreData() {
     return <String, dynamic>{
       'title': title,
