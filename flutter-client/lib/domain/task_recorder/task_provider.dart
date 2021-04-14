@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/domain/task_recorder/task_repo.dart';
 
-import 'models/task.dart';
+import 'task.dart';
 
 class TaskListProvider extends StatelessWidget {
   final TaskListRepo repo;
