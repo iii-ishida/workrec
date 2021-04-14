@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/widgets/task_list_page.dart';
-import 'package:workrec/workrec/task/task_provider.dart';
-import 'package:workrec/workrec/task/firestore_repo.dart';
+import 'package:workrec/domain/task_recorder/task_provider.dart';
+import 'package:workrec/domain/task_recorder/firestore_repo.dart';
 
 typedef _SignOutFunc = Future<void> Function();
 

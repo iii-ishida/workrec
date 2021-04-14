@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/workrec/task/task_repo.dart';
+import 'package:workrec/domain/task_recorder/task_repo.dart';
 
 import 'models/task.dart';
 
