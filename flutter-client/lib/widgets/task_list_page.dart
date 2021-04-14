@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/models/task.dart';
 
 typedef _StartFunc = Future<void> Function(Task);
@@ -66,18 +67,24 @@ class _TaskListRow extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _icon(color: model.stateColor),
-            const SizedBox(width: 16),
-            Text(model.title),
-            const Spacer(),
-            Text(model.workingTime),
-            const SizedBox(width: 32),
-            ElevatedButton(
-              onPressed: () => model.handleToggle(),
-              child: Text(model.actionName),
+            Row(
+              children: [
+                _icon(color: model.stateColor),
+                const SizedBox(width: 16),
+                Text(model.title),
+                const Spacer(),
+                Text(model.workingTime),
+                const SizedBox(width: 32),
+                ElevatedButton(
+                  onPressed: () => model.handleToggle(),
+                  child: Text(model.actionName),
+                ),
+              ],
             ),
+            Text(model.startedAt),
           ],
         ),
       ),
@@ -99,7 +106,11 @@ class ViewModel {
   final _PauseFunc pause;
   final _ResumeFunc resume;
 
+  final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
+
   String get title => task.title;
+  String get startedAt =>
+      task.isStarted ? _dateFormat.format(task.startedAt) : '';
 
   String get workingTime {
     final workingMinutes = task.workingTime.inMinutes;

@@ -88,5 +88,37 @@ void main() {
         expect(actual.workTimeList.last.start, time);
       });
     });
+
+    group('.startedAt', () {
+      test('開始済みの場合は開始時間を返すこと', () {
+        final time = DateTime.now();
+        final task = Task.create(title: 'some task').started(time);
+
+        final actual = task.startedAt;
+        expect(actual, time);
+      });
+
+      test('開始していない場合はゼロ値を返すこと', () {
+        final task = Task.create(title: 'some task');
+
+        expect(task.startedAt, DateTime.fromMillisecondsSinceEpoch(0));
+      });
+    });
+
+    group('.isStarted', () {
+      test('開始済みの場合は true 返すこと', () {
+        final task = Task.create(title: 'some task').started(DateTime.now());
+
+        final actual = task.isStarted;
+        expect(actual, true);
+      });
+
+      test('開始していない場合は false を返すこと', () {
+        final task = Task.create(title: 'some task');
+
+        final actual = task.isStarted;
+        expect(actual, false);
+      });
+    });
   });
 }
