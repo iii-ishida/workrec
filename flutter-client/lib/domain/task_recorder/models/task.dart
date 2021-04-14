@@ -125,7 +125,12 @@ class Task extends Equatable {
   }
 
   /// Task を開始して返します
+  /// 既に開始している場合は [StateError] を throw します
   Task started(DateTime startedAt) {
+    if (state != TaskState.unstarted) {
+      throw StateError('already started');
+    }
+
     return _copyWith(
       state: TaskState.started,
       workTimeList: workTimeList.started(startedAt),
@@ -133,7 +138,12 @@ class Task extends Equatable {
   }
 
   /// Task を停止して返します
+  /// 既に停止している場合は [StateError] を throw します
   Task paused(DateTime pausedAt) {
+    if (state != TaskState.started && state != TaskState.resumed) {
+      throw StateError('already paused');
+    }
+
     return _copyWith(
       state: TaskState.paused,
       workTimeList: workTimeList.paused(pausedAt),
@@ -141,7 +151,12 @@ class Task extends Equatable {
   }
 
   /// Task を再開して返します
+  /// 既に作業中の場合は [StateError] を throw します
   Task resumed(DateTime resumedAt) {
+    if (state != TaskState.paused) {
+      throw StateError('already working');
+    }
+
     return _copyWith(
       state: TaskState.resumed,
       workTimeList: workTimeList.resumed(resumedAt),

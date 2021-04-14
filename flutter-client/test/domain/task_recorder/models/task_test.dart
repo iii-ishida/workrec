@@ -39,6 +39,11 @@ void main() {
       test('追加された WorkTime の start が引数の [time] であること', () {
         expect(actual.workTimeList.last.start, time);
       });
+
+      test('state が unstarted でない場合は StateError を throw すること', () {
+        final started = source.started(time);
+        expect(() => started.started(DateTime.now()), throwsA(isStateError));
+      });
     });
 
     group('.paused', () {
@@ -61,6 +66,11 @@ void main() {
       });
       test('workTimeList の最後の要素の end が引数の [time] であること', () {
         expect(actual.workTimeList.last.end, time);
+      });
+
+      test('state が started または resumed でない場合は StateError を throw すること', () {
+        final paused = source.paused(time);
+        expect(() => paused.paused(DateTime.now()), throwsA(isStateError));
       });
     });
 
@@ -86,6 +96,10 @@ void main() {
       });
       test('追加された WorkTime の start が引数の [time] であること', () {
         expect(actual.workTimeList.last.start, time);
+      });
+      test('state が paused でない場合は StateError を throw すること', () {
+        final resumed = source.resumed(time);
+        expect(() => resumed.resumed(DateTime.now()), throwsA(isStateError));
       });
     });
 
