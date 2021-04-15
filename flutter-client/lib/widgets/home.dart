@@ -20,7 +20,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return TaskListProvider(
       repo: FirestoreTaskRepo(userId: userId),
-      builder: (context, repo, taskList) {
+      builder: (context, command, taskList) {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Workrec'),
@@ -28,16 +28,16 @@ class Home extends StatelessWidget {
           drawer: _Drawer(signOut: signOut),
           body: TaskListPage(
             taskList: taskList,
-            start: repo.start,
-            pause: repo.pause,
-            resume: repo.resume,
+            start: command.startTask,
+            pause: command.pauseTask,
+            resume: command.resumeTask,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute<AddTaskPage>(
-                    builder: (_) => AddTaskPage(addTask: repo.addTask)),
+                    builder: (_) => AddTaskPage(addTask: command.addTask)),
               );
             },
             child: const Icon(Icons.add),

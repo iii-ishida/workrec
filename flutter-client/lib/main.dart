@@ -23,11 +23,11 @@ class MyApp extends StatelessWidget {
       ),
       home: AuthProvider(
         auth: Auth(),
-        builder: (_, auth, userId) => userId == ''
-            ? AuthPage(signIn: auth.signInWithEmailAndPassword)
+        builder: (_, command, userId) => userId == ''
+            ? AuthPage(signIn: command.signInWithEmailAndPassword)
             : Home(
                 userId: userId,
-                signOut: auth.signOut,
+                signOut: command.signOut,
               ),
       ),
     );
