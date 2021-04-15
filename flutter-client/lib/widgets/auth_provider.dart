@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 
 import 'package:workrec/domain/auth/auth.dart';
 
+typedef SignInFunc = Future<void> Function({
+  required String email,
+  required String password,
+});
+typedef SignOutFunc = Future<void> Function();
+
 class AuthCommand {
-  final Future<void> Function({
-    required String email,
-    required String password,
-  }) signInWithEmailAndPassword;
-  final Future<void> Function() signOut;
+  final SignInFunc signInWithEmailAndPassword;
+  final SignOutFunc signOut;
 
   AuthCommand({
     required this.signInWithEmailAndPassword,

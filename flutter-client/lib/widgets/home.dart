@@ -27,18 +27,14 @@ class Home extends StatelessWidget {
             title: const Text('Workrec'),
           ),
           drawer: _Drawer(signOut: signOut),
-          body: TaskListPage(
-            taskList: taskList,
-            start: command.startTask,
-            pause: command.pauseTask,
-            resume: command.resumeTask,
-          ),
+          body: TaskListPage(taskList: taskList, command: command),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute<AddTaskPage>(
-                    builder: (_) => AddTaskPage(addTask: command.addTask)),
+                  builder: (_) => AddTaskPage(addTask: command.addTask),
+                ),
               );
             },
             child: const Icon(Icons.add),

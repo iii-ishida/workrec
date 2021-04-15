@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
-
-typedef _StartFunc = Future<void> Function(Task);
-typedef _PauseFunc = Future<void> Function(Task);
-typedef _ResumeFunc = Future<void> Function(Task);
+import './task_provider.dart';
 
 class TaskListPage extends StatelessWidget {
+  final TaskList taskList;
+  final TaskCommand command;
+
   TaskListPage({
     Key? key,
     required this.taskList,
-    required this.start,
-    required this.pause,
-    required this.resume,
+    required this.command,
   }) : super(key: key);
-
-  final TaskList taskList;
-  final _StartFunc start;
-  final _PauseFunc pause;
-  final _ResumeFunc resume;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +19,7 @@ class TaskListPage extends StatelessWidget {
       itemCount: taskList.length,
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
-        start: start,
-        pause: pause,
-        resume: resume,
+        command: command,
       ),
     );
   }
@@ -38,14 +29,12 @@ class _TaskListRow extends StatelessWidget {
   _TaskListRow({
     Key? key,
     required Task task,
-    required _StartFunc start,
-    required _PauseFunc pause,
-    required _ResumeFunc resume,
+    required TaskCommand command,
   })   : model = ViewModel(
           task: task,
-          start: start,
-          pause: pause,
-          resume: resume,
+          start: command.startTask,
+          pause: command.pauseTask,
+          resume: command.resumeTask,
         ),
         super(key: key);
 
@@ -125,9 +114,9 @@ class ViewModel {
   });
 
   final Task task;
-  final _StartFunc start;
-  final _PauseFunc pause;
-  final _ResumeFunc resume;
+  final RecordTaskFunc start;
+  final RecordTaskFunc pause;
+  final RecordTaskFunc resume;
 
   final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 

@@ -4,11 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/domain/task_recorder/task_repo.dart';
 
+typedef AddTaskFunc = Future<void> Function(String);
+typedef RecordTaskFunc = Future<void> Function(Task);
+
 class TaskCommand {
-  final Future<void> Function(String) addTask;
-  final Future<void> Function(Task) startTask;
-  final Future<void> Function(Task) pauseTask;
-  final Future<void> Function(Task) resumeTask;
+  final AddTaskFunc addTask;
+  final RecordTaskFunc startTask;
+  final RecordTaskFunc pauseTask;
+  final RecordTaskFunc resumeTask;
 
   TaskCommand({
     required this.addTask,
