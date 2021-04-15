@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/domain/task_recorder/task_repo.dart';
 
-import 'task.dart';
+import 'package:workrec/domain/task_recorder/task.dart';
+import 'package:workrec/domain/task_recorder/task_repo.dart';
 
 class TaskCommand {
   final Future<void> Function(String) addTask;

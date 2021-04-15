@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workrec/domain/auth/auth.dart';
-import 'package:workrec/domain/auth/auth_provider.dart';
 
 import './widgets/auth_page.dart';
+import './widgets/auth_provider.dart';
 import './widgets/home.dart';
 
 Future<void> main() async {

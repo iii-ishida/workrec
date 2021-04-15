@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'auth.dart';
+import 'package:workrec/domain/auth/auth.dart';
 
 class AuthCommand {
   final Future<void> Function({
