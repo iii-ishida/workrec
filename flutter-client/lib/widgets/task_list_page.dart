@@ -53,8 +53,8 @@ class _TaskListRow extends StatelessWidget {
 
   Widget _icon({required Color color}) {
     return Container(
-      width: 16,
-      height: 16,
+      width: 10,
+      height: 10,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,
@@ -64,27 +64,50 @@ class _TaskListRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const _space = SizedBox(width: 8);
+    final _iconSpace = _icon(color: Colors.transparent);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _icon(color: model.stateColor),
-                const SizedBox(width: 16),
-                Text(model.title),
-                const Spacer(),
-                Text(model.workingTime),
-                const SizedBox(width: 32),
-                ElevatedButton(
-                  onPressed: () => model.handleToggle(),
-                  child: Text(model.actionName),
-                ),
+                Row(children: [
+                  _icon(color: model.stateColor),
+                  _space,
+                  Text(
+                    model.title,
+                    style: Theme.of(context).textTheme.subtitle1,
+                  ),
+                ]),
+                _space,
+                Row(children: [
+                  _iconSpace,
+                  _space,
+                  Text(
+                    model.startedAt,
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                ]),
+                Row(children: [
+                  _iconSpace,
+                  _space,
+                  Text(
+                    '作業時間: ${model.workingTime}',
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                ]),
               ],
             ),
-            Text(model.startedAt),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () => model.handleToggle(),
+              child: Text(model.actionName),
+            ),
           ],
         ),
       ),
