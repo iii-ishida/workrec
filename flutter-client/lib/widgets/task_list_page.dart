@@ -53,14 +53,13 @@ class _TaskListRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const _space = SizedBox(width: 8);
+    const _space = SizedBox(height: 8, width: 8);
     final _iconSpace = _icon(color: Colors.transparent);
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
