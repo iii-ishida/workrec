@@ -11,9 +11,6 @@ on:
     - 'firebase/**'
   workflow_dispatch:
 
-env:
-  GOOGLE_SERVICE_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICE_JSON }}
-
 jobs:
   deploy:
     name: Deploy
@@ -34,6 +31,4 @@ jobs:
     - name: Install firebase cli
       run: npm install -g firebase-tools
     - name: Build and Deploy
-      run: |-
-        cd firebase
-        firebase deploy ./ --project ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
+      run: firebase deploy -c ./firebase/firebase.json --project ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
