@@ -1,0 +1,34 @@
+name: firebase CI
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - 'firebase/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'firebase/**'
+  workflow_dispatch:
+
+env:
+  GOOGLE_SERVICE_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICE_JSON }}
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-firebase-cli
+        restore-keys: |
+          ${{ runner.os }}-node-firebase-cli
+    - name: Install firebase cli
+      run: npm install -g firebase-tools
+    - name: Build and Deploy
+      run: |-
+        cd firebase
+        firebase deploy ./ --project ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
