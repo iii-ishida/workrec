@@ -35,7 +35,7 @@ class TaskListProvider extends StatelessWidget {
     Key? key,
     required this.repo,
     required this.builder,
-  })   : _command = TaskCommand(
+  })  : _command = TaskCommand(
           addTask: repo.addTask,
           startTask: repo.start,
           pauseTask: repo.pause,

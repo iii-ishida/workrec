@@ -34,7 +34,7 @@ class AuthProvider extends StatelessWidget {
     Key? key,
     required this.auth,
     required this.builder,
-  })   : _command = AuthCommand(
+  })  : _command = AuthCommand(
           signInWithEmailAndPassword: auth.signInWithEmailAndPassword,
           signOut: auth.signOut,
         ),

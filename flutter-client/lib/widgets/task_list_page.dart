@@ -30,7 +30,7 @@ class _TaskListRow extends StatelessWidget {
     Key? key,
     required Task task,
     required TaskCommand command,
-  })   : model = ViewModel(
+  })  : model = ViewModel(
           task: task,
           start: command.startTask,
           pause: command.pauseTask,
