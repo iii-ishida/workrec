@@ -40,7 +40,7 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   @override
   Future<void> start(Task task) async {
-    final started = task.started(DateTime.now());
+    final started = task.start(DateTime.now());
     final data = <String, dynamic>{
       ...started.toFirestoreData(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -58,7 +58,7 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   @override
   Future<void> pause(Task task) async {
-    final paused = task.paused(DateTime.now());
+    final paused = task.pause(DateTime.now());
     final data = <String, dynamic>{
       ...paused.toFirestoreData(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -76,7 +76,7 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   @override
   Future<void> resume(Task task) async {
-    final resumed = task.resumed(DateTime.now());
+    final resumed = task.resume(DateTime.now());
     final data = <String, dynamic>{
       ...resumed.toFirestoreData(),
       'updatedAt': FieldValue.serverTimestamp(),

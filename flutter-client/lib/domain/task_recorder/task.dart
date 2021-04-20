@@ -44,7 +44,11 @@ class TaskList extends DelegatingList<Task> {
   @override
   List<Task> get delegate => _tasks;
 
-  TaskList append(Task task) => TaskList([..._tasks, task]);
+  /// TaskList に新しい [Task] を追加します
+  TaskList addNew({required String title}) => TaskList([
+        ..._tasks,
+        Task.create(title: title),
+      ]);
 }
 
 class Task extends Equatable {
@@ -57,7 +61,7 @@ class Task extends Equatable {
   Duration get workingTime => workTimeList.workingTime;
   bool get isStarted =>
       state != TaskState.unknown && state != TaskState.unstarted;
-  DateTime get startedAt => isStarted ? workTimeList.first.start : _timeZero;
+  DateTime get startTime => isStarted ? workTimeList.first.start : _timeZero;
 
   const Task({
     required this.id,
@@ -126,20 +130,20 @@ class Task extends Equatable {
 
   /// Task を開始して返します
   /// 既に開始している場合は [StateError] を throw します
-  Task started(DateTime startedAt) {
+  Task start(DateTime startTime) {
     if (state != TaskState.unstarted) {
       throw StateError('already started');
     }
 
     return _copyWith(
       state: TaskState.started,
-      workTimeList: workTimeList.started(startedAt),
+      workTimeList: workTimeList.started(startTime),
     );
   }
 
   /// Task を停止して返します
   /// 既に停止している場合は [StateError] を throw します
-  Task paused(DateTime pausedAt) {
+  Task pause(DateTime pausedAt) {
     if (state != TaskState.started && state != TaskState.resumed) {
       throw StateError('already paused');
     }
@@ -152,7 +156,7 @@ class Task extends Equatable {
 
   /// Task を再開して返します
   /// 既に作業中の場合は [StateError] を throw します
-  Task resumed(DateTime resumedAt) {
+  Task resume(DateTime resumedAt) {
     if (state != TaskState.paused) {
       throw StateError('already working');
     }

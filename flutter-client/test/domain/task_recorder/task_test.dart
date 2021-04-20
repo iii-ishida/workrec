@@ -18,11 +18,11 @@ void main() {
       });
     });
 
-    group('.started', () {
+    group('.start', () {
       final source = Task.create(title: 'some task');
 
       final time = DateTime.now();
-      final actual = source.started(time);
+      final actual = source.start(time);
 
       test('id が変更されないこと', () {
         expect(actual.id, source.id);
@@ -41,16 +41,16 @@ void main() {
       });
 
       test('state が unstarted でない場合は StateError を throw すること', () {
-        final started = source.started(time);
-        expect(() => started.started(DateTime.now()), throwsA(isStateError));
+        final started = source.start(time);
+        expect(() => started.start(DateTime.now()), throwsA(isStateError));
       });
     });
 
-    group('.paused', () {
-      final source = Task.create(title: 'some task').started(DateTime.now());
+    group('.pause', () {
+      final source = Task.create(title: 'some task').start(DateTime.now());
 
       final time = DateTime.now();
-      final actual = source.paused(time);
+      final actual = source.pause(time);
 
       test('id が変更されないこと', () {
         expect(actual.id, source.id);
@@ -69,18 +69,18 @@ void main() {
       });
 
       test('state が started または resumed でない場合は StateError を throw すること', () {
-        final paused = source.paused(time);
-        expect(() => paused.paused(DateTime.now()), throwsA(isStateError));
+        final paused = source.pause(time);
+        expect(() => paused.pause(DateTime.now()), throwsA(isStateError));
       });
     });
 
-    group('.resumed', () {
+    group('.resume', () {
       final source = Task.create(title: 'some task')
-          .started(DateTime.now())
-          .paused(DateTime.now());
+          .start(DateTime.now())
+          .pause(DateTime.now());
 
       final time = DateTime.now();
-      final actual = source.resumed(time);
+      final actual = source.resume(time);
 
       test('id が変更されないこと', () {
         expect(actual.id, source.id);
@@ -98,30 +98,30 @@ void main() {
         expect(actual.workTimeList.last.start, time);
       });
       test('state が paused でない場合は StateError を throw すること', () {
-        final resumed = source.resumed(time);
-        expect(() => resumed.resumed(DateTime.now()), throwsA(isStateError));
+        final resumed = source.resume(time);
+        expect(() => resumed.resume(DateTime.now()), throwsA(isStateError));
       });
     });
 
-    group('.startedAt', () {
+    group('.startTime', () {
       test('開始済みの場合は開始時間を返すこと', () {
         final time = DateTime.now();
-        final task = Task.create(title: 'some task').started(time);
+        final task = Task.create(title: 'some task').start(time);
 
-        final actual = task.startedAt;
+        final actual = task.startTime;
         expect(actual, time);
       });
 
       test('開始していない場合はゼロ値を返すこと', () {
         final task = Task.create(title: 'some task');
 
-        expect(task.startedAt, DateTime.fromMillisecondsSinceEpoch(0));
+        expect(task.startTime, DateTime.fromMillisecondsSinceEpoch(0));
       });
     });
 
     group('.isStarted', () {
       test('開始済みの場合は true 返すこと', () {
-        final task = Task.create(title: 'some task').started(DateTime.now());
+        final task = Task.create(title: 'some task').start(DateTime.now());
 
         final actual = task.isStarted;
         expect(actual, true);

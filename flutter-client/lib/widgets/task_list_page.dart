@@ -77,7 +77,7 @@ class _TaskListRow extends StatelessWidget {
                   _iconSpace,
                   _space,
                   Text(
-                    model.startedAt,
+                    model.startTime,
                     style: Theme.of(context).textTheme.caption,
                   ),
                 ]),
@@ -120,8 +120,8 @@ class ViewModel {
   final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
   String get title => task.title;
-  String get startedAt =>
-      task.isStarted ? _dateFormat.format(task.startedAt) : '';
+  String get startTime =>
+      task.isStarted ? _dateFormat.format(task.startTime) : '';
 
   String get workingTime {
     final workingMinutes = task.workingTime.inMinutes;

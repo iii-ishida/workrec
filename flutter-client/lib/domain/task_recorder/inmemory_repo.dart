@@ -21,7 +21,7 @@ class InmemoryTaskRepo {
   }
 
   Future<void> addTask(String title) async {
-    _taskList = _taskList.append(Task.create(title: title));
+    _taskList = _taskList.addNew(title: title);
     _controller.add(_taskList);
   }
 }
