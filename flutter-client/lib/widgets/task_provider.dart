@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:workrec/domain/task_recorder/task.dart';
-import 'package:workrec/domain/task_recorder/task_repo.dart';
+import 'package:workrec/repositories/task_repo.dart';
 
 typedef AddTaskFunc = Future<void> Function(String);
 typedef RecordTaskFunc = Future<void> Function(Task);

@@ -1,4 +1,4 @@
-import 'task.dart';
+import 'package:workrec/domain/task_recorder/task.dart';
 
 abstract class TaskListRepo {
   final String userId;
