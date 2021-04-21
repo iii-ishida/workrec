@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
+import 'package:provider/provider.dart';
+import 'package:workrec/app/app.dart';
 import './task_provider.dart';
 
 class TaskListPage extends StatelessWidget {
-  final TaskList taskList;
-  final RecordTaskFunc startTask;
-  final RecordTaskFunc pauseTask;
-  final RecordTaskFunc resumeTask;
+  final App app;
 
-  TaskListPage({
-    Key? key,
-    required this.taskList,
-    required this.startTask,
-    required this.pauseTask,
-    required this.resumeTask,
-  }) : super(key: key);
+  TaskListPage({Key? key, required this.app}): super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final taskList = context.watch<TaskList>();
+
     return ListView.builder(
       itemCount: taskList.length,
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
-        startTask: startTask,
-        pauseTask: pauseTask,
-        resumeTask: resumeTask,
+        startTask: app.startTask,
+        pauseTask: app.pauseTask,
+        resumeTask: app.resumeTask,
       ),
     );
   }

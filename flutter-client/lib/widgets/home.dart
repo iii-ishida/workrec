@@ -24,18 +24,12 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return TaskListProvider(
       app: app,
-      builder: (context, taskList) {
-        return Scaffold(
+      child: Scaffold(
           appBar: AppBar(
             title: const Text('Workrec'),
           ),
           drawer: _Drawer(signOut: signOut),
-          body: TaskListPage(
-            taskList: taskList,
-            startTask: app.startTask,
-            pauseTask: app.pauseTask,
-            resumeTask: app.resumeTask,
-          ),
+          body: TaskListPage(app: app),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.push(
@@ -47,8 +41,7 @@ class Home extends StatelessWidget {
             },
             child: const Icon(Icons.add),
           ),
-        );
-      },
+        ),
     );
   }
 }
