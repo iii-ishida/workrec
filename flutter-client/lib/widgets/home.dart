@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workrec/app/app.dart';
 import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/repositories/firestore_repo.dart';
@@ -12,28 +13,35 @@ class Home extends StatelessWidget {
     Key? key,
     required this.userId,
     required this.signOut,
-  }) : super(key: key);
+  })  : app = App(FirestoreTaskRepo(userId: userId)),
+        super(key: key);
 
   final String userId;
   final _SignOutFunc signOut;
+  final App app;
 
   @override
   Widget build(BuildContext context) {
     return TaskListProvider(
-      repo: FirestoreTaskRepo(userId: userId),
-      builder: (context, command, taskList) {
+      app: app,
+      builder: (context, taskList) {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Workrec'),
           ),
           drawer: _Drawer(signOut: signOut),
-          body: TaskListPage(taskList: taskList, command: command),
+          body: TaskListPage(
+            taskList: taskList,
+            startTask: app.startTask,
+            pauseTask: app.pauseTask,
+            resumeTask: app.resumeTask,
+          ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute<AddTaskPage>(
-                  builder: (_) => AddTaskPage(addTask: command.addTask),
+                  builder: (_) => AddTaskPage(addTask: app.addTask),
                 ),
               );
             },

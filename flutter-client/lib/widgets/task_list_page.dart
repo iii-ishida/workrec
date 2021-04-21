@@ -5,12 +5,16 @@ import './task_provider.dart';
 
 class TaskListPage extends StatelessWidget {
   final TaskList taskList;
-  final TaskCommand command;
+  final RecordTaskFunc startTask;
+  final RecordTaskFunc pauseTask;
+  final RecordTaskFunc resumeTask;
 
   TaskListPage({
     Key? key,
     required this.taskList,
-    required this.command,
+    required this.startTask,
+    required this.pauseTask,
+    required this.resumeTask,
   }) : super(key: key);
 
   @override
@@ -19,7 +23,9 @@ class TaskListPage extends StatelessWidget {
       itemCount: taskList.length,
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
-        command: command,
+        startTask: startTask,
+        pauseTask: pauseTask,
+        resumeTask: resumeTask,
       ),
     );
   }
@@ -29,12 +35,14 @@ class _TaskListRow extends StatelessWidget {
   _TaskListRow({
     Key? key,
     required Task task,
-    required TaskCommand command,
+    required RecordTaskFunc startTask,
+    required RecordTaskFunc pauseTask,
+    required RecordTaskFunc resumeTask,
   })  : model = ViewModel(
           task: task,
-          start: command.startTask,
-          pause: command.pauseTask,
-          resume: command.resumeTask,
+          start: startTask,
+          pause: pauseTask,
+          resume: resumeTask,
         ),
         super(key: key);
 
