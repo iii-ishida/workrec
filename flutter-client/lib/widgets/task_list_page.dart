@@ -8,7 +8,21 @@ import './task_provider.dart';
 class TaskListPage extends StatelessWidget {
   final App app;
 
-  TaskListPage({Key? key, required this.app}): super(key: key);
+  TaskListPage({Key? key, required this.app}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TaskListProvider(
+      app: app,
+      child: _TaskList(app: app),
+    );
+  }
+}
+
+class _TaskList extends StatelessWidget {
+  final App app;
+
+  _TaskList({Key? key, required this.app}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

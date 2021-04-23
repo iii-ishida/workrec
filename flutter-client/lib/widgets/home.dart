@@ -4,8 +4,6 @@ import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/widgets/task_list_page.dart';
 import 'package:workrec/repositories/firestore_repo.dart';
 
-import './task_provider.dart';
-
 typedef _SignOutFunc = Future<void> Function();
 
 class Home extends StatelessWidget {
@@ -22,26 +20,23 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TaskListProvider(
-      app: app,
-      child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Workrec'),
-          ),
-          drawer: _Drawer(signOut: signOut),
-          body: TaskListPage(app: app),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute<AddTaskPage>(
-                  builder: (_) => AddTaskPage(addTask: app.addTask),
-                ),
-              );
-            },
-            child: const Icon(Icons.add),
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Workrec'),
+      ),
+      drawer: _Drawer(signOut: signOut),
+      body: TaskListPage(app: app),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute<AddTaskPage>(
+              builder: (_) => AddTaskPage(addTask: app.addTask),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
