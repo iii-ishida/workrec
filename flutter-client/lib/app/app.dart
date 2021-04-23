@@ -1,16 +1,15 @@
+import 'dart:async';
 import 'package:state_notifier/state_notifier.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/repositories/task_repo.dart';
 
 class App extends StateNotifier<TaskList> {
-  App(this.repo): super(TaskList([])) {
-    watchTaskList();
-  }
+  App(this.repo): super(TaskList([]));
 
   final TaskListRepo repo;
 
-  void watchTaskList() {
-    repo.taskList().listen((taskList) => state = taskList);
+  StreamSubscription<TaskList> listenTaskList() {
+    return repo.taskList().listen((taskList) => state = taskList);
   }
 
   Future<void> addTask(String title) => repo.addTask(title);
