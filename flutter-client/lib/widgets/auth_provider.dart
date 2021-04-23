@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'package:workrec/domain/auth/auth.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
+import 'package:workrec/controllers/auth_controller.dart';
 
 typedef SignInFunc = Future<void> Function({
   required String email,
@@ -9,45 +9,40 @@ typedef SignInFunc = Future<void> Function({
 });
 typedef SignOutFunc = Future<void> Function();
 
-class AuthCommand {
-  final SignInFunc signInWithEmailAndPassword;
-  final SignOutFunc signOut;
-
-  AuthCommand({
-    required this.signInWithEmailAndPassword,
-    required this.signOut,
-  });
-}
-
-class AuthProvider extends StatelessWidget {
-  final Widget Function(
-    BuildContext context,
-    AuthCommand command,
-    String userId,
-  ) builder;
-
-  final Auth auth;
-
-  final AuthCommand _command;
+class AuthProvider extends StatefulWidget {
+  final Widget child;
+  final AuthController controller;
 
   AuthProvider({
     Key? key,
-    required this.auth,
-    required this.builder,
-  })  : _command = AuthCommand(
-          signInWithEmailAndPassword: auth.signInWithEmailAndPassword,
-          signOut: auth.signOut,
-        ),
-        super(key: key);
+    required this.controller,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  _State createState() => _State();
+}
+
+class _State extends State<AuthProvider> {
+  late final StreamSubscription<String> _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = widget.controller.listenAuth();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<String>.value(
-      initialData: '',
-      value: auth.authStateChanges,
-      child: Consumer<String>(
-        builder: (context, value, _) => builder(context, _command, value),
-      ),
+    return StateNotifierProvider<AuthController, String>.value(
+      value: widget.controller,
+      builder: (context, _) => widget.child,
     );
   }
 }
