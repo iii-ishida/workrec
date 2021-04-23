@@ -3,8 +3,8 @@ import 'package:state_notifier/state_notifier.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/repositories/task_repo.dart';
 
-class App extends StateNotifier<TaskList> {
-  App(this.repo): super(TaskList([]));
+class TaskController extends StateNotifier<TaskList> {
+  TaskController(this.repo) : super(TaskList([]));
 
   final TaskListRepo repo;
 

@@ -2,27 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/app/app.dart';
+import 'package:workrec/controllers/task_controller.dart';
 import './task_provider.dart';
 
 class TaskListPage extends StatelessWidget {
-  final App app;
+  final TaskController controller;
 
-  TaskListPage({Key? key, required this.app}) : super(key: key);
+  TaskListPage({Key? key, required this.controller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TaskListProvider(
-      app: app,
-      child: _TaskList(app: app),
+      controller: controller,
+      child: _TaskList(controller: controller),
     );
   }
 }
 
 class _TaskList extends StatelessWidget {
-  final App app;
+  final TaskController controller;
 
-  _TaskList({Key? key, required this.app}) : super(key: key);
+  _TaskList({Key? key, required this.controller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,9 @@ class _TaskList extends StatelessWidget {
       itemCount: taskList.length,
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
-        startTask: app.startTask,
-        pauseTask: app.pauseTask,
-        resumeTask: app.resumeTask,
+        startTask: controller.startTask,
+        pauseTask: controller.pauseTask,
+        resumeTask: controller.resumeTask,
       ),
     );
   }

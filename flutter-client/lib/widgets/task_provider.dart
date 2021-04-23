@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
-import 'package:workrec/app/app.dart';
+import 'package:workrec/controllers/task_controller.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 
 typedef AddTaskFunc = Future<void> Function(String);
@@ -9,11 +9,11 @@ typedef RecordTaskFunc = Future<void> Function(Task);
 
 class TaskListProvider extends StatefulWidget {
   final Widget child;
-  final App app;
+  final TaskController controller;
 
   TaskListProvider({
     Key? key,
-    required this.app,
+    required this.controller,
     required this.child,
   }) : super(key: key);
 
@@ -27,7 +27,7 @@ class _ProviderState extends State<TaskListProvider> {
   @override
   void initState() {
     super.initState();
-    _subscription = widget.app.listenTaskList();
+    _subscription = widget.controller.listenTaskList();
   }
 
   @override
@@ -38,8 +38,8 @@ class _ProviderState extends State<TaskListProvider> {
 
   @override
   Widget build(BuildContext context) {
-    return StateNotifierProvider<App, TaskList>.value(
-      value: widget.app,
+    return StateNotifierProvider<TaskController, TaskList>.value(
+      value: widget.controller,
       builder: (context, _) => widget.child,
     );
   }
