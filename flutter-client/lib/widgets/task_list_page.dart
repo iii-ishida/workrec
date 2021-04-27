@@ -2,27 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/controllers/task_controller.dart';
-import './task_provider.dart';
+import 'package:workrec/repositories/task_repo.dart';
+
+typedef _RecordTaskFunc = Future<void> Function(Task);
 
 class TaskListPage extends StatelessWidget {
-  final TaskController controller;
+  final TaskListRepo repo;
 
-  TaskListPage({Key? key, required this.controller}) : super(key: key);
+  TaskListPage({Key? key, required this.repo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TaskListProvider(
-      controller: controller,
-      child: _TaskList(controller: controller),
+    return StreamProvider(
+      create: (_) => repo.taskList(),
+      initialData: TaskList([]),
+      child: Builder(builder: (context) {
+        final taskList = context.read<TaskList>();
+        return _TaskList(
+          taskList: taskList,
+          startTask: repo.start,
+          pauseTask: repo.pause,
+          resumeTask: repo.resume,
+        );
+      }),
     );
   }
 }
 
 class _TaskList extends StatelessWidget {
-  final TaskController controller;
+  final TaskList taskList;
+  final _RecordTaskFunc startTask;
+  final _RecordTaskFunc pauseTask;
+  final _RecordTaskFunc resumeTask;
 
-  _TaskList({Key? key, required this.controller}) : super(key: key);
+  _TaskList({
+    Key? key,
+    required this.taskList,
+    required this.startTask,
+    required this.pauseTask,
+    required this.resumeTask,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +51,9 @@ class _TaskList extends StatelessWidget {
       itemCount: taskList.length,
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
-        startTask: controller.startTask,
-        pauseTask: controller.pauseTask,
-        resumeTask: controller.resumeTask,
+        startTask: startTask,
+        pauseTask: pauseTask,
+        resumeTask: resumeTask,
       ),
     );
   }
@@ -44,9 +63,9 @@ class _TaskListRow extends StatelessWidget {
   _TaskListRow({
     Key? key,
     required Task task,
-    required RecordTaskFunc startTask,
-    required RecordTaskFunc pauseTask,
-    required RecordTaskFunc resumeTask,
+    required _RecordTaskFunc startTask,
+    required _RecordTaskFunc pauseTask,
+    required _RecordTaskFunc resumeTask,
   })  : model = ViewModel(
           task: task,
           start: startTask,
@@ -130,9 +149,9 @@ class ViewModel {
   });
 
   final Task task;
-  final RecordTaskFunc start;
-  final RecordTaskFunc pause;
-  final RecordTaskFunc resume;
+  final _RecordTaskFunc start;
+  final _RecordTaskFunc pause;
+  final _RecordTaskFunc resume;
 
   final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 

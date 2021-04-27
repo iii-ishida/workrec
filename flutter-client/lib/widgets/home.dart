@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/controllers/task_controller.dart';
 import 'package:workrec/widgets/add_task_page.dart';
 import 'package:workrec/widgets/task_list_page.dart';
+import 'package:workrec/repositories/task_repo.dart';
 import 'package:workrec/repositories/firestore_repo.dart';
 
 typedef _SignOutFunc = Future<void> Function();
@@ -11,12 +11,12 @@ class Home extends StatelessWidget {
     Key? key,
     required this.userId,
     required this.signOut,
-  })  : taskController = TaskController(FirestoreTaskRepo(userId: userId)),
+  })  : taskRepo = FirestoreTaskRepo(userId: userId),
         super(key: key);
 
   final String userId;
   final _SignOutFunc signOut;
-  final TaskController taskController;
+  final TaskListRepo taskRepo;
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +25,13 @@ class Home extends StatelessWidget {
         title: const Text('Workrec'),
       ),
       drawer: _Drawer(signOut: signOut),
-      body: TaskListPage(controller: taskController),
+      body: TaskListPage(repo: taskRepo),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute<AddTaskPage>(
-              builder: (_) => AddTaskPage(addTask: taskController.addTask),
+              builder: (_) => AddTaskPage(addTask: taskRepo.addTask),
             ),
           );
         },
