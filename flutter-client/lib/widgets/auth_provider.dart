@@ -1,48 +1,26 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_state_notifier/flutter_state_notifier.dart';
-import 'package:workrec/controllers/auth_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-typedef SignInFunc = Future<void> Function({
-  required String email,
-  required String password,
-});
-typedef SignOutFunc = Future<void> Function();
-
-class AuthProvider extends StatefulWidget {
-  final Widget child;
-  final AuthController controller;
+class AuthProvider extends StatelessWidget {
+  final Widget Function(String userId) builder;
+  final FirebaseAuth auth;
 
   AuthProvider({
     Key? key,
-    required this.controller,
-    required this.child,
+    required this.auth,
+    required this.builder,
   }) : super(key: key);
 
   @override
-  _State createState() => _State();
-}
-
-class _State extends State<AuthProvider> {
-  late final StreamSubscription<String> _subscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _subscription = widget.controller.listenAuth();
-  }
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return StateNotifierProvider<AuthController, String>.value(
-      value: widget.controller,
-      builder: (context, _) => widget.child,
+    return StreamProvider<String>(
+      create: (_) => auth.authStateChanges().map((user) => user?.uid ?? ''),
+      initialData: '',
+      child: Builder(builder: (context) {
+        final userId = context.watch<String>();
+        return builder(userId);
+      }),
     );
   }
 }

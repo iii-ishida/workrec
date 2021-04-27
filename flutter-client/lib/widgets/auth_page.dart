@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
-import './auth_provider.dart';
+typedef _SignInFunc = Future<void> Function({
+  required String email,
+  required String password,
+});
 
 class AuthPage extends StatefulWidget {
   AuthPage({Key? key, required this.signIn}) : super(key: key);
 
-  final SignInFunc signIn;
+  final _SignInFunc signIn;
 
   @override
   State<AuthPage> createState() => _AuthPageState();
@@ -90,7 +93,7 @@ class ViewModel {
   @visibleForTesting
   ViewModel({required this.signIn});
 
-  final SignInFunc signIn;
+  final _SignInFunc signIn;
 
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();

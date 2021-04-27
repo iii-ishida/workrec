@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:workrec/controllers/auth_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import './widgets/auth_page.dart';
 import './widgets/auth_provider.dart';
 import './widgets/home.dart';
@@ -13,7 +12,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final AuthController authController = AuthController();
+  final auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +22,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: AuthProvider(
-        controller: authController,
-        child: Builder(builder: (context) {
-          final userId = context.watch<String>();
-          return userId.isEmpty
-              ? AuthPage(signIn: authController.signInWithEmailAndPassword)
-              : Home(
-                  userId: userId,
-                  signOut: authController.signOut,
-                );
-        }),
+        auth: auth,
+        builder: ((userId) => userId.isEmpty
+            ? AuthPage(signIn: auth.signInWithEmailAndPassword)
+            : Home(userId: userId, signOut: auth.signOut)),
       ),
     );
   }
