@@ -30,7 +30,7 @@ Task taskFromFirestoreDoc(
   List<QueryDocumentSnapshot> workTimeDocs,
 ) {
   final data = doc.data();
-  if (data == null || doc.metadata.hasPendingWrites) {
+  if (data == null) {
     return Task.empty;
   }
 
@@ -54,7 +54,7 @@ WorkTimeList _workTimeListFromFirestoreDocs(List<QueryDocumentSnapshot> docs) {
 
 WorkTime _workTimeFromFirestoreDoc(QueryDocumentSnapshot doc) {
   final data = doc.data();
-  if (data == null || doc.metadata.hasPendingWrites) {
+  if (data == null) {
     return WorkTime.empty;
   }
 
