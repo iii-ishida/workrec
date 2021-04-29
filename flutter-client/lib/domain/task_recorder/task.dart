@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:quiver/collection.dart';
 import './work_time.dart';
-
-final _timeZero = DateTime.fromMillisecondsSinceEpoch(0);
 
 enum TaskState {
   unstarted,
@@ -15,10 +12,13 @@ enum TaskState {
 }
 
 extension Strings on TaskState {
+  /// [String] に変換して返します
   String toShortString() => toString().split('.').last;
 }
 
-TaskState _stateFromShortString(String from) {
+/// [from] を [TaskState] に変換して返します
+/// [from] が不正な値の場合は [ArgumentError] を throw します
+TaskState taskStateFromShortString(String from) {
   switch (from) {
     case 'unstarted':
       return TaskState.unstarted;
@@ -30,8 +30,10 @@ TaskState _stateFromShortString(String from) {
       return TaskState.resumed;
     case 'completed':
       return TaskState.completed;
-    default:
+    case 'unknown':
       return TaskState.unknown;
+    default:
+      throw ArgumentError.value(from);
   }
 }
 
@@ -52,6 +54,8 @@ class TaskList extends DelegatingList<Task> {
 }
 
 class Task extends Equatable {
+  static final _dateTimeZero = DateTime.fromMillisecondsSinceEpoch(0);
+
   final String id;
   final String title;
   final TaskState state;
@@ -61,7 +65,8 @@ class Task extends Equatable {
   Duration get workingTime => workTimeList.workingTime;
   bool get isStarted =>
       state != TaskState.unknown && state != TaskState.unstarted;
-  DateTime get startTime => isStarted ? workTimeList.first.start : _timeZero;
+  DateTime get startTime =>
+      isStarted ? workTimeList.first.start : _dateTimeZero;
 
   const Task({
     required this.id,
@@ -72,7 +77,7 @@ class Task extends Equatable {
     required this.updatedAt,
   });
 
-  /// 初期状態の Task を返します
+  /// 初期状態の [Task] を返します
   factory Task.create({required String title}) {
     final now = DateTime.now();
 
@@ -86,32 +91,16 @@ class Task extends Equatable {
     );
   }
 
-  static final _emptyTask = Task(
+  static final empty = Task(
     id: '',
     title: '',
     state: TaskState.unknown,
     workTimeList: WorkTimeList.empty,
-    createdAt: _timeZero,
-    updatedAt: _timeZero,
+    createdAt: _dateTimeZero,
+    updatedAt: _dateTimeZero,
   );
+
   bool get _isNotEmpty => id != '';
-
-  factory Task.fromFirestoreDoc(
-      QueryDocumentSnapshot doc, List<QueryDocumentSnapshot> workTimeDocs) {
-    final data = doc.data();
-    if (data == null || doc.metadata.hasPendingWrites) {
-      return _emptyTask;
-    }
-
-    return Task(
-      id: doc.id,
-      title: data['title'] as String,
-      state: _stateFromShortString(data['state'] as String),
-      workTimeList: WorkTimeList.fromFirestoreDocs(workTimeDocs),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-    );
-  }
 
   TaskState get nextState {
     switch (state) {
@@ -180,14 +169,6 @@ class Task extends Equatable {
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
-  }
-
-  /// Firestore 向けの Map を返します
-  Map<String, dynamic> toFirestoreData() {
-    return <String, dynamic>{
-      'title': title,
-      'state': state.toShortString(),
-    };
   }
 
   @override

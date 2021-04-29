@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:quiver/collection.dart';
 
-final _timeZero = DateTime.fromMillisecondsSinceEpoch(0);
+final _dateTimeZero = DateTime.fromMillisecondsSinceEpoch(0);
 
 class WorkTimeList extends DelegatingList<WorkTime> {
   final List<WorkTime> _workTimes;
@@ -10,21 +9,13 @@ class WorkTimeList extends DelegatingList<WorkTime> {
   WorkTimeList(List<WorkTime> workTimes)
       : _workTimes = List.unmodifiable(workTimes);
 
-  factory WorkTimeList.fromFirestoreDocs(List<QueryDocumentSnapshot> docs) {
-    return WorkTimeList(docs
-        .map(
-          (doc) => WorkTime.fromFirestoreDoc(doc),
-        )
-        .toList());
-  }
-
   Duration get workingTime => _workTimes.fold(
         Duration.zero,
         (acc, time) => acc + (time._endOrNow.difference(time.start)),
       );
 
   WorkTimeList started(DateTime time) {
-    return WorkTimeList([WorkTime(id: '', start: time, end: _timeZero)]);
+    return WorkTimeList([WorkTime(id: '', start: time, end: _dateTimeZero)]);
   }
 
   WorkTimeList paused(DateTime time) {
@@ -39,7 +30,7 @@ class WorkTimeList extends DelegatingList<WorkTime> {
   WorkTimeList resumed(DateTime time) {
     return WorkTimeList([
       ..._workTimes,
-      WorkTime(id: '', start: time, end: _timeZero),
+      WorkTime(id: '', start: time, end: _dateTimeZero),
     ]);
   }
 
@@ -53,29 +44,11 @@ class WorkTime extends Equatable {
   final String id;
   final DateTime start;
   final DateTime end;
-  DateTime get _endOrNow => end == _timeZero ? DateTime.now() : end;
+  DateTime get _endOrNow => end == _dateTimeZero ? DateTime.now() : end;
 
   const WorkTime({required this.id, required this.start, required this.end});
 
-  factory WorkTime.fromFirestoreDoc(QueryDocumentSnapshot doc) {
-    final data = doc.data();
-    if (data == null || doc.metadata.hasPendingWrites) {
-      return WorkTime(id: '', start: _timeZero, end: _timeZero);
-    }
-
-    return WorkTime(
-      id: doc.id,
-      start: (data['start'] as Timestamp).toDate(),
-      end: (data['end'] as Timestamp).toDate(),
-    );
-  }
-
-  Map<String, dynamic> toFirestoreData() {
-    return <String, dynamic>{
-      'start': start,
-      'end': end,
-    };
-  }
+  static final empty = WorkTime(id: '', start: _dateTimeZero, end: DateTime(0));
 
   WorkTime _copyWith({
     DateTime? start,

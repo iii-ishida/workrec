@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
+import 'firestore_converter.dart';
 import 'task_repo.dart';
 
 final _store = FirebaseFirestore.instance;
@@ -20,19 +21,22 @@ class FirestoreTaskRepo implements TaskListRepo {
   }
 
   Future<Task> _taskFromDoc(QueryDocumentSnapshot doc) async {
-    final workTimeSnapshot =
-        await _workTimeCollection(userId, doc.id).orderBy('start').get();
+    final workTimeSnapshot = await _workTimeCollection(
+      userId,
+      doc.id,
+    ).orderBy('start').get();
+
     final workTimeDocs = workTimeSnapshot.docs;
-    return Task.fromFirestoreDoc(doc, workTimeDocs);
+    return taskFromFirestoreDoc(doc, workTimeDocs);
   }
 
   @override
   Future<void> addTask(String title) {
-    final data = <String, dynamic>{
-      ...Task.create(title: title).toFirestoreData(),
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
+    final data = taskToFirestoreData(
+      Task.create(title: title),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    );
 
     return _taskCollection(userId).add(data);
   }
@@ -40,15 +44,15 @@ class FirestoreTaskRepo implements TaskListRepo {
   @override
   Future<void> start(Task task) async {
     final started = task.start(DateTime.now());
-    final data = <String, dynamic>{
-      ...started.toFirestoreData(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
+    final data = taskToFirestoreData(
+      started,
+      updatedAt: FieldValue.serverTimestamp(),
+    );
 
     final batch = _store.batch();
     batch.update(_taskCollection(userId).doc(started.id), data);
 
-    final workTimeData = started.workTimeList.last.toFirestoreData();
+    final workTimeData = workTimeToFirestoreData(started.workTimeList.last);
     final workTimeDoc = _workTimeCollection(userId, started.id).doc();
     batch.set(workTimeDoc, workTimeData);
 
@@ -58,17 +62,17 @@ class FirestoreTaskRepo implements TaskListRepo {
   @override
   Future<void> pause(Task task) async {
     final paused = task.pause(DateTime.now());
-    final data = <String, dynamic>{
-      ...paused.toFirestoreData(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
+    final data = taskToFirestoreData(
+      paused,
+      updatedAt: FieldValue.serverTimestamp(),
+    );
 
     final batch = _store.batch();
     batch.update(_taskCollection(userId).doc(paused.id), data);
 
     final workTime = paused.workTimeList.last;
     final workTimeDoc = _workTimeCollection(userId, paused.id).doc(workTime.id);
-    batch.update(workTimeDoc, workTime.toFirestoreData());
+    batch.update(workTimeDoc, workTimeToFirestoreData(workTime));
 
     await batch.commit();
   }
@@ -76,17 +80,17 @@ class FirestoreTaskRepo implements TaskListRepo {
   @override
   Future<void> resume(Task task) async {
     final resumed = task.resume(DateTime.now());
-    final data = <String, dynamic>{
-      ...resumed.toFirestoreData(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
+    final data = taskToFirestoreData(
+      resumed,
+      updatedAt: FieldValue.serverTimestamp(),
+    );
 
     final batch = _store.batch();
     batch.update(_taskCollection(userId).doc(resumed.id), data);
 
     final workTime = resumed.workTimeList.last;
     final workTimeDoc = _workTimeCollection(userId, resumed.id).doc();
-    batch.set(workTimeDoc, workTime.toFirestoreData());
+    batch.set(workTimeDoc, workTimeToFirestoreData(workTime));
 
     await batch.commit();
   }
