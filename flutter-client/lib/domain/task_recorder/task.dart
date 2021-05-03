@@ -65,8 +65,12 @@ class Task extends Equatable {
   Duration get workingTime => workTimeList.workingTime;
   bool get isStarted =>
       state != TaskState.unknown && state != TaskState.unstarted;
-  DateTime get startTime =>
-      isStarted ? workTimeList.first.start : _dateTimeZero;
+  DateTime get startTime {
+    if (!isStarted) {
+      throw StateError('unstarted');
+    }
+    return workTimeList.first.start;
+  }
 
   const Task({
     required this.id,

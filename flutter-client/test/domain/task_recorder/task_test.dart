@@ -106,10 +106,10 @@ void main() {
         expect(actual, time);
       });
 
-      test('開始していない場合はゼロ値を返すこと', () {
+      test('開始していない場合は StateError を throw すること', () {
         final task = Task.create(title: 'some task');
 
-        expect(task.startTime, DateTime.fromMillisecondsSinceEpoch(0));
+        expect(() => task.startTime, throwsA(isStateError));
       });
     });
 
