@@ -18,7 +18,7 @@ class TaskListPage extends StatelessWidget {
       initialData: TaskList([]),
       child: Builder(builder: (context) {
         final taskList = context.read<TaskList>();
-        return _TaskList(
+        return _TaskListView(
           taskList: taskList,
           startTask: repo.start,
           pauseTask: repo.pause,
@@ -29,13 +29,13 @@ class TaskListPage extends StatelessWidget {
   }
 }
 
-class _TaskList extends StatelessWidget {
+class _TaskListView extends StatelessWidget {
   final TaskList taskList;
   final _RecordTaskFunc startTask;
   final _RecordTaskFunc pauseTask;
   final _RecordTaskFunc resumeTask;
 
-  _TaskList({
+  _TaskListView({
     Key? key,
     required this.taskList,
     required this.startTask,
