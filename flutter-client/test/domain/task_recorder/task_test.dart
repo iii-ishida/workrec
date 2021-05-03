@@ -24,10 +24,8 @@ void main() {
       final time = DateTime.now();
       final actual = source.start(time);
 
-      test('id が変更されないこと', () {
+      test('id, title が変更されないこと', () {
         expect(actual.id, source.id);
-      });
-      test('title が変更されないこと', () {
         expect(actual.title, source.title);
       });
       test('status が started であること', () {
@@ -52,10 +50,8 @@ void main() {
       final time = DateTime.now();
       final actual = source.pause(time);
 
-      test('id が変更されないこと', () {
+      test('id, title が変更されないこと', () {
         expect(actual.id, source.id);
-      });
-      test('title が変更されないこと', () {
         expect(actual.title, source.title);
       });
       test('status が paused であること', () {
@@ -82,10 +78,8 @@ void main() {
       final time = DateTime.now();
       final actual = source.resume(time);
 
-      test('id が変更されないこと', () {
+      test('id, title が変更されないこと', () {
         expect(actual.id, source.id);
-      });
-      test('title が変更されないこと', () {
         expect(actual.title, source.title);
       });
       test('status が resumed であること', () {
