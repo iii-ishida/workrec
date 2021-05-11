@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
 import 'package:quiver/collection.dart';
 import './work_time.dart';
@@ -62,9 +63,12 @@ class Task extends Equatable {
   final WorkTimeList workTimeList;
   final DateTime createdAt;
   final DateTime updatedAt;
+
   Duration get workingTime => workTimeList.workingTime;
+
   bool get isStarted =>
       state != TaskState.unknown && state != TaskState.unstarted;
+
   DateTime get startTime {
     if (!isStarted) {
       throw StateError('unstarted');
@@ -83,7 +87,7 @@ class Task extends Equatable {
 
   /// 初期状態の [Task] を返します
   factory Task.create({required String title}) {
-    final now = DateTime.now();
+    final now = clock.now();
 
     return Task(
       id: '',

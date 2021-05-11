@@ -37,6 +37,8 @@ dependencies:
   state_notifier: ^0.7.0
   flutter_state_notifier: ^0.7.0
   provider: ^5.0.0
+  clock: ^1.1.0
+  fake_async: ^1.2.0
 
 dev_dependencies:
   flutter_test:
