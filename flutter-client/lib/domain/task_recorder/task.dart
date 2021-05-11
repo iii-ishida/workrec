@@ -138,6 +138,7 @@ class Task extends Equatable {
     return _copyWith(
       state: TaskState.started,
       workTimeList: workTimeList.started(startTime),
+      updatedAt: clock.now(),
     );
   }
 
@@ -151,6 +152,7 @@ class Task extends Equatable {
     return _copyWith(
       state: TaskState.paused,
       workTimeList: workTimeList.paused(pausedAt),
+      updatedAt: clock.now(),
     );
   }
 
@@ -164,6 +166,7 @@ class Task extends Equatable {
     return _copyWith(
       state: TaskState.resumed,
       workTimeList: workTimeList.resumed(resumedAt),
+      updatedAt: clock.now(),
     );
   }
 
@@ -171,6 +174,7 @@ class Task extends Equatable {
     String? title,
     TaskState? state,
     WorkTimeList? workTimeList,
+    DateTime? updatedAt,
   }) {
     return Task(
       id: id,
@@ -178,7 +182,7 @@ class Task extends Equatable {
       state: state ?? this.state,
       workTimeList: workTimeList ?? this.workTimeList,
       createdAt: createdAt,
-      updatedAt: updatedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
