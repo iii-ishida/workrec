@@ -69,6 +69,9 @@ class Task extends Equatable {
   bool get isStarted =>
       state != TaskState.unknown && state != TaskState.unstarted;
 
+  bool get isWorking =>
+      state == TaskState.started || state == TaskState.resumed;
+
   DateTime get startTime {
     if (!isStarted) {
       throw StateError('unstarted');

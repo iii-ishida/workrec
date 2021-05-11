@@ -128,5 +128,23 @@ void main() {
         expect(actual, false);
       });
     });
+
+    group('.isWorking', () {
+      test('作業中の場合は true 返すこと', () {
+        final started = Task.create(title: 'some task').start(DateTime.now());
+        final resumed = started.pause(DateTime.now()).resume(DateTime.now());
+
+        expect(started.isWorking, true);
+        expect(resumed.isWorking, true);
+      });
+
+      test('作業中でない場合は false を返すこと', () {
+        final unstarted = Task.create(title: 'some task');
+        final paused = unstarted.start(DateTime.now()).pause(DateTime.now());
+
+        expect(unstarted.isWorking, false);
+        expect(paused.isWorking, false);
+      });
+    });
   });
 }
