@@ -1,7 +1,94 @@
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
+import 'package:workrec/domain/task_recorder/work_time.dart';
 
 void main() {
+  group('TaskList', () {
+    final time = DateTime.now();
+
+    final source = TaskList([
+      Task(
+        id: 'task-01',
+        title: 'some task',
+        state: TaskState.unstarted,
+        workTimeList: WorkTimeList.empty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      Task(
+        id: 'task-02',
+        title: 'some task',
+        state: TaskState.unstarted,
+        workTimeList: WorkTimeList.empty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      Task(
+        id: 'started-task',
+        title: 'started task',
+        state: TaskState.unstarted,
+        workTimeList: WorkTimeList.empty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ).start(time),
+      Task(
+        id: 'paused-task',
+        title: 'paused task',
+        state: TaskState.unstarted,
+        workTimeList: WorkTimeList.empty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ).start(DateTime.now()).pause(DateTime.now()),
+      Task(
+        id: 'resumed-task',
+        title: 'resumed task',
+        state: TaskState.unstarted,
+        workTimeList: WorkTimeList.empty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ).start(DateTime.now()).pause(DateTime.now()).resume(time),
+    ]);
+
+    group('.startTask', () {
+      test('指定した taskId の Task を start すること', () {
+        fakeAsync((async) {
+          const taskId = 'task-02';
+          final actual = source.startTask(taskId, time);
+
+          final expected =
+              source.firstWhere((task) => task.id == taskId).start(time);
+          expect(actual.firstWhere((task) => task.id == taskId), expected);
+        });
+      });
+
+      test('state が started の Task を pause すること', () {
+        fakeAsync((async) {
+          final actual = source.startTask('task-02', time);
+
+          final expected = source
+              .firstWhere((task) => task.id == 'started-task')
+              .pause(time);
+          expect(
+              actual.firstWhere((task) => task.id == 'started-task'), expected);
+        });
+      });
+
+      test('state が resumed の Task を pause すること', () {
+        fakeAsync((async) {
+          final time = DateTime.now();
+          final actual = source.startTask('task-02', time);
+
+          final expected = source
+              .firstWhere((task) => task.id == 'resumed-task')
+              .pause(time);
+          expect(
+              actual.firstWhere((task) => task.id == 'resumed-task'), expected);
+        });
+      });
+    });
+  });
+
   group('Task', () {
     group('.create', () {
       const title = 'some task';

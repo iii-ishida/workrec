@@ -52,6 +52,18 @@ class TaskList extends DelegatingList<Task> {
         ..._tasks,
         Task.create(title: title),
       ]);
+
+  TaskList startTask(String taskId, DateTime time) {
+    final tasks = _tasks.map((task) {
+      if (task.id == taskId) {
+        return task.start(time);
+      }
+
+      return task.isWorking ? task.pause(time) : task;
+    }).toList();
+
+    return TaskList(tasks);
+  }
 }
 
 class Task extends Equatable {
