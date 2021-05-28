@@ -1,5 +1,6 @@
 import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 import 'package:quiver/collection.dart';
 import './work_time.dart';
 
@@ -39,16 +40,20 @@ TaskState taskStateFromShortString(String from) {
 }
 
 class TaskList extends DelegatingList<Task> {
+  final String _currentTaskId;
   final List<Task> _tasks;
 
-  TaskList(List<Task> tasks)
+  factory TaskList.create(List<Task> tasks) => TaskList('', tasks);
+
+  @visibleForTesting
+  TaskList(this._currentTaskId, List<Task> tasks)
       : _tasks = List.unmodifiable(tasks.where((task) => task._isNotEmpty));
 
   @override
   List<Task> get delegate => _tasks;
 
   /// TaskList に新しい [Task] を追加します
-  TaskList addNew({required String title}) => TaskList([
+  TaskList addNew({required String title}) => TaskList(_currentTaskId, [
         ..._tasks,
         Task.create(title: title),
       ]);
@@ -58,11 +63,38 @@ class TaskList extends DelegatingList<Task> {
       if (task.id == taskId) {
         return task.start(time);
       }
-
-      return task.isWorking ? task.pause(time) : task;
+      if (task.id == _currentTaskId) {
+        return task.pause(time);
+      }
+      return task;
     }).toList();
 
-    return TaskList(tasks);
+    return TaskList(taskId, tasks);
+  }
+
+  TaskList pauseTask(String taskId, DateTime time) {
+    final tasks = _tasks.map((task) {
+      if (task.id == taskId) {
+        return task.pause(time);
+      }
+      return task;
+    }).toList();
+
+    return TaskList(_currentTaskId, tasks);
+  }
+
+  TaskList resumeTask(String taskId, DateTime time) {
+    final tasks = _tasks.map((task) {
+      if (task.id == taskId) {
+        return task.resume(time);
+      }
+      if (task.id == _currentTaskId) {
+        return task.pause(time);
+      }
+      return task;
+    }).toList();
+
+    return TaskList(taskId, tasks);
   }
 }
 

@@ -7,7 +7,7 @@ void main() {
   group('TaskList', () {
     final time = DateTime.now();
 
-    final source = TaskList([
+    final source = TaskList('started-task', [
       Task(
         id: 'task-01',
         title: 'some task',
@@ -31,59 +31,35 @@ void main() {
         workTimeList: WorkTimeList.empty,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-      ).start(time),
-      Task(
-        id: 'paused-task',
-        title: 'paused task',
-        state: TaskState.unstarted,
-        workTimeList: WorkTimeList.empty,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ).start(DateTime.now()).pause(DateTime.now()),
-      Task(
-        id: 'resumed-task',
-        title: 'resumed task',
-        state: TaskState.unstarted,
-        workTimeList: WorkTimeList.empty,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ).start(DateTime.now()).pause(DateTime.now()).resume(time),
+      ).start(DateTime.now())
     ]);
 
     group('.startTask', () {
       test('指定した taskId の Task を start すること', () {
         fakeAsync((async) {
           const taskId = 'task-02';
-          final actual = source.startTask(taskId, time);
+          final actual = source
+              .startTask(taskId, time)
+              .firstWhere((task) => task.id == taskId);
 
           final expected =
               source.firstWhere((task) => task.id == taskId).start(time);
-          expect(actual.firstWhere((task) => task.id == taskId), expected);
+
+          expect(actual, expected);
         });
       });
 
-      test('state が started の Task を pause すること', () {
+      test('作業中の Task を pause すること', () {
         fakeAsync((async) {
-          final actual = source.startTask('task-02', time);
+          const taskId = 'started-task';
+          final actual = source
+              .startTask('task-02', time)
+              .firstWhere((task) => task.id == taskId);
 
-          final expected = source
-              .firstWhere((task) => task.id == 'started-task')
-              .pause(time);
-          expect(
-              actual.firstWhere((task) => task.id == 'started-task'), expected);
-        });
-      });
+          final expected =
+              source.firstWhere((task) => task.id == taskId).pause(time);
 
-      test('state が resumed の Task を pause すること', () {
-        fakeAsync((async) {
-          final time = DateTime.now();
-          final actual = source.startTask('task-02', time);
-
-          final expected = source
-              .firstWhere((task) => task.id == 'resumed-task')
-              .pause(time);
-          expect(
-              actual.firstWhere((task) => task.id == 'resumed-task'), expected);
+          expect(actual, expected);
         });
       });
     });
