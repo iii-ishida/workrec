@@ -6,7 +6,7 @@ class AuthProvider extends StatelessWidget {
   final Widget Function(String userId) builder;
   final FirebaseAuth auth;
 
-  AuthProvider({
+  const AuthProvider({
     Key? key,
     required this.auth,
     required this.builder,

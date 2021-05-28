@@ -52,7 +52,7 @@ class _Drawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          Container(
+          SizedBox(
             height: kToolbarHeight + MediaQuery.of(context).padding.top,
             child: DrawerHeader(
               decoration: BoxDecoration(

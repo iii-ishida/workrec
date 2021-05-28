@@ -9,13 +9,13 @@ typedef _RecordTaskFunc = Future<void> Function(Task);
 class TaskListPage extends StatelessWidget {
   final TaskListRepo repo;
 
-  TaskListPage({Key? key, required this.repo}) : super(key: key);
+  const TaskListPage({Key? key, required this.repo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamProvider(
       create: (_) => repo.taskList(),
-      initialData: TaskList([]),
+      initialData: TaskList.create([]),
       child: Builder(builder: (context) {
         final taskList = context.read<TaskList>();
         return _TaskListView(
@@ -35,7 +35,7 @@ class _TaskListView extends StatelessWidget {
   final _RecordTaskFunc pauseTask;
   final _RecordTaskFunc resumeTask;
 
-  _TaskListView({
+  const _TaskListView({
     Key? key,
     required this.taskList,
     required this.startTask,

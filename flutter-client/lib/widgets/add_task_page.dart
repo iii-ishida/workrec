@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 typedef _AddTaskFunc = Future<void> Function(String title);
 
 class AddTaskPage extends StatefulWidget {
-  AddTaskPage({Key? key, required this.addTask}) : super(key: key);
+  const AddTaskPage({Key? key, required this.addTask}) : super(key: key);
 
   final _AddTaskFunc addTask;
 

@@ -6,7 +6,7 @@ typedef _SignInFunc = Future<void> Function({
 });
 
 class AuthPage extends StatefulWidget {
-  AuthPage({Key? key, required this.signIn}) : super(key: key);
+  const AuthPage({Key? key, required this.signIn}) : super(key: key);
 
   final _SignInFunc signIn;
 
