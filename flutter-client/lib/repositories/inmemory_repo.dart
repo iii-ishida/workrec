@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:quiver/iterables.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 
-TaskList _taskList = TaskList(
+TaskList _taskList = TaskList.create(
   range(20).map((i) => Task.create(title: 'some task $i')).toList(),
 );
 

@@ -3,6 +3,8 @@ import 'package:workrec/domain/task_recorder/task.dart';
 import 'firestore_converter.dart';
 import 'task_repo.dart';
 
+typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>?>;
+
 final _store = FirebaseFirestore.instance;
 
 class FirestoreTaskRepo implements TaskListRepo {
@@ -16,17 +18,17 @@ class FirestoreTaskRepo implements TaskListRepo {
     return _taskCollection(userId)
         .snapshots()
         .map((snapshot) => snapshot.docs)
-        .map((docs) => docs.map((doc) => _taskFromDoc(doc)))
-        .asyncMap((tasks) async => TaskList(await Future.wait(tasks)));
+        .map((docs) => docs.map((doc) => _taskFromDoc(doc as QueryDocument)))
+        .asyncMap((tasks) async => TaskList.create(await Future.wait(tasks)));
   }
 
-  Future<Task> _taskFromDoc(QueryDocumentSnapshot doc) async {
+  Future<Task> _taskFromDoc(QueryDocument doc) async {
     final workTimeSnapshot = await _workTimeCollection(
       userId,
       doc.id,
     ).orderBy('start').get();
 
-    final workTimeDocs = workTimeSnapshot.docs;
+    final workTimeDocs = workTimeSnapshot.docs as List<QueryDocument>;
     return taskFromFirestoreDoc(doc, workTimeDocs);
   }
 
