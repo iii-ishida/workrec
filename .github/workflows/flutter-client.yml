@@ -28,9 +28,10 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: /opt/hostedtoolcache/flutter
-        key: ${{ runner.os }}-${FLUTTER_VERSION}-flutter
+        key: ${{ runner.os }}-${{ env.FLUTTER_VERSION }}-flutter
     - uses: subosito/flutter-action@v1
       with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: beta
     - name: Install dependencies
       run: cd flutter-client && flutter pub get
@@ -48,7 +49,7 @@ jobs:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: ${FLUTTER_VERSION}
+        flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: beta
     - name: Set up Node
       uses: actions/setup-node@v2
