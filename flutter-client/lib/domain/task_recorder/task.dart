@@ -4,12 +4,24 @@ import 'package:meta/meta.dart';
 import 'package:quiver/collection.dart';
 import './work_time.dart';
 
+/// [Task] の状態
 enum TaskState {
+  /// 未開始
   unstarted,
+
+  /// 開始
   started,
+
+  /// 停止
   paused,
+
+  /// 再開
   resumed,
+
+  /// 完了
   completed,
+
+  /// 不明
   unknown,
 }
 
@@ -39,6 +51,7 @@ TaskState taskStateFromShortString(String from) {
   }
 }
 
+/// タスク一覧
 class TaskList extends DelegatingList<Task> {
   final String _currentTaskId;
   final List<Task> _tasks;
@@ -49,15 +62,14 @@ class TaskList extends DelegatingList<Task> {
   TaskList(this._currentTaskId, List<Task> tasks)
       : _tasks = List.unmodifiable(tasks.where((task) => task._isNotEmpty));
 
-  @override
-  List<Task> get delegate => _tasks;
-
   /// TaskList に新しい [Task] を追加します
   TaskList addNew({required String title}) => TaskList(_currentTaskId, [
         ..._tasks,
         Task.create(title: title),
       ]);
 
+  /// [taskId] に該当する [Task] を開始します
+  /// 作業中の [Task] は停止します
   TaskList startTask(String taskId, DateTime time) {
     final tasks = _tasks.map((task) {
       if (task.id == taskId) {
@@ -72,6 +84,7 @@ class TaskList extends DelegatingList<Task> {
     return TaskList(taskId, tasks);
   }
 
+  /// [taskId] に該当する [Task] を停止します
   TaskList pauseTask(String taskId, DateTime time) {
     final tasks = _tasks.map((task) {
       if (task.id == taskId) {
@@ -83,6 +96,8 @@ class TaskList extends DelegatingList<Task> {
     return TaskList(_currentTaskId, tasks);
   }
 
+  /// [taskId] に該当する [Task] を再開します
+  /// 作業中の [Task] は停止します
   TaskList resumeTask(String taskId, DateTime time) {
     final tasks = _tasks.map((task) {
       if (task.id == taskId) {
@@ -96,32 +111,32 @@ class TaskList extends DelegatingList<Task> {
 
     return TaskList(taskId, tasks);
   }
+
+  @override
+  List<Task> get delegate => _tasks;
 }
 
+/// タスク
 class Task extends Equatable {
   static final _dateTimeZero = DateTime.fromMillisecondsSinceEpoch(0);
 
+  /// id
   final String id;
+
+  /// タイトル
   final String title;
+
+  /// タスクの状態
   final TaskState state;
+
+  /// 作業時間一覧
   final WorkTimeList workTimeList;
+
+  /// 作成日時
   final DateTime createdAt;
+
+  /// 更新日時
   final DateTime updatedAt;
-
-  Duration get workingTime => workTimeList.workingTime;
-
-  bool get isStarted =>
-      state != TaskState.unknown && state != TaskState.unstarted;
-
-  bool get isWorking =>
-      state == TaskState.started || state == TaskState.resumed;
-
-  DateTime get startTime {
-    if (!isStarted) {
-      throw StateError('unstarted');
-    }
-    return workTimeList.first.start;
-  }
 
   const Task({
     required this.id,
@@ -131,6 +146,34 @@ class Task extends Equatable {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  static final empty = Task(
+    id: '',
+    title: '',
+    state: TaskState.unknown,
+    workTimeList: WorkTimeList.empty,
+    createdAt: _dateTimeZero,
+    updatedAt: _dateTimeZero,
+  );
+
+  /// 作業時間
+  Duration get workingTime => workTimeList.workingTime;
+
+  /// 開始している場合は true を返します
+  bool get isStarted =>
+      state != TaskState.unknown && state != TaskState.unstarted;
+
+  /// 作業中の場合は true を返します
+  bool get isWorking =>
+      state == TaskState.started || state == TaskState.resumed;
+
+  /// 開始日時
+  DateTime get startTime {
+    if (!isStarted) {
+      throw StateError('unstarted');
+    }
+    return workTimeList.first.start;
+  }
 
   /// 初期状態の [Task] を返します
   factory Task.create({required String title}) {
@@ -146,17 +189,7 @@ class Task extends Equatable {
     );
   }
 
-  static final empty = Task(
-    id: '',
-    title: '',
-    state: TaskState.unknown,
-    workTimeList: WorkTimeList.empty,
-    createdAt: _dateTimeZero,
-    updatedAt: _dateTimeZero,
-  );
-
-  bool get _isNotEmpty => id != '';
-
+  /// 次の状態を返します
   TaskState get nextState {
     switch (state) {
       case TaskState.unstarted:
@@ -213,6 +246,8 @@ class Task extends Equatable {
       updatedAt: clock.now(),
     );
   }
+
+  bool get _isNotEmpty => id != '';
 
   Task _copyWith({
     String? title,
