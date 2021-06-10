@@ -86,4 +86,5 @@ List<Task> _newTasks(String currentTaskId, String unstartedTaskId) => [
 Task _newTask(String id, String title) =>
     Task(id: id, title: title, timeRecords: const []);
 
-Task _findTask(TaskRecorder recorder, String taskId) => recorder.tasks.firstWhere((task) => task.id == taskId);
+Task _findTask(TaskRecorder recorder, String taskId) =>
+    recorder.tasks.firstWhere((task) => task.id == taskId);

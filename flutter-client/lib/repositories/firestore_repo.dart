@@ -73,7 +73,8 @@ class FirestoreTaskRepo implements TaskListRepo {
     batch.update(_taskCollection(userId).doc(suspended.id), data);
 
     final workTime = suspended.timeRecords.last;
-    final workTimeDoc = _workTimeCollection(userId, suspended.id).doc(workTime.id);
+    final workTimeDoc =
+        _workTimeCollection(userId, suspended.id).doc(workTime.id);
     batch.update(workTimeDoc, workTimeToFirestoreData(workTime));
 
     await batch.commit();

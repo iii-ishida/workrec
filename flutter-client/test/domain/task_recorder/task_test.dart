@@ -128,7 +128,8 @@ void main() {
 
       test('作業中でない場合は false を返すこと', () {
         final unstarted = Task.create(title: 'some task');
-        final suspended = unstarted.start(DateTime.now()).suspend(DateTime.now());
+        final suspended =
+            unstarted.start(DateTime.now()).suspend(DateTime.now());
 
         expect(unstarted.isWorking, false);
         expect(suspended.isWorking, false);

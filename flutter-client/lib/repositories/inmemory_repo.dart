@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:quiver/iterables.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 
-List<Task> _taskList = 
-  range(20).map((i) => Task.create(title: 'some task $i')).toList();
+List<Task> _taskList =
+    range(20).map((i) => Task.create(title: 'some task $i')).toList();
 
 final StreamController<List<Task>> _controller = StreamController<List<Task>>();
 

@@ -40,9 +40,7 @@ Task taskFromFirestoreDoc(
 }
 
 List<WorkTime> _workTimeListFromFirestoreDocs(List<QueryDocument> docs) {
-  return docs
-      .map((doc) => _workTimeFromFirestoreDoc(doc))
-      .toList();
+  return docs.map((doc) => _workTimeFromFirestoreDoc(doc)).toList();
 }
 
 WorkTime _workTimeFromFirestoreDoc(QueryDocument doc) {

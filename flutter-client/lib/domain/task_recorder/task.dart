@@ -20,8 +20,9 @@ class Task extends Equatable {
   });
 
   /// 作業時間
-  Duration get workingTime =>
-      timeRecords.where((task) => task.hasEnd).fold(Duration.zero, (acc, time) => acc + time.workingTime);
+  Duration get workingTime => timeRecords
+      .where((task) => task.hasEnd)
+      .fold(Duration.zero, (acc, time) => acc + time.workingTime);
 
   /// 開始している場合は true
   bool get isStarted => timeRecords.isNotEmpty;
