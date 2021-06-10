@@ -3,7 +3,7 @@ import 'package:workrec/domain/task_recorder/task.dart';
 import 'firestore_converter.dart';
 import 'task_repo.dart';
 
-typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>?>;
+typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>>;
 
 final _store = FirebaseFirestore.instance;
 
@@ -14,12 +14,12 @@ class FirestoreTaskRepo implements TaskListRepo {
   FirestoreTaskRepo({required this.userId});
 
   @override
-  Stream<TaskList> taskList() {
+  Stream<List<Task>> taskList() {
     return _taskCollection(userId)
         .snapshots()
         .map((snapshot) => snapshot.docs)
         .map((docs) => docs.map((doc) => _taskFromDoc(doc as QueryDocument)))
-        .asyncMap((tasks) async => TaskList.create(await Future.wait(tasks)));
+        .asyncMap((tasks) async => await Future.wait(tasks));
   }
 
   Future<Task> _taskFromDoc(QueryDocument doc) async {
@@ -54,7 +54,7 @@ class FirestoreTaskRepo implements TaskListRepo {
     final batch = _store.batch();
     batch.update(_taskCollection(userId).doc(started.id), data);
 
-    final workTimeData = workTimeToFirestoreData(started.workTimeList.last);
+    final workTimeData = workTimeToFirestoreData(started.timeRecords.last);
     final workTimeDoc = _workTimeCollection(userId, started.id).doc();
     batch.set(workTimeDoc, workTimeData);
 
@@ -62,18 +62,18 @@ class FirestoreTaskRepo implements TaskListRepo {
   }
 
   @override
-  Future<void> pause(Task task) async {
-    final paused = task.pause(DateTime.now());
+  Future<void> suspend(Task task) async {
+    final suspended = task.suspend(DateTime.now());
     final data = taskToFirestoreData(
-      paused,
+      suspended,
       updatedAt: FieldValue.serverTimestamp(),
     );
 
     final batch = _store.batch();
-    batch.update(_taskCollection(userId).doc(paused.id), data);
+    batch.update(_taskCollection(userId).doc(suspended.id), data);
 
-    final workTime = paused.workTimeList.last;
-    final workTimeDoc = _workTimeCollection(userId, paused.id).doc(workTime.id);
+    final workTime = suspended.timeRecords.last;
+    final workTimeDoc = _workTimeCollection(userId, suspended.id).doc(workTime.id);
     batch.update(workTimeDoc, workTimeToFirestoreData(workTime));
 
     await batch.commit();
@@ -90,7 +90,7 @@ class FirestoreTaskRepo implements TaskListRepo {
     final batch = _store.batch();
     batch.update(_taskCollection(userId).doc(resumed.id), data);
 
-    final workTime = resumed.workTimeList.last;
+    final workTime = resumed.timeRecords.last;
     final workTimeDoc = _workTimeCollection(userId, resumed.id).doc();
     batch.set(workTimeDoc, workTimeToFirestoreData(workTime));
 

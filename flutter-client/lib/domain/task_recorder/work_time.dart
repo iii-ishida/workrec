@@ -1,59 +1,35 @@
 import 'package:equatable/equatable.dart';
-import 'package:quiver/collection.dart';
 
 final _dateTimeZero = DateTime.fromMillisecondsSinceEpoch(0);
 
-class WorkTimeList extends DelegatingList<WorkTime> {
-  final List<WorkTime> _workTimes;
-
-  WorkTimeList(List<WorkTime> workTimes)
-      : _workTimes = List.unmodifiable(workTimes);
-
-  Duration get workingTime => _workTimes.fold(
-        Duration.zero,
-        (acc, time) => acc + (time._endOrNow.difference(time.start)),
-      );
-
-  WorkTimeList started(DateTime time) {
-    return WorkTimeList([WorkTime(id: '', start: time, end: _dateTimeZero)]);
-  }
-
-  WorkTimeList paused(DateTime time) {
-    final lastWorkTime = _workTimes.last;
-
-    return WorkTimeList([
-      ..._workTimes.toList()..removeLast(),
-      lastWorkTime._copyWith(end: time)
-    ]);
-  }
-
-  WorkTimeList resumed(DateTime time) {
-    return WorkTimeList([
-      ..._workTimes,
-      WorkTime(id: '', start: time, end: _dateTimeZero),
-    ]);
-  }
-
-  static final empty = WorkTimeList([]);
-
-  @override
-  List<WorkTime> get delegate => _workTimes;
-}
-
+/// 作業時間
 class WorkTime extends Equatable {
+  /// id
   final String id;
+
+  /// 開始日時
   final DateTime start;
+
+  /// 終了日時
   final DateTime end;
-  DateTime get _endOrNow => end == _dateTimeZero ? DateTime.now() : end;
 
-  const WorkTime({required this.id, required this.start, required this.end});
+  WorkTime({required this.id, required this.start, DateTime? end})
+      : end = end ?? _dateTimeZero;
 
-  static final empty = WorkTime(id: '', start: _dateTimeZero, end: DateTime(0));
+  /// 作業した時間を返します
+  /// [end] が未設定の場合は [StateError] を throw します
+  Duration get workingTime =>
+      hasEnd ? end.difference(start) : throw StateError('no end');
 
-  WorkTime _copyWith({
-    DateTime? start,
-    DateTime? end,
-  }) {
+  /// [end] が設定されている場合は true
+  bool get hasEnd => end != _dateTimeZero;
+
+  /// [start] [end] を更新します
+  WorkTime patch({DateTime? start, DateTime? end}) {
+    return _copyWith(start: start, end: end);
+  }
+
+  WorkTime _copyWith({DateTime? start, DateTime? end}) {
     return WorkTime(
       id: id,
       start: start ?? this.start,

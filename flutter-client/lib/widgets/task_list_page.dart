@@ -13,15 +13,15 @@ class TaskListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider(
+    return StreamProvider<List<Task>>(
       create: (_) => repo.taskList(),
-      initialData: TaskList.create([]),
+      initialData: const [],
       child: Builder(builder: (context) {
-        final taskList = context.read<TaskList>();
+        final taskList = context.read<List<Task>>();
         return _TaskListView(
           taskList: taskList,
           startTask: repo.start,
-          pauseTask: repo.pause,
+          suspendTask: repo.suspend,
           resumeTask: repo.resume,
         );
       }),
@@ -30,29 +30,29 @@ class TaskListPage extends StatelessWidget {
 }
 
 class _TaskListView extends StatelessWidget {
-  final TaskList taskList;
+  final List<Task> taskList;
   final _RecordTaskFunc startTask;
-  final _RecordTaskFunc pauseTask;
+  final _RecordTaskFunc suspendTask;
   final _RecordTaskFunc resumeTask;
 
   const _TaskListView({
     Key? key,
     required this.taskList,
     required this.startTask,
-    required this.pauseTask,
+    required this.suspendTask,
     required this.resumeTask,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final taskList = context.watch<TaskList>();
+    final taskList = context.watch<List<Task>>();
 
     return ListView.builder(
       itemCount: taskList.length,
       itemBuilder: (context, index) => _TaskListRow(
         task: taskList[index],
         startTask: startTask,
-        pauseTask: pauseTask,
+        suspendTask: suspendTask,
         resumeTask: resumeTask,
       ),
     );
@@ -64,12 +64,12 @@ class _TaskListRow extends StatelessWidget {
     Key? key,
     required Task task,
     required _RecordTaskFunc startTask,
-    required _RecordTaskFunc pauseTask,
+    required _RecordTaskFunc suspendTask,
     required _RecordTaskFunc resumeTask,
   })  : model = ViewModel(
           task: task,
           start: startTask,
-          pause: pauseTask,
+          suspend: suspendTask,
           resume: resumeTask,
         ),
         super(key: key);
@@ -144,13 +144,13 @@ class ViewModel {
   ViewModel({
     required this.task,
     required this.start,
-    required this.pause,
+    required this.suspend,
     required this.resume,
   });
 
   final Task task;
   final _RecordTaskFunc start;
-  final _RecordTaskFunc pause;
+  final _RecordTaskFunc suspend;
   final _RecordTaskFunc resume;
 
   final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
@@ -167,41 +167,34 @@ class ViewModel {
   }
 
   Color get stateColor {
-    switch (task.state) {
-      case TaskState.started:
-      case TaskState.resumed:
-        return Colors.green;
-      case TaskState.paused:
-        return Colors.yellow;
-      case TaskState.completed:
-        return Colors.grey;
-      default:
-        return Colors.grey;
+    if (!task.isStarted) {
+      return Colors.grey;
+    }
+    if (task.isWorking) {
+      return Colors.green;
+    } else {
+      return Colors.yellow;
     }
   }
 
   String get actionName {
-    switch (task.nextState) {
-      case TaskState.started:
-        return '開始';
-      case TaskState.paused:
-        return '停止';
-      case TaskState.resumed:
-        return '再開';
-      default:
-        return '-';
+    if (!task.isStarted) {
+      return '開始';
+    } else if (task.isWorking) {
+      return '停止';
+    } else {
+      return '再開';
     }
   }
 
   Future<void> handleToggle() async {
-    switch (task.nextState) {
-      case TaskState.started:
-        return await _handleStart();
-      case TaskState.paused:
-        return await _handlePause();
-      case TaskState.resumed:
-        return await _handleResume();
-      default:
+    if (!task.isStarted) {
+      return await _handleStart();
+    }
+    if (task.isWorking) {
+      return await _handleSuspend();
+    } else {
+      return await _handleResume();
     }
   }
 
@@ -209,8 +202,8 @@ class ViewModel {
     await start(task);
   }
 
-  Future<void> _handlePause() async {
-    await pause(task);
+  Future<void> _handleSuspend() async {
+    await suspend(task);
   }
 
   Future<void> _handleResume() async {
