@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'firestore_converter.dart';
@@ -5,13 +6,14 @@ import 'task_repo.dart';
 
 typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>>;
 
-final _store = FirebaseFirestore.instance;
-
 class FirestoreTaskRepo implements TaskListRepo {
   @override
   final String userId;
 
-  FirestoreTaskRepo({required this.userId});
+  final FirebaseFirestore _store;
+
+  FirestoreTaskRepo({required this.userId, FirebaseFirestore? store})
+      : _store = store ?? FirebaseFirestore.instance;
 
   @override
   Stream<List<Task>> taskList() {
@@ -45,7 +47,7 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   @override
   Future<void> start(Task task) async {
-    final started = task.start(DateTime.now());
+    final started = task.start(clock.now());
     final data = taskToFirestoreData(
       started,
       updatedAt: FieldValue.serverTimestamp(),
@@ -63,7 +65,7 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   @override
   Future<void> suspend(Task task) async {
-    final suspended = task.suspend(DateTime.now());
+    final suspended = task.suspend(clock.now());
     final data = taskToFirestoreData(
       suspended,
       updatedAt: FieldValue.serverTimestamp(),
@@ -82,7 +84,7 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   @override
   Future<void> resume(Task task) async {
-    final resumed = task.resume(DateTime.now());
+    final resumed = task.resume(clock.now());
     final data = taskToFirestoreData(
       resumed,
       updatedAt: FieldValue.serverTimestamp(),
