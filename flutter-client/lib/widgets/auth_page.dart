@@ -1,39 +1,23 @@
 import 'package:flutter/material.dart';
-
-typedef _SignInFunc = Future<void> Function({
-  required String email,
-  required String password,
-});
+import 'package:workrec/repositories/auth/auth_repo.dart';
 
 class AuthPage extends StatefulWidget {
-  const AuthPage({Key? key, required this.signIn}) : super(key: key);
+  const AuthPage({Key? key, required this.viewModel}) : super(key: key);
 
-  final _SignInFunc signIn;
+  final AuthViewModel viewModel;
 
   @override
   State<AuthPage> createState() => _AuthPageState();
 }
 
 class _AuthPageState extends State<AuthPage> {
-  late final ViewModel _model;
-
-  @override
-  void initState() {
-    super.initState();
-    _model = ViewModel(signIn: widget.signIn);
-  }
-
-  @override
-  void dispose() {
-    _model.dispose();
-    super.dispose();
-  }
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Form(
-        key: _model.formKey,
+        key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
@@ -48,27 +32,29 @@ class _AuthPageState extends State<AuthPage> {
               ),
               const SizedBox(height: 32),
               TextFormField(
-                controller: _model.emailController,
                 keyboardType: TextInputType.emailAddress,
                 textCapitalization: TextCapitalization.none,
                 decoration: const InputDecoration(labelText: 'メールアドレス'),
-                validator: (_) =>
-                    _model.validateEmail() ? null : 'メールアドレスを入力してください',
+                onChanged: widget.viewModel.onChangeEmail,
+                validator: (_) => widget.viewModel.validateEmail()
+                    ? null
+                    : 'メールアドレスを入力してください',
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _model.passwordController,
                 obscureText: true,
                 enableSuggestions: false,
                 autocorrect: false,
                 textCapitalization: TextCapitalization.none,
                 decoration: const InputDecoration(labelText: 'パスワード'),
-                validator: (_) =>
-                    _model.validatePassword() ? null : 'パスワードを入力してください',
+                onChanged: widget.viewModel.onChangePassword,
+                validator: (_) => widget.viewModel.validatePassword()
+                    ? null
+                    : 'パスワードを入力してください',
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: () => _model.handleSignIn(),
+                onPressed: () => widget.viewModel.signIn(),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   alignment: Alignment.center,
@@ -89,31 +75,32 @@ class _AuthPageState extends State<AuthPage> {
   }
 }
 
-class ViewModel {
-  @visibleForTesting
-  ViewModel({required this.signIn});
+class AuthViewModel {
+  final AuthRepo repo;
+  String _email = '';
+  String _password = '';
 
-  final _SignInFunc signIn;
+  AuthViewModel({required this.repo});
 
-  final formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  Future<void> handleSignIn() async {
-    if (!(formKey.currentState?.validate() ?? false)) {
+  Future<void> signIn() async {
+    if (!validateEmail() || !validatePassword()) {
       return;
     }
-    await signIn(
-      email: emailController.text,
-      password: passwordController.text,
+
+    await repo.signInWithEmailAndPassword(
+      email: _email,
+      password: _password,
     );
   }
 
-  bool validateEmail() => emailController.text.isNotEmpty;
-  bool validatePassword() => passwordController.text.isNotEmpty;
-
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+  void onChangeEmail(String email) {
+    _email = email;
   }
+
+  void onChangePassword(String password) {
+    _password = password;
+  }
+
+  bool validateEmail() => _email.isNotEmpty;
+  bool validatePassword() => _password.isNotEmpty;
 }

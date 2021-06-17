@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:workrec/repositories/auth/auth_repo.dart';
 
 class AuthProvider extends StatelessWidget {
   final Widget Function(String userId) builder;
-  final FirebaseAuth auth;
+  final AuthRepo repo;
 
   const AuthProvider({
     Key? key,
-    required this.auth,
+    required this.repo,
     required this.builder,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamProvider<String>(
-      create: (_) => auth.authStateChanges().map((user) => user?.uid ?? ''),
+      create: (_) => repo.userId,
       initialData: '',
       child: Builder(builder: (context) {
         final userId = context.watch<String>();

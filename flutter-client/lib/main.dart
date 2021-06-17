@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:workrec/repositories/auth/firebase_auth_repo.dart';
 import './widgets/auth_page.dart';
 import './widgets/auth_provider.dart';
 import './widgets/home.dart';
@@ -14,7 +14,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final auth = FirebaseAuth.instance;
+  final authRepo = FirebaseAuthRepo();
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +24,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: AuthProvider(
-        auth: auth,
+        repo: authRepo,
         builder: ((userId) => userId.isEmpty
-            ? AuthPage(signIn: auth.signInWithEmailAndPassword)
-            : Home(userId: userId, signOut: auth.signOut)),
+            ? AuthPage(viewModel: AuthViewModel(repo: authRepo))
+            : Home(userId: userId, signOut: authRepo.signOut)),
       ),
     );
   }
