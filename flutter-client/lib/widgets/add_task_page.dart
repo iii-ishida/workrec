@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:workrec/domain/task_recorder/task_recorder.dart';
 
-typedef _AddTaskFunc = Future<void> Function(String title);
+typedef _AddTaskFunc = Future<void> Function(TaskRecorder, String);
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({Key? key, required this.addTask}) : super(key: key);
@@ -64,7 +65,10 @@ class ViewModel {
     if (!(formKey.currentState?.validate() ?? false)) {
       return false;
     }
-    await addTask(titleController.text);
+    await addTask(
+      TaskRecorder(tasks: [], currentTaskId: ''),
+      titleController.text,
+    );
     return true;
   }
 

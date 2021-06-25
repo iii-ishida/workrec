@@ -11,7 +11,7 @@ class TaskRecorder {
   final String currentTaskId;
 
   /// 現在記録中のタスク
-  Task get currentTask => _findTask(currentTaskId);
+  Task get currentTask => findTask(currentTaskId);
 
   /// タスクを追加します
   TaskRecorder addNewTask({required String title}) {
@@ -68,6 +68,5 @@ class TaskRecorder {
     return TaskRecorder(tasks: [], currentTaskId: '');
   }
 
-  Task _findTask(String taskId) =>
-      tasks.firstWhere((task) => task.id == currentTaskId);
+  Task findTask(String taskId) => tasks.firstWhere((task) => task.id == taskId);
 }

@@ -38,6 +38,7 @@ dependencies:
   clock: ^1.1.0
   fake_async: ^1.2.0
   mockito: ^5.0.10
+  stream_transform: ^2.0.0
 
 dev_dependencies:
   flutter_test:

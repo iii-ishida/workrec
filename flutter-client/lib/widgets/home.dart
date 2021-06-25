@@ -31,7 +31,7 @@ class Home extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute<AddTaskPage>(
-              builder: (_) => AddTaskPage(addTask: taskRepo.addTask),
+              builder: (_) => AddTaskPage(addTask: taskRepo.addNewTask),
             ),
           );
         },

@@ -1,12 +1,12 @@
-import 'package:workrec/domain/task_recorder/task.dart';
+import 'package:workrec/domain/task_recorder/task_recorder.dart';
 
 abstract class TaskListRepo {
   final String userId;
 
   TaskListRepo({required this.userId});
-  Stream<List<Task>> taskList();
-  Future<void> addTask(String title);
-  Future<void> start(Task task);
-  Future<void> suspend(Task task);
-  Future<void> resume(Task task);
+  Stream<TaskRecorder> taskRecorder();
+  Future<void> addNewTask(TaskRecorder recorder, String title);
+  Future<void> recordStartTimeOfTask(TaskRecorder recorder, String taskId);
+  Future<void> recordSuspendTimeOfTask(TaskRecorder recorder, String taskId);
+  Future<void> recordResumeTimeOfTask(TaskRecorder recorder, String taskId);
 }

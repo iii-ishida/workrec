@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
+import 'package:workrec/domain/task_recorder/task_recorder.dart';
 import 'package:workrec/repositories/task_recorder/task_repo.dart';
 
-typedef _RecordTaskFunc = Future<void> Function(Task);
+typedef _RecordTaskFunc = Future<void> Function(TaskRecorder, String);
 
 class TaskListPage extends StatelessWidget {
   final TaskListRepo repo;
@@ -13,16 +14,16 @@ class TaskListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<List<Task>>(
-      create: (_) => repo.taskList(),
-      initialData: const [],
+    return StreamProvider<TaskRecorder>(
+      create: (_) => repo.taskRecorder(),
+      initialData: TaskRecorder(tasks: [], currentTaskId: ''),
       child: Builder(builder: (context) {
-        final taskList = context.read<List<Task>>();
+        final recorder = context.read<TaskRecorder>();
         return _TaskListView(
-          taskList: taskList,
-          startTask: repo.start,
-          suspendTask: repo.suspend,
-          resumeTask: repo.resume,
+          recorder: recorder,
+          startTask: repo.recordStartTimeOfTask,
+          suspendTask: repo.recordSuspendTimeOfTask,
+          resumeTask: repo.recordResumeTimeOfTask,
         );
       }),
     );
@@ -30,14 +31,14 @@ class TaskListPage extends StatelessWidget {
 }
 
 class _TaskListView extends StatelessWidget {
-  final List<Task> taskList;
+  final TaskRecorder recorder;
   final _RecordTaskFunc startTask;
   final _RecordTaskFunc suspendTask;
   final _RecordTaskFunc resumeTask;
 
   const _TaskListView({
     Key? key,
-    required this.taskList,
+    required this.recorder,
     required this.startTask,
     required this.suspendTask,
     required this.resumeTask,
@@ -45,12 +46,13 @@ class _TaskListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final taskList = context.watch<List<Task>>();
+    final recorder = context.watch<TaskRecorder>();
 
     return ListView.builder(
-      itemCount: taskList.length,
+      itemCount: recorder.tasks.length,
       itemBuilder: (context, index) => _TaskListRow(
-        task: taskList[index],
+        recorder: recorder,
+        task: recorder.tasks[index],
         startTask: startTask,
         suspendTask: suspendTask,
         resumeTask: resumeTask,
@@ -62,11 +64,13 @@ class _TaskListView extends StatelessWidget {
 class _TaskListRow extends StatelessWidget {
   _TaskListRow({
     Key? key,
+    required TaskRecorder recorder,
     required Task task,
     required _RecordTaskFunc startTask,
     required _RecordTaskFunc suspendTask,
     required _RecordTaskFunc resumeTask,
   })  : model = ViewModel(
+          recorder: recorder,
           task: task,
           start: startTask,
           suspend: suspendTask,
@@ -142,12 +146,14 @@ class _TaskListRow extends StatelessWidget {
 class ViewModel {
   @visibleForTesting
   ViewModel({
+    required this.recorder,
     required this.task,
     required this.start,
     required this.suspend,
     required this.resume,
   });
 
+  final TaskRecorder recorder;
   final Task task;
   final _RecordTaskFunc start;
   final _RecordTaskFunc suspend;
@@ -199,14 +205,14 @@ class ViewModel {
   }
 
   Future<void> _handleStart() async {
-    await start(task);
+    await start(recorder, task.id);
   }
 
   Future<void> _handleSuspend() async {
-    await suspend(task);
+    await suspend(recorder, task.id);
   }
 
   Future<void> _handleResume() async {
-    await resume(task);
+    await resume(recorder, task.id);
   }
 }

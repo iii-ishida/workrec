@@ -5,13 +5,13 @@ import 'package:workrec/domain/task_recorder/work_time.dart';
 typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>>;
 
 /// [Task] から Firestore 用の [Map] を生成して返します
-Map<String, dynamic> taskToFirestoreData(
-  Task task, {
+Map<String, dynamic> taskToFirestoreData({
+  Task? task,
   FieldValue? createdAt,
   FieldValue? updatedAt,
 }) {
   return <String, dynamic>{
-    'title': task.title,
+    if (task != null) 'title': task.title,
     if (createdAt != null) 'createdAt': createdAt,
     if (updatedAt != null) 'updatedAt': updatedAt,
   };

@@ -19,6 +19,8 @@ class Task extends Equatable {
     required this.timeRecords,
   });
 
+  WorkTime get lastTimeRecord => timeRecords.last;
+
   /// 作業時間
   Duration get workingTime => timeRecords
       .where((task) => task.hasEnd)
