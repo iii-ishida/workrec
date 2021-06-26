@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workrec/repositories/auth/firebase_auth_repo.dart';
-import './widgets/auth_page.dart';
-import './widgets/auth_provider.dart';
-import './widgets/home.dart';
+import './view/pages/auth/auth_page.dart';
+import './view/pages/auth/auth_provider.dart';
+import './view/home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
