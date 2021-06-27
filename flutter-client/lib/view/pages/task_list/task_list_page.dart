@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/domain/task_recorder/task_recorder.dart';
-import 'package:workrec/repositories/task_recorder/task_repo.dart';
+import 'package:workrec/repository/task_recorder/task_repo.dart';
 
 import './widgets/current_task.dart';
 

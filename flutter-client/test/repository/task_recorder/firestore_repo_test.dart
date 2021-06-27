@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:workrec/repositories/task_recorder/firestore_repo.dart';
+import 'package:workrec/repository/task_recorder/firestore_repo.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/domain/task_recorder/task_recorder.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/repositories/auth/auth_repo.dart';
+import 'package:workrec/repository/auth/auth_repo.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key, required this.viewModel}) : super(key: key);
