@@ -26,6 +26,10 @@ class Task extends Equatable {
       .where((task) => task.hasEnd)
       .fold(Duration.zero, (acc, time) => acc + time.workingTime);
 
+  /// 現在作業中の作業時間
+  Duration get currentWorkingTime =>
+      isWorking ? clock.now().difference(lastTimeRecord.start) : Duration.zero;
+
   /// 開始している場合は true
   bool get isStarted => timeRecords.isNotEmpty;
 

@@ -5,6 +5,8 @@ import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/domain/task_recorder/task_recorder.dart';
 import 'package:workrec/repositories/task_recorder/task_repo.dart';
 
+import './widgets/current_task.dart';
+
 typedef _RecordTaskFunc = Future<void> Function(TaskRecorder, String);
 
 class TaskListPage extends StatelessWidget {
@@ -19,12 +21,17 @@ class TaskListPage extends StatelessWidget {
       initialData: TaskRecorder(tasks: [], currentTaskId: ''),
       child: Builder(builder: (context) {
         final recorder = context.read<TaskRecorder>();
-        return _TaskListView(
-          recorder: recorder,
-          startTask: repo.recordStartTimeOfTask,
-          suspendTask: repo.recordSuspendTimeOfTask,
-          resumeTask: repo.recordResumeTimeOfTask,
-        );
+        return Column(children: [
+          CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
+          Expanded(
+            child: _TaskListView(
+              recorder: recorder,
+              startTask: repo.recordStartTimeOfTask,
+              suspendTask: repo.recordSuspendTimeOfTask,
+              resumeTask: repo.recordResumeTimeOfTask,
+            ),
+          )
+        ]);
       }),
     );
   }
