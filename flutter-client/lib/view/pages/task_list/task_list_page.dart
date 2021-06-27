@@ -21,17 +21,22 @@ class TaskListPage extends StatelessWidget {
       initialData: TaskRecorder(tasks: [], currentTaskId: ''),
       child: Builder(builder: (context) {
         final recorder = context.read<TaskRecorder>();
-        return Column(children: [
-          CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
-          Expanded(
-            child: _TaskListView(
-              recorder: recorder,
-              startTask: repo.recordStartTimeOfTask,
-              suspendTask: repo.recordSuspendTimeOfTask,
-              resumeTask: repo.recordResumeTimeOfTask,
-            ),
-          )
-        ]);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(children: [
+            const SizedBox(height: 32),
+            CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
+            const SizedBox(height: 32),
+            Expanded(
+              child: _TaskListView(
+                recorder: recorder,
+                startTask: repo.recordStartTimeOfTask,
+                suspendTask: repo.recordSuspendTimeOfTask,
+                resumeTask: repo.recordResumeTimeOfTask,
+              ),
+            )
+          ]),
+        );
       }),
     );
   }
