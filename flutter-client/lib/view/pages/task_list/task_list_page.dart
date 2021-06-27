@@ -22,21 +22,25 @@ class TaskListPage extends StatelessWidget {
       initialData: TaskRecorder(tasks: [], currentTaskId: ''),
       child: Builder(builder: (context) {
         final recorder = context.read<TaskRecorder>();
-        return Padding(
+        return Container(
+          color: const Color(0xFFF3F3F3),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(children: [
-            const SizedBox(height: 32),
-            CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
-            const SizedBox(height: 32),
-            Expanded(
-              child: _TaskListView(
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              SliverToBoxAdapter(
+                child: CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              _TaskListView(
                 recorder: recorder,
                 startTask: repo.recordStartTimeOfTask,
                 suspendTask: repo.recordSuspendTimeOfTask,
                 resumeTask: repo.recordResumeTimeOfTask,
               ),
-            )
-          ]),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            ],
+          ),
         );
       }),
     );
@@ -61,22 +65,26 @@ class _TaskListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final recorder = context.watch<TaskRecorder>();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: ListView.separated(
-        itemCount: recorder.tasks.length,
-        itemBuilder: (context, index) => _TaskListRow(
-          recorder: recorder,
-          task: recorder.tasks[index],
-          startTask: startTask,
-          suspendTask: suspendTask,
-          resumeTask: resumeTask,
-        ),
-        separatorBuilder: (BuildContext context, int index) =>
-            const Divider(color: Color(0xFFE5E5E5)),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index.isEven) {
+            final isFirst = index == 0;
+            final isLast = index ~/ 2 == recorder.tasks.length - 1;
+            return _TaskListRow(
+              isFirst: isFirst,
+              isLast: isLast,
+              recorder: recorder,
+              task: recorder.tasks[index ~/ 2],
+              startTask: startTask,
+              suspendTask: suspendTask,
+              resumeTask: resumeTask,
+            );
+          } else {
+            return const Divider(height: 1, color: Color(0xFFE5E5E5));
+          }
+        },
+        childCount: (recorder.tasks.length * 2) - 1,
       ),
     );
   }
@@ -85,6 +93,8 @@ class _TaskListView extends StatelessWidget {
 class _TaskListRow extends StatelessWidget {
   _TaskListRow({
     Key? key,
+    this.isFirst = false,
+    this.isLast = false,
     required TaskRecorder recorder,
     required Task task,
     required _RecordTaskFunc startTask,
@@ -100,12 +110,22 @@ class _TaskListRow extends StatelessWidget {
         super(key: key);
 
   final ViewModel model;
+  final bool isFirst;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     const _space = SizedBox(height: 8, width: 8);
 
-    return Padding(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: isFirst
+            ? const BorderRadius.vertical(top: Radius.circular(16))
+            : (isLast
+                ? const BorderRadius.vertical(bottom: Radius.circular(16))
+                : BorderRadius.zero),
+      ),
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
