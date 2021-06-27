@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
@@ -60,14 +61,22 @@ class _TaskListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final recorder = context.watch<TaskRecorder>();
 
-    return ListView.builder(
-      itemCount: recorder.tasks.length,
-      itemBuilder: (context, index) => _TaskListRow(
-        recorder: recorder,
-        task: recorder.tasks[index],
-        startTask: startTask,
-        suspendTask: suspendTask,
-        resumeTask: resumeTask,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: ListView.separated(
+        itemCount: recorder.tasks.length,
+        itemBuilder: (context, index) => _TaskListRow(
+          recorder: recorder,
+          task: recorder.tasks[index],
+          startTask: startTask,
+          suspendTask: suspendTask,
+          resumeTask: resumeTask,
+        ),
+        separatorBuilder: (BuildContext context, int index) =>
+            const Divider(color: Color(0xFFE5E5E5)),
       ),
     );
   }
@@ -92,64 +101,59 @@ class _TaskListRow extends StatelessWidget {
 
   final ViewModel model;
 
-  Widget _icon({required Color color}) {
-    return Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     const _space = SizedBox(height: 8, width: 8);
-    final _iconSpace = _icon(color: Colors.transparent);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                model.title,
+                style: Theme.of(context).textTheme.headline6!.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              _space,
+              Row(children: [
+                Text(
+                  '開始日時: ${model.startTime}',
+                  style: Theme.of(context).textTheme.caption,
+                ),
+              ]),
+              Row(children: [
+                Text(
+                  '作業時間: ${model.workingTime}',
+                  style: Theme.of(context).textTheme.caption,
+                ),
+              ]),
+            ],
+          ),
+          const Spacer(),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(width: 1, color: Colors.blue),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            onPressed: () => model.handleToggle(),
+            child: Row(
               children: [
-                Row(children: [
-                  _icon(color: model.stateColor),
-                  _space,
-                  Text(
-                    model.title,
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                ]),
-                _space,
-                Row(children: [
-                  _iconSpace,
-                  _space,
-                  Text(
-                    model.startTime,
-                    style: Theme.of(context).textTheme.caption,
-                  ),
-                ]),
-                Row(children: [
-                  _iconSpace,
-                  _space,
-                  Text(
-                    '作業時間: ${model.workingTime}',
-                    style: Theme.of(context).textTheme.caption,
-                  ),
-                ]),
+                Icon(
+                  model.isActionStart
+                      ? CupertinoIcons.play
+                      : CupertinoIcons.pause,
+                  size: 16,
+                ),
+                Text(model.actionName),
               ],
             ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () => model.handleToggle(),
-              child: Text(model.actionName),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -175,7 +179,7 @@ class ViewModel {
 
   String get title => task.title;
   String get startTime =>
-      task.isStarted ? _dateFormat.format(task.startTime) : '';
+      task.isStarted ? _dateFormat.format(task.startTime) : '-';
 
   String get workingTime {
     final workingMinutes = task.workingTime.inMinutes;
@@ -204,6 +208,8 @@ class ViewModel {
       return '再開';
     }
   }
+
+  bool get isActionStart => !task.isWorking;
 
   Future<void> handleToggle() async {
     if (!task.isStarted) {
