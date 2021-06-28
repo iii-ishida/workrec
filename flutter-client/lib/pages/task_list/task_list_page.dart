@@ -33,13 +33,14 @@ class TaskListPage extends StatelessWidget {
                 child: CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              _TaskListView(
-                recorder: recorder,
-                startTask: repo.recordStartTimeOfTask,
-                suspendTask: repo.recordSuspendTimeOfTask,
-                resumeTask: repo.recordResumeTimeOfTask,
+              SliverSafeArea(
+                sliver: _TaskListView(
+                  recorder: recorder,
+                  startTask: repo.recordStartTimeOfTask,
+                  suspendTask: repo.recordSuspendTimeOfTask,
+                  resumeTask: repo.recordResumeTimeOfTask,
+                ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           ),
         );
