@@ -66,7 +66,7 @@ class ViewModel {
       return false;
     }
     await addTask(
-      TaskRecorder(tasks: [], currentTaskId: ''),
+      TaskRecorder(tasks: const [], currentTaskId: ''),
       titleController.text,
     );
     return true;

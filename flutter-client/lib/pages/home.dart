@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/view/add_task_page.dart';
-import 'package:workrec/view/pages/task_list/task_list_page.dart';
+import 'package:workrec/pages/add_task_page.dart';
+import 'package:workrec/pages/task_list/task_list_page.dart';
 import 'package:workrec/repository/task_recorder/task_repo.dart';
 import 'package:workrec/repository/task_recorder/firestore_repo.dart';
 
