@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import './task.dart';
 
-class TaskRecorder {
+class TaskRecorder extends Equatable {
   TaskRecorder({required List<Task> tasks, required this.currentTaskId})
       : tasks = List.unmodifiable(tasks);
 
@@ -65,8 +66,11 @@ class TaskRecorder {
 
   /// [taskId] に該当するタスクの作業完了日時を記録します
   TaskRecorder recordCompletionTimeOfTask(String taskId, DateTime timestamp) {
-    return TaskRecorder(tasks: [], currentTaskId: '');
+    throw UnimplementedError();
   }
 
   Task findTask(String taskId) => tasks.firstWhere((task) => task.id == taskId);
+
+  @override
+  List<Object> get props => [currentTaskId, tasks];
 }

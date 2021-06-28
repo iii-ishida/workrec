@@ -19,9 +19,10 @@ class TaskListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamProvider<TaskRecorder>(
       create: (_) => repo.taskRecorder(),
-      initialData: TaskRecorder(tasks: [], currentTaskId: ''),
+      initialData: TaskRecorder(tasks: const [], currentTaskId: ''),
       child: Builder(builder: (context) {
-        final recorder = context.read<TaskRecorder>();
+        final recorder = context.watch<TaskRecorder>();
+
         return Container(
           color: const Color(0xFFF3F3F3),
           padding: const EdgeInsets.symmetric(horizontal: 16),
