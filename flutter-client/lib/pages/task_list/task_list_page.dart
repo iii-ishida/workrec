@@ -7,6 +7,7 @@ import 'package:workrec/domain/task_recorder/task_recorder.dart';
 import 'package:workrec/repository/task_recorder/task_repo.dart';
 
 import './widgets/current_task.dart';
+import './widgets/searchbar.dart';
 
 typedef _RecordTaskFunc = Future<void> Function(TaskRecorder, String);
 
@@ -29,13 +30,23 @@ class TaskListPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                SliverToBoxAdapter(
-                  child:
-                      CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
+                const SliverSafeArea(
+                  bottom: false,
+                  sliver: SliverToBoxAdapter(child: SizedBox(height: 16)),
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                SliverToBoxAdapter(
+                  child: SearchBar(onChangeSearchText: (_) {}),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  sliver: SliverToBoxAdapter(
+                    child: CurrentTask(
+                      CurrentTaskViewModel(recorder.currentTask),
+                    ),
+                  ),
+                ),
                 SliverSafeArea(
+                  top: false,
                   sliver: _TaskListView(
                     recorder: recorder,
                     startTask: repo.recordStartTimeOfTask,
