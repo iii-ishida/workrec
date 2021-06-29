@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:workrec/repository/auth/firebase_auth_repo.dart';
 import './pages/auth/auth_page.dart';
 import './pages/auth/auth_provider.dart';
-import './pages/home.dart';
+import './pages/task_list/task_list_page.dart';
+import './repository/task_recorder/firestore_repo.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         repo: authRepo,
         builder: ((userId) => userId.isEmpty
             ? AuthPage(viewModel: AuthViewModel(repo: authRepo))
-            : Home(userId: userId, signOut: authRepo.signOut)),
+            : TaskListPage(repo: FirestoreTaskRepo(userId: userId))),
       ),
     );
   }

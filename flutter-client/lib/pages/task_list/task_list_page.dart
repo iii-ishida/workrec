@@ -17,34 +17,37 @@ class TaskListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<TaskRecorder>(
-      create: (_) => repo.taskRecorder(),
-      initialData: TaskRecorder(tasks: const [], currentTaskId: ''),
-      child: Builder(builder: (context) {
-        final recorder = context.watch<TaskRecorder>();
+    return Scaffold(
+      body: StreamProvider<TaskRecorder>(
+        create: (_) => repo.taskRecorder(),
+        initialData: TaskRecorder(tasks: const [], currentTaskId: ''),
+        child: Builder(builder: (context) {
+          final recorder = context.watch<TaskRecorder>();
 
-        return Container(
-          color: const Color(0xFFF3F3F3),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: CustomScrollView(
-            slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              SliverToBoxAdapter(
-                child: CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              SliverSafeArea(
-                sliver: _TaskListView(
-                  recorder: recorder,
-                  startTask: repo.recordStartTimeOfTask,
-                  suspendTask: repo.recordSuspendTimeOfTask,
-                  resumeTask: repo.recordResumeTimeOfTask,
+          return Container(
+            color: const Color(0xFFF3F3F3),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: CustomScrollView(
+              slivers: [
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                SliverToBoxAdapter(
+                  child:
+                      CurrentTask(CurrentTaskViewModel(recorder.currentTask)),
                 ),
-              ),
-            ],
-          ),
-        );
-      }),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                SliverSafeArea(
+                  sliver: _TaskListView(
+                    recorder: recorder,
+                    startTask: repo.recordStartTimeOfTask,
+                    suspendTask: repo.recordSuspendTimeOfTask,
+                    resumeTask: repo.recordResumeTimeOfTask,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 }
