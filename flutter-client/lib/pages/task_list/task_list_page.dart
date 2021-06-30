@@ -8,6 +8,7 @@ import 'package:workrec/repository/task_recorder/task_repo.dart';
 
 import './widgets/current_task.dart';
 import './widgets/searchbar.dart';
+import './widgets/add_task_field.dart';
 
 typedef _RecordTaskFunc = Future<void> Function(TaskRecorder, String);
 
@@ -28,31 +29,42 @@ class TaskListPage extends StatelessWidget {
           return Container(
             color: const Color(0xFFF3F3F3),
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CustomScrollView(
-              slivers: [
-                const SliverSafeArea(
-                  bottom: false,
-                  sliver: SliverToBoxAdapter(child: SizedBox(height: 16)),
-                ),
-                SliverToBoxAdapter(
-                  child: SearchBar(onChangeSearchText: (_) {}),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  sliver: SliverToBoxAdapter(
-                    child: CurrentTask(
-                      CurrentTaskViewModel(recorder.currentTask),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                CustomScrollView(
+                  slivers: [
+                    const SliverSafeArea(
+                      bottom: false,
+                      sliver: SliverToBoxAdapter(child: SizedBox(height: 16)),
                     ),
-                  ),
+                    SliverToBoxAdapter(
+                      child: SearchBar(onChangeSearchText: (_) {}),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      sliver: SliverToBoxAdapter(
+                        child: CurrentTask(
+                          CurrentTaskViewModel(recorder.currentTask),
+                        ),
+                      ),
+                    ),
+                    _TaskListView(
+                      recorder: recorder,
+                      startTask: repo.recordStartTimeOfTask,
+                      suspendTask: repo.recordSuspendTimeOfTask,
+                      resumeTask: repo.recordResumeTimeOfTask,
+                    ),
+                    const SliverSafeArea(
+                      top: false,
+                      sliver:
+                          SliverToBoxAdapter(child: SizedBox(height: 44 + 16)),
+                    ),
+                  ],
                 ),
-                SliverSafeArea(
+                SafeArea(
                   top: false,
-                  sliver: _TaskListView(
-                    recorder: recorder,
-                    startTask: repo.recordStartTimeOfTask,
-                    suspendTask: repo.recordSuspendTimeOfTask,
-                    resumeTask: repo.recordResumeTimeOfTask,
-                  ),
+                  child: AddTaskField(onChangeTitle: (_) {}),
                 ),
               ],
             ),
