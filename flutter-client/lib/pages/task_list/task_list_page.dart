@@ -28,43 +28,51 @@ class TaskListPage extends StatelessWidget {
 
           return Container(
             color: const Color(0xFFF3F3F3),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [
                 CustomScrollView(
                   slivers: [
-                    const SliverSafeArea(
+                    SliverSafeArea(
                       bottom: false,
-                      sliver: SliverToBoxAdapter(child: SizedBox(height: 16)),
+                      sliver: SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: SearchBar(onChangeSearchText: (_) {}),
+                        ),
+                      ),
                     ),
                     SliverToBoxAdapter(
-                      child: SearchBar(onChangeSearchText: (_) {}),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      sliver: SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
                         child: CurrentTask(
                           CurrentTaskViewModel(recorder.currentTask),
                         ),
                       ),
                     ),
-                    _TaskListView(
-                      recorder: recorder,
-                      startTask: repo.recordStartTimeOfTask,
-                      suspendTask: repo.recordSuspendTimeOfTask,
-                      resumeTask: repo.recordResumeTimeOfTask,
+                    SliverPadding(
+                      padding: const EdgeInsets.all(16),
+                      sliver: _TaskListView(
+                        recorder: recorder,
+                        startTask: repo.recordStartTimeOfTask,
+                        suspendTask: repo.recordSuspendTimeOfTask,
+                        resumeTask: repo.recordResumeTimeOfTask,
+                      ),
                     ),
                     const SliverSafeArea(
                       top: false,
-                      sliver:
-                          SliverToBoxAdapter(child: SizedBox(height: 44 + 16)),
+                      sliver: SliverToBoxAdapter(
+                        child: SizedBox(height: 44),
+                      ),
                     ),
                   ],
                 ),
                 SafeArea(
                   top: false,
-                  child: AddTaskField(onChangeTitle: (_) {}),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: AddTaskField(onChangeTitle: (_) {}),
+                  ),
                 ),
               ],
             ),
