@@ -37,6 +37,12 @@ jobs:
       run: cd flutter-client && flutter pub get
     - name: Run tests
       run: cd flutter-client && flutter analyze && flutter test && flutter format --dry-run --set-exit-if-changed .
+    - name: Upload goldens if tests fail.
+      uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: goldens
+        path: flutter-client/test/pages/failures/
 
   deploy-doc:
     needs: build
