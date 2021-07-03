@@ -42,10 +42,29 @@ jobs:
       if: failure()
       with:
         name: goldens
+        path: flutter-client/test_goldens/failures/
+
+  golden-test:
+    name: golden test
+    runs-on: macos-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: beta
+    - name: Run golden tests
+      run: cd flutter-client && flutter test test_goldens
+    - name: Upload goldens if tests fail.
+      uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: goldens
         path: flutter-client/test/pages/failures/
 
   deploy-doc:
-    needs: build
+    needs: [build, golden-test]
     name: Deploy doc
     runs-on: ubuntu-latest
     steps:
