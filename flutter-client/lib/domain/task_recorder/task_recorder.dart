@@ -12,7 +12,9 @@ class TaskRecorder extends Equatable {
   final String currentTaskId;
 
   /// 現在記録中のタスク
-  Task get currentTask => findTask(currentTaskId);
+  Task get currentTask => currentTaskId.isNotEmpty
+      ? findTask(currentTaskId)
+      : Task.create(title: '');
 
   /// タスクを追加します
   TaskRecorder addNewTask({required String title}) {

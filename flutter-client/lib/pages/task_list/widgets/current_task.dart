@@ -164,7 +164,8 @@ class CurrentTaskViewModel {
 
   bool get isEmpty => _task.id.isEmpty;
   String get title => _task.title;
-  String get startTime => _dateFormat.format(_task.startTime);
+  String get startTime =>
+      _task.isStarted ? _dateFormat.format(_task.startTime) : '-';
   String get currentWorkingTime =>
       _task.isWorking ? _formatHHMM(_task.currentWorkingTime) : '--:--';
   String get totalWorkingTime {
