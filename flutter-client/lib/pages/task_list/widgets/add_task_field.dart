@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class AddTaskField extends StatefulWidget {
-  const AddTaskField({Key? key, required this.onChangeTitle}) : super(key: key);
+  const AddTaskField({Key? key, required this.onAddTask}) : super(key: key);
 
-  final ValueChanged<String> onChangeTitle;
+  final ValueChanged<String> onAddTask;
 
   @override
   State<StatefulWidget> createState() => _AddTaskFieldState();
@@ -44,7 +44,7 @@ class _AddTaskFieldState extends State<AddTaskField> {
             ),
             textAlignVertical: TextAlignVertical.top,
             style: const TextStyle(fontSize: 15),
-            onChanged: widget.onChangeTitle,
+            onSubmitted: widget.onAddTask,
           ),
         ),
       ),
