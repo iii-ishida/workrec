@@ -34,7 +34,8 @@ class TaskListPage extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: SearchBar(
-                              onChangeSearchText: viewModel.onChangeSearchText),
+                            onChangeSearchText: viewModel.onChangeSearchText,
+                          ),
                         ),
                       ),
                     ),

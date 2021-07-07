@@ -12,6 +12,20 @@ class AddTaskField extends StatefulWidget {
 }
 
 class _AddTaskFieldState extends State<AddTaskField> {
+  late TextEditingController _titleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -20,6 +34,7 @@ class _AddTaskFieldState extends State<AddTaskField> {
         child: SizedBox(
           height: 44,
           child: TextField(
+            controller: _titleController,
             decoration: const InputDecoration(
               prefixIcon: Padding(
                 padding: EdgeInsets.only(left: 2),
@@ -44,7 +59,10 @@ class _AddTaskFieldState extends State<AddTaskField> {
             ),
             textAlignVertical: TextAlignVertical.top,
             style: const TextStyle(fontSize: 15),
-            onSubmitted: widget.onAddTask,
+            onSubmitted: (title) {
+              widget.onAddTask(title);
+              _titleController.clear();
+            },
           ),
         ),
       ),

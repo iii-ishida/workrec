@@ -50,11 +50,12 @@ class TaskListViewModel {
   final _RecordTaskFunc suspendTask;
   final _RecordTaskFunc resumeTask;
 
-  TaskListViewModel(
-      {required this.tasks,
-      required this.startTask,
-      required this.suspendTask,
-      required this.resumeTask});
+  TaskListViewModel({
+    required this.tasks,
+    required this.startTask,
+    required this.suspendTask,
+    required this.resumeTask,
+  });
 
   List<TaskListItemViewModel> get taskListItemViewModels => tasks
       .map((task) => TaskListItemViewModel(
@@ -66,13 +67,14 @@ class TaskListViewModel {
 }
 
 class TaskListItemViewModel {
-  final Task task;
-  TaskListItemViewModel(
-      {required this.task,
-      required this.startTask,
-      required this.suspendTask,
-      required this.resumeTask});
+  TaskListItemViewModel({
+    required this.task,
+    required this.startTask,
+    required this.suspendTask,
+    required this.resumeTask,
+  });
 
+  final Task task;
   final _RecordTaskFunc startTask;
   final _RecordTaskFunc suspendTask;
   final _RecordTaskFunc resumeTask;
@@ -86,17 +88,6 @@ class TaskListItemViewModel {
     final hour = '${(workingMinutes / 60).floor()}'.padLeft(2, '0');
     final minutes = '${workingMinutes % 60}'.padLeft(2, '0');
     return '$hour:$minutes';
-  }
-
-  Color get stateColor {
-    if (!task.isStarted) {
-      return Colors.grey;
-    }
-    if (task.isWorking) {
-      return Colors.green;
-    } else {
-      return Colors.yellow;
-    }
   }
 
   String get actionName {
