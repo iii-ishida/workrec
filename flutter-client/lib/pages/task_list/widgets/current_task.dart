@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
+import 'package:workrec/pages/components/hover_card.dart';
 
 class CurrentTask extends StatelessWidget {
   const CurrentTask(this._viewModel, {Key? key}) : super(key: key);
@@ -10,85 +11,101 @@ class CurrentTask extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33007AFF),
-            spreadRadius: 0,
-            blurRadius: 10,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
+    final controller = HoverCardController();
+
+    return HoverCard(
+      onTap: () {},
+      controller: controller,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x33007AFF),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
                 child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _viewModel.title,
-                  style: Theme.of(context).textTheme.headline6!.copyWith(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(CupertinoIcons.stopwatch, size: 30),
                     Text(
-                      ' ${_viewModel.currentWorkingTime}',
-                      style: Theme.of(context).textTheme.headline5!.copyWith(
-                            fontSize: 33,
+                      _viewModel.title,
+                      style: Theme.of(context).textTheme.headline6!.copyWith(
+                            fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),
-                    )
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(CupertinoIcons.stopwatch, size: 30),
+                        Text(
+                          ' ${_viewModel.currentWorkingTime}',
+                          style:
+                              Theme.of(context).textTheme.headline5!.copyWith(
+                                    fontSize: 33,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '開始日時: ${_viewModel.startTime}',
+                      style: Theme.of(context).textTheme.caption,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '作業時間: ${_viewModel.totalWorkingTime}',
+                      style: Theme.of(context).textTheme.caption,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  '開始日時: ${_viewModel.startTime}',
-                  style: Theme.of(context).textTheme.caption,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '作業時間: ${_viewModel.totalWorkingTime}',
-                  style: Theme.of(context).textTheme.caption,
-                ),
-              ],
-            )),
-            Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _PopupMenuButton(),
-                const Spacer(),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(width: 1, color: Colors.blue),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  HoverCardAnimationDisable(
+                    controller: controller,
+                    child: _PopupMenuButton(),
                   ),
-                  onPressed: () {},
-                  child: Row(
-                    children: const [
-                      Icon(CupertinoIcons.pause, size: 16),
-                      Text('停止')
-                    ],
+                  const Spacer(),
+                  HoverCardAnimationDisable(
+                    controller: controller,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(width: 1, color: Colors.blue),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      onPressed: () {},
+                      child: Row(
+                        children: const [
+                          Icon(CupertinoIcons.pause, size: 16),
+                          Text('停止')
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            )
-          ],
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
