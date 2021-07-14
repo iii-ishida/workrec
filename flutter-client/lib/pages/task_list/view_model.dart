@@ -33,11 +33,12 @@ class TaskListPageViewModel extends ChangeNotifier {
     repo.addNewTask(_recorder, title);
   }
 
+  String get currentTaskId => _recorder.currentTaskId;
   CurrentTaskViewModel get currentTaskViewModel =>
       CurrentTaskViewModel(_recorder.currentTask);
 
   TaskListViewModel get taskListViewModel => TaskListViewModel(
-        tasks: _recorder.tasks,
+        tasks: _recorder.tasks.where((t) => t.id != currentTaskId).toList(),
         startTask: (id) => repo.recordStartTimeOfTask(_recorder, id),
         suspendTask: (id) => repo.recordSuspendTimeOfTask(_recorder, id),
         resumeTask: (id) => repo.recordResumeTimeOfTask(_recorder, id),

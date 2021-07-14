@@ -5,16 +5,18 @@ import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/pages/components/hover_card.dart';
 
 class CurrentTask extends StatelessWidget {
-  const CurrentTask(this._viewModel, {Key? key}) : super(key: key);
+  const CurrentTask(this._viewModel, {Key? key, required this.onTap})
+      : super(key: key);
 
   final CurrentTaskViewModel _viewModel;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final controller = HoverCardController();
 
     return HoverCard(
-      onTap: () {},
+      onTap: onTap,
       controller: controller,
       child: Container(
         width: double.infinity,

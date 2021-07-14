@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/repository/task_recorder/task_repo.dart';
 
+import 'package:workrec/pages/task_detail_page.dart';
+
 import './view_model.dart';
 import './widgets/current_task.dart';
 import './widgets/searchbar.dart';
@@ -42,9 +44,15 @@ class TaskListPage extends StatelessWidget {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: CurrentTask(
-                          viewModel.currentTaskViewModel,
-                        ),
+                        child: CurrentTask(viewModel.currentTaskViewModel,
+                            onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                                builder: (context) => TaskDetailPage(
+                                    repo: repo,
+                                    taskId: viewModel.currentTaskId)),
+                          );
+                        }),
                       ),
                     ),
                     SliverPadding(
