@@ -7,7 +7,7 @@ import 'package:stream_transform/stream_transform.dart';
 import 'firestore_converter.dart';
 import 'task_repo.dart';
 
-typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>>;
+typedef QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
 
 class FirestoreTaskRepo implements TaskListRepo {
   @override
@@ -17,6 +17,14 @@ class FirestoreTaskRepo implements TaskListRepo {
 
   FirestoreTaskRepo({required this.userId, FirebaseFirestore? store})
       : _store = store ?? FirebaseFirestore.instance;
+
+  @override
+  Future<Task> findTaskById(String taskId) {
+    return _taskCollection(userId)
+        .doc(taskId)
+        .get()
+        .then((doc) => _taskFromDoc(doc as QueryDocument));
+  }
 
   @override
   Stream<TaskRecorder> taskRecorder() {

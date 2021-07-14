@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/domain/task_recorder/work_time.dart';
 
-typedef QueryDocument = QueryDocumentSnapshot<Map<String, dynamic>>;
+typedef QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
 
 /// [Task] から Firestore 用の [Map] を生成して返します
 Map<String, dynamic> taskToFirestoreData({
@@ -31,6 +31,9 @@ Task taskFromFirestoreDoc(
   List<QueryDocument> workTimeDocs,
 ) {
   final data = doc.data();
+  if (data == null) {
+    return const Task(id: '', title: '', timeRecords: []);
+  }
 
   return Task(
     id: doc.id,
@@ -45,6 +48,9 @@ List<WorkTime> _workTimeListFromFirestoreDocs(List<QueryDocument> docs) {
 
 WorkTime _workTimeFromFirestoreDoc(QueryDocument doc) {
   final data = doc.data();
+  if (data == null) {
+    return WorkTime(id: '', start: DateTime.now(), end: DateTime.now());
+  }
 
   return WorkTime(
     id: doc.id,
