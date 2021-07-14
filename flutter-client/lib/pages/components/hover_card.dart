@@ -64,8 +64,8 @@ class _HoverCardState extends State<HoverCard>
         return GestureDetector(
           onTap: () async {
             await _animationController.forward();
-            widget.onTap();
             await _animationController.reverse();
+            widget.onTap();
           },
           child: Listener(
             onPointerDown: (_) {
