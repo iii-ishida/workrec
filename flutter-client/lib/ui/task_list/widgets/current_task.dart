@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
-import 'package:workrec/pages/components/hover_card.dart';
+import 'package:workrec/ui/components/hover_card.dart';
 
 class CurrentTask extends StatelessWidget {
   const CurrentTask(this._viewModel, {Key? key, required this.onTap})

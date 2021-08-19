@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/repository/task_recorder/task_repo.dart';
 
-import 'package:workrec/pages/task_detail_page.dart';
+import 'package:workrec/ui/task_detail_page.dart';
 
 import './view_model.dart';
 import './widgets/current_task.dart';

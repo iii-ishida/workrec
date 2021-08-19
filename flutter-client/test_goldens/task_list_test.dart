@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:workrec/domain/task_recorder/task.dart';
 import 'package:workrec/domain/task_recorder/task_recorder.dart';
-import 'package:workrec/pages/task_list/task_list_page.dart';
+import 'package:workrec/ui/task_list/task_list_page.dart';
 import 'package:workrec/repository/task_recorder/task_repo.dart';
 
 import 'task_list_test.mocks.dart';
