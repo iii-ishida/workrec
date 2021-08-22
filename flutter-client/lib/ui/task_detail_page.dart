@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/workrec/models/task.dart';
-import 'package:workrec/workrec/repositories/task/task_repo.dart';
+import 'package:workrec/workrec.dart';
 
 class TaskDetailPage extends StatelessWidget {
   final TaskListRepo repo;

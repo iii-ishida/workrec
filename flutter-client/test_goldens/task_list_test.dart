@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:workrec/ui/task_list/task_list_page.dart';
-import 'package:workrec/workrec/models/task.dart';
-import 'package:workrec/workrec/models/task_recorder.dart';
-import 'package:workrec/workrec/repositories/task/task_repo.dart';
+import 'package:workrec/workrec.dart';
+import 'package:workrec_app/ui/task_list/task_list_page.dart';
 
 import 'task_list_test.mocks.dart';
 

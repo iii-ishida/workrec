@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/workrec/models/task_recorder.dart';
+import 'package:workrec/workrec.dart';
 
 typedef _AddTaskFunc = Future<void> Function(TaskRecorder, String);
 
