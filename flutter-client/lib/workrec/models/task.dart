@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
-import './work_time.dart';
+
+import 'work_time.dart';
 
 /// 記録対象のタスク
 class Task extends Equatable {

@@ -1,12 +1,12 @@
 import 'package:clock/clock.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:workrec/repository/task_recorder/firestore_repo.dart';
-import 'package:workrec/domain/task_recorder/task.dart';
-import 'package:workrec/domain/task_recorder/task_recorder.dart';
+import 'package:workrec/workrec/models/task.dart';
+import 'package:workrec/workrec/models/task_recorder.dart';
 
 import 'firestore_repo_test.mocks.dart';
 

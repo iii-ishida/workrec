@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import './task.dart';
+
+import 'task.dart';
 
 class TaskRecorder extends Equatable {
   TaskRecorder({required List<Task> tasks, required this.currentTaskId})

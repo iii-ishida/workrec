@@ -1,9 +1,10 @@
 import 'package:clock/clock.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:workrec/domain/task_recorder/task_recorder.dart';
-import 'package:workrec/domain/task_recorder/task.dart';
-import 'package:workrec/domain/task_recorder/work_time.dart';
 import 'package:stream_transform/stream_transform.dart';
+import 'package:workrec/workrec/models/task.dart';
+import 'package:workrec/workrec/models/task_recorder.dart';
+import 'package:workrec/workrec/models/work_time.dart';
+
 import 'firestore_converter.dart';
 import 'task_repo.dart';
 

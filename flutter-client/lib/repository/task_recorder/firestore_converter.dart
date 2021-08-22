@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:workrec/domain/task_recorder/task.dart';
-import 'package:workrec/domain/task_recorder/work_time.dart';
+import 'package:workrec/workrec/models/task.dart';
+import 'package:workrec/workrec/models/work_time.dart';
 
 typedef QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
 

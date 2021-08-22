@@ -1,11 +1,11 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:workrec/domain/task_recorder/task.dart';
-import 'package:workrec/domain/task_recorder/task_recorder.dart';
-import 'package:workrec/ui/task_list/task_list_page.dart';
 import 'package:workrec/repository/task_recorder/task_repo.dart';
+import 'package:workrec/ui/task_list/task_list_page.dart';
+import 'package:workrec/workrec/models/task.dart';
+import 'package:workrec/workrec/models/task_recorder.dart';
 
 import 'task_list_test.mocks.dart';
 
@@ -15,12 +15,11 @@ import 'task_list_test.mocks.dart';
 void main() {
   testWidgets('Golden test', (WidgetTester tester) async {
     final repo = MockTaskListRepo();
-    when(repo.taskRecorder()).thenAnswer((_) => Stream.fromIterable([
-          TaskRecorder(
-            tasks: _newTasks(),
-            currentTaskId: 'current',
-          )
-        ]));
+    when(repo.taskRecorder()).thenAnswer(
+      (_) => Stream<TaskRecorder>.fromIterable(
+        [TaskRecorder(tasks: _newTasks(), currentTaskId: 'current')],
+      ),
+    );
 
     await tester.pumpWidget(MaterialApp(
       title: 'Workrec',

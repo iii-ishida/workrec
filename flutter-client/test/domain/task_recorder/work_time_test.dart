@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:workrec/domain/task_recorder/work_time.dart';
+import 'package:workrec/workrec/models/work_time.dart';
 
 void main() {
   group('WorkTime.workingTime', () {
