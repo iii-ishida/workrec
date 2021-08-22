@@ -1,14 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/repository/task_recorder/task_repo.dart';
-
 import 'package:workrec/ui/task_detail_page.dart';
+import 'package:workrec/workrec/repositories/task/task_repo.dart';
 
 import './view_model.dart';
+import './widgets/add_task_field.dart';
 import './widgets/current_task.dart';
 import './widgets/searchbar.dart';
-import './widgets/add_task_field.dart';
 
 class TaskListPage extends StatelessWidget {
   final TaskListRepo repo;

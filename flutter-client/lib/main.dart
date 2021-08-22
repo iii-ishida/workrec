@@ -1,10 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:workrec/repository/auth/firebase_auth_repo.dart';
+import 'package:workrec/workrec/repositories/auth/firebase_auth_repo.dart';
+
 import './ui/auth/auth_page.dart';
 import './ui/auth/auth_provider.dart';
 import './ui/task_list/task_list_page.dart';
-import './repository/task_recorder/firestore_repo.dart';
+import 'workrec/repositories/task/firestore_repo.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

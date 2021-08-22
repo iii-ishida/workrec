@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/repository/auth/auth_repo.dart';
+import 'package:workrec/workrec/repositories/auth/auth_repo.dart';
 
 class AuthProvider extends StatelessWidget {
   final Widget Function(String userId) builder;

@@ -4,9 +4,9 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:workrec/repository/task_recorder/firestore_repo.dart';
 import 'package:workrec/workrec/models/task.dart';
 import 'package:workrec/workrec/models/task_recorder.dart';
+import 'package:workrec/workrec/repositories/task/firestore_repo.dart';
 
 import 'firestore_repo_test.mocks.dart';
 

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import './auth_repo.dart';
+
+import 'auth_repo.dart';
 
 class FirebaseAuthRepo implements AuthRepo {
   final FirebaseAuth _auth;

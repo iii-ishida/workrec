@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:workrec/repository/task_recorder/task_repo.dart';
 import 'package:workrec/workrec/models/task.dart';
 import 'package:workrec/workrec/models/task_recorder.dart';
+import 'package:workrec/workrec/repositories/task/task_repo.dart';
 
 import './widgets/current_task.dart';
 

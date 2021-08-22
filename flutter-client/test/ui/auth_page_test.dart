@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:workrec/repository/auth/auth_repo.dart';
 import 'package:workrec/ui/auth/auth_page.dart';
+import 'package:workrec/workrec/repositories/auth/auth_repo.dart';
 
 import 'auth_page_test.mocks.dart';
 
