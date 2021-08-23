@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/workrec.dart';
-import 'package:workrec_app/ui/task_detail_page.dart';
+import 'package:workrec_app/task_detail_page.dart';
 
 import './view_model.dart';
 import './widgets/add_task_field.dart';

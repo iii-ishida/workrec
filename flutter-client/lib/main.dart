@@ -2,9 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workrec/workrec.dart';
 
-import './ui/auth/auth_page.dart';
-import './ui/auth/auth_provider.dart';
-import './ui/task_list/task_list_page.dart';
+import './auth/auth_page.dart';
+import './auth/auth_provider.dart';
+import './task_list/task_list_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
