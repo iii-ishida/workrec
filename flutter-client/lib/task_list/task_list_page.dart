@@ -10,7 +10,7 @@ import './widgets/current_task.dart';
 import './widgets/searchbar.dart';
 
 class TaskListPage extends StatelessWidget {
-  final TaskListRepo repo;
+  final TaskRepo repo;
 
   const TaskListPage({Key? key, required this.repo}) : super(key: key);
 

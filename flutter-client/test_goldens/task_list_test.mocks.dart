@@ -18,11 +18,11 @@ import 'package:workrec/src/repositories/task/task_repo.dart' as _i3;
 
 class _FakeTask_0 extends _i1.Fake implements _i2.Task {}
 
-/// A class which mocks [TaskListRepo].
+/// A class which mocks [TaskRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskListRepo extends _i1.Mock implements _i3.TaskListRepo {
-  MockTaskListRepo() {
+class MockTaskRepo extends _i1.Mock implements _i3.TaskRepo {
+  MockTaskRepo() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -47,23 +47,23 @@ class MockTaskListRepo extends _i1.Mock implements _i3.TaskListRepo {
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
   _i4.Future<void> recordStartTimeOfTask(
-          _i2.TaskRecorder? recorder, String? taskId) =>
+          _i2.TaskRecorder? source, String? taskId) =>
       (super.noSuchMethod(
-          Invocation.method(#recordStartTimeOfTask, [recorder, taskId]),
+          Invocation.method(#recordStartTimeOfTask, [source, taskId]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
   _i4.Future<void> recordSuspendTimeOfTask(
-          _i2.TaskRecorder? recorder, String? taskId) =>
+          _i2.TaskRecorder? source, String? taskId) =>
       (super.noSuchMethod(
-          Invocation.method(#recordSuspendTimeOfTask, [recorder, taskId]),
+          Invocation.method(#recordSuspendTimeOfTask, [source, taskId]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
   _i4.Future<void> recordResumeTimeOfTask(
-          _i2.TaskRecorder? recorder, String? taskId) =>
+          _i2.TaskRecorder? source, String? taskId) =>
       (super.noSuchMethod(
-          Invocation.method(#recordResumeTimeOfTask, [recorder, taskId]),
+          Invocation.method(#recordResumeTimeOfTask, [source, taskId]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override

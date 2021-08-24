@@ -9,7 +9,7 @@ typedef _RecordTaskFunc = Future<void> Function(String);
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
 class TaskListPageViewModel extends ChangeNotifier {
-  final TaskListRepo repo;
+  final TaskRepo repo;
   TaskRecorder _recorder = TaskRecorder(tasks: const [], currentTaskId: '');
 
   bool _isLoading = true;

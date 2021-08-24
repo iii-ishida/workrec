@@ -8,11 +8,11 @@ import 'package:workrec_app/task_list/task_list_page.dart';
 import 'task_list_test.mocks.dart';
 
 @GenerateMocks(
-  [TaskListRepo],
+  [TaskRepo],
 )
 void main() {
   testWidgets('Golden test', (WidgetTester tester) async {
-    final repo = MockTaskListRepo();
+    final repo = MockTaskRepo();
     when(repo.taskRecorder()).thenAnswer(
       (_) => Stream<TaskRecorder>.fromIterable(
         [TaskRecorder(tasks: _newTasks(), currentTaskId: 'current')],

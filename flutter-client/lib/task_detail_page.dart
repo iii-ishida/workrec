@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:workrec/workrec.dart';
 
 class TaskDetailPage extends StatelessWidget {
-  final TaskListRepo repo;
+  final TaskRepo repo;
   final String taskId;
 
   const TaskDetailPage({
@@ -33,7 +33,7 @@ class TaskDetailPage extends StatelessWidget {
 }
 
 class TaskDetailPageViewModel extends ChangeNotifier {
-  final TaskListRepo repo;
+  final TaskRepo repo;
   final String taskId;
   Task? _task;
 

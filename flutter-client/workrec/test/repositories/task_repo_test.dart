@@ -7,7 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:workrec/src/models/models.dart';
 import 'package:workrec/src/repositories/repositories.dart';
 
-import 'firestore_repo_test.mocks.dart';
+import 'task_repo_test.mocks.dart';
 
 @GenerateMocks(
   [
@@ -21,13 +21,13 @@ import 'firestore_repo_test.mocks.dart';
   ],
 )
 void main() {
-  group('FirestoreTaskRepo', () {
+  group('TaskRepo', () {
     const userId = 'some-user-id';
     const unstartedTaskId = 'unstarted-task';
     const suspendedTaskId = 'suspended-task';
     const currentTaskId = 'current-task';
 
-    late FirestoreTaskRepo repo;
+    late TaskRepo repo;
     late MockCollectionReference collection;
     late MockWriteBatch batch;
     late MockFirebaseFirestore firestore;
@@ -46,7 +46,7 @@ void main() {
       when(collection.doc(any)).thenReturn(MockDocumentReference());
       when(firestore.batch()).thenReturn(batch);
 
-      repo = FirestoreTaskRepo(userId: userId, store: firestore);
+      repo = TaskRepo(userId: userId, store: firestore);
 
       recorder = TaskRecorder(
         tasks: _newTasks(currentTaskId, unstartedTaskId, suspendedTaskId),

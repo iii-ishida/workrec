@@ -15,7 +15,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final authRepo = FirebaseAuthRepo();
+  final authRepo = AuthRepo();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         repo: authRepo,
         builder: ((userId) => userId.isEmpty
             ? AuthPage(viewModel: AuthViewModel(repo: authRepo))
-            : TaskListPage(repo: FirestoreTaskRepo(userId: userId))),
+            : TaskListPage(repo: TaskRepo(userId: userId))),
       ),
     );
   }
