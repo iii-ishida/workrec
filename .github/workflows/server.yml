@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [ master ]
     paths:
-    - 'erver/**'
+    - 'server/**'
   workflow_dispatch:
 
 env:
@@ -27,8 +27,8 @@ jobs:
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       with:
-        elixir-version: '1.11.4' # Define the elixir version [required]
-        otp-version: '23.3' # Define the OTP version [required]
+        elixir-version: '1.12.2' # Define the elixir version [required]
+        otp-version: '24.0' # Define the OTP version [required]
     - name: Restore dependencies cache
       uses: actions/cache@v2
       with:
