@@ -2,7 +2,7 @@ defmodule WorkrecWeb.Schema.TaskTypes do
   @moduledoc false
 
   use Absinthe.Schema.Notation
-  alias Workrec.TaskAction
+  alias WorkrecWeb.Resolvers
 
   enum :state do
     value(:unstarted)
@@ -32,18 +32,7 @@ defmodule WorkrecWeb.Schema.TaskTypes do
       arg(:first, non_null(:integer), default_value: 20)
       arg(:cursor, :string)
 
-      resolve(fn task, args, %{context: context} ->
-        with {:ok, task_action_list} <- TaskAction.List.call(context.user_id, task.id, args.first, Map.get(args, :cursor)) do
-          {:ok,
-           %{
-             page_info: %{
-               end_cursor: task_action_list.next_page_token,
-               has_next_page: task_action_list.next_page_token != nil
-             },
-             edges: Enum.map(task_action_list.actions, fn action -> %{node: action} end)
-           }}
-        end
-      end)
+      resolve(&Resolvers.Task.list_task_actions/3)
     end
   end
 
