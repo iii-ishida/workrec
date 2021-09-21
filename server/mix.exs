@@ -9,7 +9,9 @@ defmodule Workrec.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      aliases: aliases(),
+      deps: deps(),
+      preferred_cli_env: [unittest: :test]
     ]
   end
 
@@ -48,6 +50,18 @@ defmodule Workrec.MixProject do
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.4", only: :dev},
       {:ex_doc, "~> 0.25", only: :dev}
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  # For example, to install project dependencies and perform other setup tasks, run:
+  #
+  #     $ mix setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    [
+      unittest: ["credo --strict", "format --check-formatted", "compile --warnings-as-errors", "test"]
     ]
   end
 end
