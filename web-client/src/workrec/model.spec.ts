@@ -48,37 +48,37 @@ describe('workingTimeText', () => {
 
   describe('state が UNSTARTED でない場合は算出した作業時間を返すこと', () => {
     it('作業時間が1日以上の場合は作業時間(日)を表示すること', () => {
-      const baseWorkingTime = new Date(2019, 1, 2, 10, 0).toISOString()
-      const pausedAt = new Date(2019, 1, 3, 11, 30).toISOString()
-
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 24 * 60,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 11, 30),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('1日1時間30分')
     })
 
     it('作業時間が1日未満の場合は作業時間(日)を表示しないこと', () => {
-      const baseWorkingTime = new Date(2019, 1, 2, 10, 0).toISOString()
-      const pausedAt = new Date(2019, 1, 3, 9, 59).toISOString()
-
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 23 * 60,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 10, 59),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('23時間59分')
     })
 
     it('作業時間が1時間以上の場合は作業時間(時)を表示すること', () => {
-      const baseWorkingTime = new Date(2019, 1, 2, 10, 0).toISOString()
-      const pausedAt = new Date(2019, 1, 3, 9, 59).toISOString()
-
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 23 * 60,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 10, 59),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('23時間59分')
     })
@@ -89,32 +89,35 @@ describe('workingTimeText', () => {
 
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 24 * 60,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 10, 30),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('1日0時間30分')
     })
 
     it('作業時間が1時間未満の場合は作業時間(時)を表示しないこと', () => {
-      const baseWorkingTime = new Date(2019, 1, 2, 10, 0).toISOString()
-      const pausedAt = new Date(2019, 1, 2, 10, 59).toISOString()
-
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 0,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 10, 59),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('59分')
     })
 
     it('作業時間が1分以上の場合は作業時間(分)を表示すること', () => {
-      const baseWorkingTime = new Date(2019, 1, 2, 10, 0).toISOString()
-      const pausedAt = new Date(2019, 1, 2, 10, 59).toISOString()
-
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 0,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 10, 59),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('59分')
     })
@@ -125,8 +128,11 @@ describe('workingTimeText', () => {
 
       const task = {
         state: 'PAUSED',
-        baseWorkingTime: baseWorkingTime,
-        pausedAt: pausedAt,
+        workingTime: 0,
+        currentWork: {
+          startTime: new Date(2019, 1, 2, 10, 0),
+          endTime: new Date(2019, 1, 2, 10, 0),
+        },
       }
       expect(Task.workingTimeText(task)).toEqual('0分')
     })

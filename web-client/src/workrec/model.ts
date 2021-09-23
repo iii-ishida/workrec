@@ -4,11 +4,21 @@ export interface Task {
   id: string
   title: string
   state: State
-  baseWorkingTime: Date
+  currentWork: WorkRecord
+  workingTime: number
   startedAt: Date
-  pausedAt: Date
   createdAt: Date
   updatedAt: Date
+}
+
+export interface WorkRecord {
+  startTime: Date
+  endTime: Date | null
+}
+
+function workingTime(record: WorkRecord): number {
+  const endTime = (record.endTime ?? new Date()).getTime()
+  return Math.floor((endTime - record.startTime.getTime()) / 1000 / 60)
 }
 
 export function stateText(task): string {
@@ -70,8 +80,5 @@ function calcWorkingMinutes(task: Task): number {
     return 0
   }
 
-  const start = new Date(task.baseWorkingTime)
-  const end = task.pausedAt ? new Date(task.pausedAt) : new Date()
-
-  return Math.floor((end.getTime() - start.getTime()) / 1000 / 60)
+  return task.workingTime + workingTime(task.currentWork)
 }
