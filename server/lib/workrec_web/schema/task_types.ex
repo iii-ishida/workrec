@@ -17,11 +17,15 @@ defmodule WorkrecWeb.Schema.TaskTypes do
     field(:has_next_page, non_null(:boolean))
   end
 
+  object :work_record do
+    field(:start_time, :datetime)
+    field(:end_time, :datetime)
+  end
+
   object :task do
     field(:id, non_null(:id))
-    field(:user_id, non_null(:id))
-    field(:base_working_time, :datetime)
-    field(:paused_at, :datetime)
+    field(:current_work, :work_record)
+    field(:working_time, non_null(:integer))
     field(:started_at, :datetime)
     field(:title, non_null(:string))
     field(:state, non_null(:state))

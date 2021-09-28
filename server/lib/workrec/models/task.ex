@@ -5,16 +5,17 @@ defmodule Workrec.Model.Task do
 
   @behaviour Workrec.Repository.CloudDatastore.EntityModel
 
+  alias DsWrapper.Entity
   alias Workrec.Model.Event
 
   defstruct [
     :id,
     :user_id,
-    :base_working_time,
-    :paused_at,
-    :started_at,
-    :title,
     :state,
+    :title,
+    :current_work,
+    :working_time,
+    :started_at,
     :deleted?,
     :created_at,
     :updated_at
@@ -23,14 +24,16 @@ defmodule Workrec.Model.Task do
   def kind_name, do: "Task"
 
   def from_entity(properties) do
+    current_work = if properties["current_work"] != nil, do: %{start_time: Map.get(properties["current_work"], "start_time"), end_time: Map.get(properties["current_work"], "end_time")}
+
     %__MODULE__{
       id: properties["id"],
       user_id: properties["user_id"],
-      base_working_time: properties["base_working_time"],
-      paused_at: properties["paused_at"],
-      started_at: properties["started_at"],
-      title: properties["title"],
       state: String.to_existing_atom(properties["state"]),
+      title: properties["title"],
+      current_work: current_work,
+      working_time: properties["working_time"],
+      started_at: properties["started_at"],
       created_at: properties["created_at"],
       updated_at: properties["updated_at"]
     }
@@ -44,8 +47,9 @@ defmodule Workrec.Model.Task do
     %__MODULE__{
       id: event.task_id,
       user_id: event.user_id,
-      title: event.title,
       state: :unstarted,
+      title: event.title,
+      working_time: 0,
       created_at: event.created_at,
       updated_at: event.created_at
     }
@@ -63,7 +67,7 @@ defmodule Workrec.Model.Task do
     %__MODULE__{
       task
       | state: :started,
-        base_working_time: event.time,
+        current_work: %{start_time: event.time},
         started_at: event.time,
         updated_at: event.created_at
     }
@@ -73,7 +77,7 @@ defmodule Workrec.Model.Task do
     %__MODULE__{
       task
       | state: :paused,
-        paused_at: event.time,
+        current_work: %{start_time: task.current_work.start_time, end_time: event.time},
         updated_at: event.created_at
     }
   end
@@ -82,8 +86,8 @@ defmodule Workrec.Model.Task do
     %__MODULE__{
       task
       | state: :resumed,
-        base_working_time: calculate_base_working_time(task, event.time),
-        paused_at: nil,
+        current_work: %{start_time: event.time},
+        working_time: calculate_working_time(task),
         updated_at: event.created_at
     }
   end
@@ -92,7 +96,7 @@ defmodule Workrec.Model.Task do
     %__MODULE__{
       task
       | state: :finished,
-        paused_at: if(paused?(task), do: task.paused_at, else: event.time),
+        current_work: %{start_time: task.current_work.start_time, end_time: task.current_work.end_time || event.time},
         updated_at: event.created_at
     }
   end
@@ -105,10 +109,8 @@ defmodule Workrec.Model.Task do
     }
   end
 
-  defp paused?(task), do: task.state == :paused
-
-  defp calculate_base_working_time(task, resumed_at) do
-    DateTime.add(task.base_working_time, DateTime.diff(resumed_at, task.paused_at))
+  defp calculate_working_time(%{working_time: working_time, current_work: %{start_time: start_time, end_time: end_time}}) do
+    working_time + DateTime.diff(end_time, start_time) * 1000
   end
 end
 
@@ -118,17 +120,25 @@ defimpl Workrec.Repository.CloudDatastore.Entity.Decoder, for: Workrec.Model.Tas
   alias Workrec.Model.Task
 
   def to_entity(value) do
-    Entity.new(Key.new(Task.kind_name(), value.id), %{
+    m = %{
       "id" => value.id,
       "user_id" => value.user_id,
       "title" => value.title,
-      "base_working_time" => value.base_working_time,
-      "started_at" => value.started_at,
-      "paused_at" => value.paused_at,
       "state" => Atom.to_string(value.state),
+      "working_time" => value.working_time,
+      "started_at" => value.started_at,
       "created_at" => value.created_at,
       "updated_at" => value.updated_at
-    })
+    }
+
+    w =
+      if value.current_work == nil do
+        %{}
+      else
+        %{"current_work" => Entity.new(nil, %{"start_time" => Map.get(value.current_work, :start_time), "end_time" => Map.get(value.current_work, :end_time)})}
+      end
+
+    Entity.new(Key.new(Task.kind_name(), value.id), Map.merge(m, w))
   end
 end
 
