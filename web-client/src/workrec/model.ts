@@ -17,8 +17,11 @@ export interface WorkRecord {
 }
 
 function workingTime(record: WorkRecord): number {
-  const endTime = (record.endTime ?? new Date()).getTime()
-  return Math.floor((endTime - record.startTime.getTime()) / 1000 / 60)
+  if (record?.startTime == null) {
+    return 0
+  }
+  const endTime = new Date(record.endTime ?? new Date()).getTime()
+  return Math.floor(endTime - new Date(record.startTime).getTime())
 }
 
 export function stateText(task): string {
@@ -58,6 +61,7 @@ export function startedAtText(task): string {
 
 export function workingTimeText(task): string {
   const workingTimeInMinute = calcWorkingMinutes(task)
+  console.log('MIN', workingTimeInMinute)
   const workingDay = Math.floor(workingTimeInMinute / 60 / 24)
   const workingHour = Math.floor((workingTimeInMinute % (60 * 24)) / 60)
   const workingMinute = Math.floor((workingTimeInMinute % (60 * 24)) % 60)
@@ -80,5 +84,5 @@ function calcWorkingMinutes(task: Task): number {
     return 0
   }
 
-  return task.workingTime + workingTime(task.currentWork)
+  return (task.workingTime + workingTime(task.currentWork)) / 1000 / 60
 }

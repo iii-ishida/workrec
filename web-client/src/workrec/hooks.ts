@@ -27,7 +27,9 @@ export function useAuthIdToken(): string {
 }
 
 export function useTaskList(): Task[] {
-  const { data } = useQuery(GET_TASK_LIST, { partialRefetch: true })
+  const { data, error } = useQuery(GET_TASK_LIST, { partialRefetch: true })
+
+  console.log('DAT', data)
 
   return useMemo(() => {
     return data?.tasks.edges.map((edge) => edge.node) ?? []

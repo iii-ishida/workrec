@@ -38,9 +38,12 @@ export const GET_TASK_LIST = gql`
           id
           title
           state
-          baseWorkingTime
+          currentWork {
+            startTime
+            endTime
+          }
+          workingTime
           startedAt
-          pausedAt
           createdAt
           updatedAt
         }
@@ -58,9 +61,12 @@ export const ADD_TASK = gql`
       id
       title
       state
-      baseWorkingTime
+      currentWork {
+        startTime
+        endTime
+      }
+      workingTime
       startedAt
-      pausedAt
       createdAt
       updatedAt
     }
@@ -73,9 +79,12 @@ export const START_TASK = gql`
       id
       title
       state
-      baseWorkingTime
+      currentWork {
+        startTime
+        endTime
+      }
+      workingTime
       startedAt
-      pausedAt
       createdAt
       updatedAt
     }
@@ -88,9 +97,12 @@ export const PAUSE_TASK = gql`
       id
       title
       state
-      baseWorkingTime
+      currentWork {
+        startTime
+        endTime
+      }
+      workingTime
       startedAt
-      pausedAt
       createdAt
       updatedAt
     }
@@ -103,9 +115,12 @@ export const RESUME_TASK = gql`
       id
       title
       state
-      baseWorkingTime
+      currentWork {
+        startTime
+        endTime
+      }
+      workingTime
       startedAt
-      pausedAt
       createdAt
       updatedAt
     }
@@ -118,9 +133,12 @@ export const FINISH_TASK = gql`
       id
       title
       state
-      baseWorkingTime
+      currentWork {
+        startTime
+        endTime
+      }
+      workingTime
       startedAt
-      pausedAt
       createdAt
       updatedAt
     }
@@ -133,9 +151,12 @@ export const UNFINISH_TASK = gql`
       id
       title
       state
-      baseWorkingTime
+      currentWork {
+        startTime
+        endTime
+      }
+      workingTime
       startedAt
-      pausedAt
       createdAt
       updatedAt
     }
