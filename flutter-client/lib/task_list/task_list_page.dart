@@ -10,15 +10,15 @@ import './widgets/current_task.dart';
 import './widgets/searchbar.dart';
 
 class TaskListPage extends StatelessWidget {
-  final TaskRepo repo;
+  final WorkrecClient client;
 
-  const TaskListPage({Key? key, required this.repo}) : super(key: key);
+  const TaskListPage({Key? key, required this.client}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ChangeNotifierProvider<TaskListPageViewModel>(
-        create: (_) => TaskListPageViewModel(repo)..listen(),
+        create: (_) => TaskListPageViewModel(client)..listen(),
         child: Builder(builder: (context) {
           final viewModel = context.watch<TaskListPageViewModel>();
 
@@ -48,7 +48,7 @@ class TaskListPage extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                                 builder: (context) => TaskDetailPage(
-                                    repo: repo,
+                                    client: client,
                                     taskId: viewModel.currentTaskId)),
                           );
                         }),

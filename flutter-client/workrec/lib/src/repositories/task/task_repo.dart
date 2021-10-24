@@ -1,11 +1,10 @@
-import 'package:clock/clock.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:stream_transform/stream_transform.dart';
 import 'package:workrec/src/models/models.dart';
 
 import 'firestore_converter.dart';
 
-typedef QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
+typedef TransactionCallback = Function(TaskTransaction);
+typedef _QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
 
 class TaskRepo {
   final String userId;
@@ -16,198 +15,102 @@ class TaskRepo {
       : _store = store ?? FirebaseFirestore.instance;
 
   Future<Task> findTaskById(String taskId) {
-    return _taskCollection(userId)
+    return _taskCollection(_store, userId)
         .doc(taskId)
         .get()
-        .then((doc) => _taskFromDoc(doc as QueryDocument));
+        .then((doc) => _taskFromDoc(doc as _QueryDocument));
   }
 
-  Stream<TaskRecorder> taskRecorder() {
-    final tasksStream = _taskCollection(userId)
-        .snapshots()
-        .map((snapshots) => snapshots.docs)
-        .map((docs) => docs.map((doc) => _taskFromDoc(doc as QueryDocument)))
-        .asyncMap((tasks) async => await Future.wait(tasks));
-
-    final currentTaskIdStream = _userDoc(userId).snapshots().map(
+  Stream<String> currentTaskIdStream() {
+    return _userDoc(userId).snapshots().map(
           (snapshots) => snapshots.exists
               ? (snapshots.get('currentTaskId') as String)
               : '',
         );
-
-    return tasksStream.combineLatest(
-      currentTaskIdStream,
-      (tasks, currentTaskId) => TaskRecorder(
-        tasks: tasks,
-        currentTaskId: currentTaskId as String,
-      ),
-    );
   }
 
-  Future<Task> _taskFromDoc(QueryDocument doc) async {
+  Stream<List<Future<Task>>> tasksStream() {
+    return _taskCollection(_store, userId)
+        .snapshots()
+        .map((snapshots) => snapshots.docs)
+        .map((docs) =>
+            docs.map((doc) => _taskFromDoc(doc as _QueryDocument)).toList());
+  }
+
+  Future<Task> _taskFromDoc(_QueryDocument doc) async {
     final workTimeSnapshot = await _workTimeCollection(
+      _store,
       userId,
       doc.id,
     ).orderBy('start').get();
 
-    final workTimeDocs = workTimeSnapshot.docs as List<QueryDocument>;
+    final workTimeDocs = workTimeSnapshot.docs as List<_QueryDocument>;
     return taskFromFirestoreDoc(doc, workTimeDocs);
   }
 
-  Future<void> addNewTask(TaskRecorder recorder, String title) {
-    final recorded = recorder.addNewTask(title: title);
+  Future<void> addTask(Task task) {
     final data = taskToFirestoreData(
-      task: recorded.tasks.last,
+      task: task,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     );
 
-    return _taskCollection(userId).add(data);
+    return _taskCollection(_store, userId).add(data);
   }
 
-  Future<void> recordStartTimeOfTask(TaskRecorder source, String taskId) async {
-    final recorded = source.recordStartTimeOfTask(taskId, clock.now());
-    final started = recorded.currentTask;
+  Future<void> runInTransaction(TransactionCallback callback) async {
+    final tran = TaskTransaction(_store, userId);
+    callback(tran);
 
-    final batch = _store.batch();
-
-    _updateTask(batch, userId: userId, taskId: started.id);
-    _addWorkTime(
-      batch,
-      userId: userId,
-      taskId: started.id,
-      workTime: started.lastTimeRecord,
-    );
-
-    if (taskId != source.currentTaskId) {
-      _updateCurrentTaskId(
-        batch,
-        userId: userId,
-        taskId: started.id,
-      );
-      if (source.currentTaskId.isNotEmpty) {
-        _savePrevCurrentTask(
-          batch,
-          userId: userId,
-          currentTask: recorded.findTask(source.currentTaskId),
-        );
-      }
-    }
-
-    await batch.commit();
-  }
-
-  Future<void> recordSuspendTimeOfTask(
-      TaskRecorder source, String taskId) async {
-    final recorded = source.recordSuspendTimeOfTask(taskId, clock.now());
-    final suspended = recorded.findTask(taskId);
-
-    final batch = _store.batch();
-    _updateTask(batch, userId: userId, taskId: suspended.id);
-
-    final workTime = suspended.timeRecords.last;
-    _updateWorkTime(
-      batch,
-      userId: userId,
-      taskId: suspended.id,
-      workTime: workTime,
-    );
-
-    await batch.commit();
-  }
-
-  Future<void> recordResumeTimeOfTask(
-      TaskRecorder source, String taskId) async {
-    final recorded = source.recordResumeTimeOfTask(taskId, clock.now());
-    final resumed = recorded.currentTask;
-
-    final batch = _store.batch();
-
-    _updateTask(batch, userId: userId, taskId: resumed.id);
-    _addWorkTime(
-      batch,
-      userId: userId,
-      taskId: resumed.id,
-      workTime: resumed.lastTimeRecord,
-    );
-
-    if (taskId != source.currentTaskId) {
-      _updateCurrentTaskId(
-        batch,
-        userId: userId,
-        taskId: resumed.id,
-      );
-      if (source.currentTaskId.isNotEmpty) {
-        _savePrevCurrentTask(
-          batch,
-          userId: userId,
-          currentTask: recorded.findTask(source.currentTaskId),
-        );
-      }
-    }
-
-    await batch.commit();
-  }
-
-  void _savePrevCurrentTask(WriteBatch batch,
-      {required String userId, required Task currentTask}) {
-    _updateTask(batch, userId: userId, taskId: currentTask.id);
-
-    final workTime = currentTask.lastTimeRecord;
-    _updateWorkTime(
-      batch,
-      userId: userId,
-      taskId: currentTask.id,
-      workTime: workTime,
-    );
-  }
-
-  void _updateCurrentTaskId(
-    WriteBatch batch, {
-    required String userId,
-    required String taskId,
-  }) {
-    final userData = {'currentTaskId': taskId};
-    batch.set(_userDoc(userId), userData);
-  }
-
-  void _updateTask(
-    WriteBatch batch, {
-    required String userId,
-    required String taskId,
-  }) {
-    final taskData = taskToFirestoreData(
-      updatedAt: FieldValue.serverTimestamp(),
-    );
-    batch.update(_taskCollection(userId).doc(taskId), taskData);
-  }
-
-  void _addWorkTime(
-    WriteBatch batch, {
-    required String userId,
-    required String taskId,
-    required WorkTime workTime,
-  }) {
-    final workTimeData = workTimeToFirestoreData(workTime);
-    final workTimeDoc = _workTimeCollection(userId, taskId).doc();
-    batch.set(workTimeDoc, workTimeData);
-  }
-
-  void _updateWorkTime(
-    WriteBatch batch, {
-    required String userId,
-    required String taskId,
-    required WorkTime workTime,
-  }) {
-    final workTimeDoc = _workTimeCollection(userId, taskId).doc(workTime.id);
-    batch.update(workTimeDoc, workTimeToFirestoreData(workTime));
+    await tran.commit();
   }
 
   DocumentReference _userDoc(String userId) => _store.doc('users/$userId');
-
-  CollectionReference _taskCollection(String userId) =>
-      _store.collection('users/$userId/tasks');
-
-  CollectionReference _workTimeCollection(String userId, String taskId) =>
-      _store.collection('users/$userId/tasks/$taskId/workTimes');
 }
+
+class TaskTransaction {
+  final String _userId;
+  final FirebaseFirestore _store;
+  final WriteBatch _batch;
+
+  TaskTransaction(this._store, this._userId) : _batch = _store.batch();
+
+  Future<void> commit() => _batch.commit();
+
+  void updateTask(Task task) {
+    final taskData = taskToFirestoreData(
+      updatedAt: FieldValue.serverTimestamp(),
+    );
+    _batch.update(_taskCollection(_store, _userId).doc(task.id), taskData);
+  }
+
+  void addWorkTime(String taskId, WorkTime workTime) {
+    final workTimeData = workTimeToFirestoreData(workTime);
+    final workTimeDoc = _workTimeCollection(_store, _userId, taskId).doc();
+    _batch.set(workTimeDoc, workTimeData);
+  }
+
+  void updateWorkTime(String taskId, WorkTime workTime) {
+    final workTimeDoc =
+        _workTimeCollection(_store, _userId, taskId).doc(workTime.id);
+    _batch.update(workTimeDoc, workTimeToFirestoreData(workTime));
+  }
+
+  void updateCurrentTaskId(String taskId) {
+    final userData = {'currentTaskId': taskId};
+    _batch.set(_userDoc(_store, _userId), userData);
+  }
+}
+
+DocumentReference _userDoc(FirebaseFirestore store, String userId) =>
+    store.doc('users/$userId');
+
+CollectionReference _taskCollection(FirebaseFirestore store, String userId) =>
+    store.collection('users/$userId/tasks');
+
+CollectionReference _workTimeCollection(
+  FirebaseFirestore store,
+  String userId,
+  String taskId,
+) =>
+    store.collection('users/$userId/tasks/$taskId/workTimes');

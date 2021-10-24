@@ -8,15 +8,18 @@ import 'package:workrec_app/task_list/task_list_page.dart';
 import 'task_list_test.mocks.dart';
 
 @GenerateMocks(
-  [TaskRepo],
+  [WorkrecClient],
 )
 void main() {
   testWidgets('Golden test', (WidgetTester tester) async {
-    final repo = MockTaskRepo();
-    when(repo.taskRecorder()).thenAnswer(
-      (_) => Stream<TaskRecorder>.fromIterable(
-        [TaskRecorder(tasks: _newTasks(), currentTaskId: 'current')],
-      ),
+    final client = MockWorkrecClient();
+    when(client.currentTaskStream()).thenAnswer(
+      (_) => Stream<Task>.fromIterable([
+        _newTasks().firstWhere((task) => task.id == 'current'),
+      ]),
+    );
+    when(client.tasksStream()).thenAnswer(
+      (_) => Stream<List<Task>>.fromIterable([_newTasks()]),
     );
 
     await tester.pumpWidget(MaterialApp(
@@ -25,7 +28,7 @@ void main() {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: TaskListPage(repo: repo),
+      home: TaskListPage(client: client),
     ));
 
     await tester.pump(Duration.zero);
@@ -54,5 +57,5 @@ List<Task> _newTasks() => [
           .suspend(DateTime.utc(2021, 8, 14, 12, 34))
     ];
 
-Task _newTask(String id, String title) =>
-    Task(id: id, title: title, timeRecords: const []);
+Task _newTask(String id, String title) => Task(
+    id: id, state: TaskState.unstarted, title: title, timeRecords: const []);

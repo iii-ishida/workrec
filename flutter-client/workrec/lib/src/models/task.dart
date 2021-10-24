@@ -3,6 +3,41 @@ import 'package:equatable/equatable.dart';
 
 import 'work_time.dart';
 
+enum TaskState {
+  unknown,
+  unstarted,
+  started,
+  suspended,
+  resumed,
+  finished,
+}
+
+extension Strings on TaskState {
+  /// [String] に変換して返します
+  String toShortString() => toString().split('.').last;
+}
+
+/// [from] を [TaskState] に変換して返します
+/// [from] が不正な値の場合は [ArgumentError] を throw します
+TaskState taskStateFromShortString(String from) {
+  switch (from) {
+    case 'unstarted':
+      return TaskState.unstarted;
+    case 'started':
+      return TaskState.started;
+    case 'suspended':
+      return TaskState.suspended;
+    case 'resumed':
+      return TaskState.resumed;
+    case 'finished':
+      return TaskState.finished;
+    case 'unknown':
+      return TaskState.unknown;
+    default:
+      throw ArgumentError.value(from);
+  }
+}
+
 /// 記録対象のタスク
 class Task extends Equatable {
   /// id
@@ -11,12 +46,16 @@ class Task extends Equatable {
   /// タスクのタイトル
   final String title;
 
+  /// タスクの状態
+  final TaskState state;
+
   /// 記録した作業時間のリスト
   final List<WorkTime> timeRecords;
 
   const Task({
     required this.id,
     required this.title,
+    required this.state,
     required this.timeRecords,
   });
 
@@ -50,6 +89,7 @@ class Task extends Equatable {
     return Task(
       id: '',
       title: title,
+      state: TaskState.unstarted,
       timeRecords: const [],
     );
   }
@@ -62,6 +102,7 @@ class Task extends Equatable {
     }
 
     return _copyWith(
+      state: TaskState.started,
       timeRecords: [...timeRecords, WorkTime(id: '', start: startTime)],
       updatedAt: clock.now(),
     );
@@ -76,6 +117,7 @@ class Task extends Equatable {
 
     final lastRecord = timeRecords.last;
     return _copyWith(
+      state: TaskState.suspended,
       timeRecords: [
         ...timeRecords.toList()..removeLast(),
         lastRecord.patch(end: suspendedAt)
@@ -92,6 +134,7 @@ class Task extends Equatable {
     }
 
     return _copyWith(
+      state: TaskState.resumed,
       timeRecords: [...timeRecords, WorkTime(id: '', start: resumedAt)],
       updatedAt: clock.now(),
     );
@@ -99,16 +142,18 @@ class Task extends Equatable {
 
   Task _copyWith({
     String? title,
+    TaskState? state,
     List<WorkTime>? timeRecords,
     DateTime? updatedAt,
   }) {
     return Task(
       id: id,
+      state: state ?? this.state,
       title: title ?? this.title,
       timeRecords: timeRecords ?? this.timeRecords,
     );
   }
 
   @override
-  List<Object> get props => [id, title, timeRecords];
+  List<Object> get props => [id, title, state, timeRecords];
 }

@@ -5,8 +5,8 @@
 import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:workrec/src/client.dart' as _i3;
 import 'package:workrec/src/models/models.dart' as _i2;
-import 'package:workrec/src/repositories/task/task_repo.dart' as _i3;
 
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: avoid_setters_without_getters
@@ -18,52 +18,46 @@ import 'package:workrec/src/repositories/task/task_repo.dart' as _i3;
 
 class _FakeTask_0 extends _i1.Fake implements _i2.Task {}
 
-/// A class which mocks [TaskRepo].
+/// A class which mocks [WorkrecClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskRepo extends _i1.Mock implements _i3.TaskRepo {
-  MockTaskRepo() {
+class MockWorkrecClient extends _i1.Mock implements _i3.WorkrecClient {
+  MockWorkrecClient() {
     _i1.throwOnMissingStub(this);
   }
 
-  @override
-  String get userId =>
-      (super.noSuchMethod(Invocation.getter(#userId), returnValue: '')
-          as String);
   @override
   _i4.Future<_i2.Task> findTaskById(String? taskId) =>
       (super.noSuchMethod(Invocation.method(#findTaskById, [taskId]),
               returnValue: Future<_i2.Task>.value(_FakeTask_0()))
           as _i4.Future<_i2.Task>);
   @override
-  _i4.Stream<_i2.TaskRecorder> taskRecorder() =>
-      (super.noSuchMethod(Invocation.method(#taskRecorder, []),
-              returnValue: Stream<_i2.TaskRecorder>.empty())
-          as _i4.Stream<_i2.TaskRecorder>);
+  _i4.Stream<_i2.Task> currentTaskStream() =>
+      (super.noSuchMethod(Invocation.method(#currentTaskStream, []),
+          returnValue: Stream<_i2.Task>.empty()) as _i4.Stream<_i2.Task>);
   @override
-  _i4.Future<void> addNewTask(_i2.TaskRecorder? recorder, String? title) =>
-      (super.noSuchMethod(Invocation.method(#addNewTask, [recorder, title]),
+  _i4.Stream<List<_i2.Task>> tasksStream() =>
+      (super.noSuchMethod(Invocation.method(#tasksStream, []),
+              returnValue: Stream<List<_i2.Task>>.empty())
+          as _i4.Stream<List<_i2.Task>>);
+  @override
+  _i4.Future<void> addNewTask({String? title}) =>
+      (super.noSuchMethod(Invocation.method(#addNewTask, [], {#title: title}),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
-  _i4.Future<void> recordStartTimeOfTask(
-          _i2.TaskRecorder? source, String? taskId) =>
-      (super.noSuchMethod(
-          Invocation.method(#recordStartTimeOfTask, [source, taskId]),
+  _i4.Future<void> startTask(String? taskId, DateTime? timestamp) =>
+      (super.noSuchMethod(Invocation.method(#startTask, [taskId, timestamp]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
-  _i4.Future<void> recordSuspendTimeOfTask(
-          _i2.TaskRecorder? source, String? taskId) =>
-      (super.noSuchMethod(
-          Invocation.method(#recordSuspendTimeOfTask, [source, taskId]),
+  _i4.Future<void> suspendTask(String? taskId, DateTime? timestamp) =>
+      (super.noSuchMethod(Invocation.method(#suspendTask, [taskId, timestamp]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
-  _i4.Future<void> recordResumeTimeOfTask(
-          _i2.TaskRecorder? source, String? taskId) =>
-      (super.noSuchMethod(
-          Invocation.method(#recordResumeTimeOfTask, [source, taskId]),
+  _i4.Future<void> resumeTask(String? taskId, DateTime? timestamp) =>
+      (super.noSuchMethod(Invocation.method(#resumeTask, [taskId, timestamp]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override

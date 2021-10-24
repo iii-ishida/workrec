@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         repo: authRepo,
         builder: ((userId) => userId.isEmpty
             ? AuthPage(viewModel: AuthViewModel(repo: authRepo))
-            : TaskListPage(repo: TaskRepo(userId: userId))),
+            : TaskListPage(client: WorkrecClient(userId: userId))),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:workrec/src/models/models.dart';
 
-typedef QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
+typedef _QueryDocument = DocumentSnapshot<Map<String, dynamic>>;
 
 /// [Task] から Firestore 用の [Map] を生成して返します
 Map<String, dynamic> taskToFirestoreData({
@@ -11,6 +11,7 @@ Map<String, dynamic> taskToFirestoreData({
 }) {
   return <String, dynamic>{
     if (task != null) 'title': task.title,
+    if (task != null) 'state': task.state.toShortString(),
     if (createdAt != null) 'createdAt': createdAt,
     if (updatedAt != null) 'updatedAt': updatedAt,
   };
@@ -26,26 +27,27 @@ Map<String, dynamic> workTimeToFirestoreData(WorkTime workTime) {
 
 /// [QueryDocumentSnapshot] から [Task] を生成して返します
 Task taskFromFirestoreDoc(
-  QueryDocument doc,
-  List<QueryDocument> workTimeDocs,
+  _QueryDocument doc,
+  List<_QueryDocument> workTimeDocs,
 ) {
   final data = doc.data();
   if (data == null) {
-    return const Task(id: '', title: '', timeRecords: []);
+    return Task.create(title: '');
   }
 
   return Task(
     id: doc.id,
     title: data['title'] as String,
+    state: taskStateFromShortString(data['state'] as String),
     timeRecords: _workTimeListFromFirestoreDocs(workTimeDocs),
   );
 }
 
-List<WorkTime> _workTimeListFromFirestoreDocs(List<QueryDocument> docs) {
+List<WorkTime> _workTimeListFromFirestoreDocs(List<_QueryDocument> docs) {
   return docs.map((doc) => _workTimeFromFirestoreDoc(doc)).toList();
 }
 
-WorkTime _workTimeFromFirestoreDoc(QueryDocument doc) {
+WorkTime _workTimeFromFirestoreDoc(_QueryDocument doc) {
   final data = doc.data();
   if (data == null) {
     return WorkTime(id: '', start: DateTime.now(), end: DateTime.now());

@@ -3,12 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:workrec/workrec.dart';
 
 class TaskDetailPage extends StatelessWidget {
-  final TaskRepo repo;
+  final WorkrecClient client;
   final String taskId;
 
   const TaskDetailPage({
     Key? key,
-    required this.repo,
+    required this.client,
     required this.taskId,
   }) : super(key: key);
 
@@ -16,7 +16,7 @@ class TaskDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TaskDetailPageViewModel>(
       create: (_) => TaskDetailPageViewModel(
-        repo: repo,
+        client: client,
         taskId: taskId,
       )..listen(),
       child: Builder(
@@ -33,14 +33,14 @@ class TaskDetailPage extends StatelessWidget {
 }
 
 class TaskDetailPageViewModel extends ChangeNotifier {
-  final TaskRepo repo;
+  final WorkrecClient client;
   final String taskId;
   Task? _task;
 
-  TaskDetailPageViewModel({required this.repo, required this.taskId});
+  TaskDetailPageViewModel({required this.client, required this.taskId});
 
   void listen() {
-    repo.findTaskById(taskId).then((task) {
+    client.findTaskById(taskId).then((task) {
       _task = task;
       notifyListeners();
     });

@@ -13,6 +13,9 @@ void main() {
       test('title が引数の [title] であること', () {
         expect(actual.title, title);
       });
+      test('state が unstarted であること', () {
+        expect(actual.state, TaskState.unstarted);
+      });
     });
 
     group('.start', () {
@@ -24,6 +27,9 @@ void main() {
       test('id, title が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
+      });
+      test('state が started であること', () {
+        expect(actual.state, TaskState.started);
       });
       test('timeRecords に WorkTime が追加されていること', () {
         expect(actual.timeRecords.length, source.timeRecords.length + 1);
@@ -47,6 +53,9 @@ void main() {
       test('id, title が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
+      });
+      test('state が suspended であること', () {
+        expect(actual.state, TaskState.suspended);
       });
       test('timeRecords の個数が変更されないこと', () {
         expect(actual.timeRecords.length, source.timeRecords.length);
@@ -72,6 +81,9 @@ void main() {
       test('id, title が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
+      });
+      test('state が resumed であること', () {
+        expect(actual.state, TaskState.resumed);
       });
       test('timeRecords に WorkTime が追加されていること', () {
         expect(actual.timeRecords.length, source.timeRecords.length + 1);

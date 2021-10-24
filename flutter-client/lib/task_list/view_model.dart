@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:workrec/workrec.dart';
@@ -9,18 +10,24 @@ typedef _RecordTaskFunc = Future<void> Function(String);
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
 class TaskListPageViewModel extends ChangeNotifier {
-  final TaskRepo repo;
-  TaskRecorder _recorder = TaskRecorder(tasks: const [], currentTaskId: '');
+  final WorkrecClient client;
+  List<Task> _tasks = [];
+  Task _currentTask = Task.create(title: '');
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
 
-  TaskListPageViewModel(this.repo);
+  TaskListPageViewModel(this.client);
 
   void listen() {
-    repo.taskRecorder().listen((recorder) {
+    client.tasksStream().listen((tasks) {
       _isLoading = false;
-      _recorder = recorder;
+      _tasks = tasks;
+      notifyListeners();
+    });
+
+    client.currentTaskStream().listen((task) {
+      _currentTask = task;
       notifyListeners();
     });
   }
@@ -28,18 +35,19 @@ class TaskListPageViewModel extends ChangeNotifier {
   void onChangeSearchText(String searchTest) {}
 
   void onAddTask(String title) {
-    repo.addNewTask(_recorder, title);
+    client.addNewTask(title: title);
   }
 
-  String get currentTaskId => _recorder.currentTaskId;
+  String get currentTaskId => _currentTask.id;
+
   CurrentTaskViewModel get currentTaskViewModel =>
-      CurrentTaskViewModel(_recorder.currentTask);
+      CurrentTaskViewModel(_currentTask);
 
   TaskListViewModel get taskListViewModel => TaskListViewModel(
-        tasks: _recorder.tasks.where((t) => t.id != currentTaskId).toList(),
-        startTask: (id) => repo.recordStartTimeOfTask(_recorder, id),
-        suspendTask: (id) => repo.recordSuspendTimeOfTask(_recorder, id),
-        resumeTask: (id) => repo.recordResumeTimeOfTask(_recorder, id),
+        tasks: _tasks,
+        startTask: (id) => client.startTask(id, clock.now()),
+        suspendTask: (id) => client.suspendTask(id, clock.now()),
+        resumeTask: (id) => client.resumeTask(id, clock.now()),
       );
 }
 
@@ -65,7 +73,7 @@ class TaskListViewModel {
       .toList();
 }
 
-class TaskListItemViewModel {
+class TaskListItemViewModel extends ChangeNotifier {
   TaskListItemViewModel({
     required this.task,
     required this.startTask,
