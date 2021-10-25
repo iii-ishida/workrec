@@ -2,11 +2,11 @@ name: web-client CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'web-client/**'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'web-client/**'
   workflow_dispatch:

@@ -2,11 +2,11 @@ name: firebase CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'firebase/**'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'firebase/**'
   workflow_dispatch:

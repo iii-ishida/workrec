@@ -2,11 +2,11 @@ name: flutter-client CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'flutter-client/**'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
     - 'flutter-client/**'
   workflow_dispatch:
