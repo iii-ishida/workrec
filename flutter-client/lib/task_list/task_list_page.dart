@@ -2,11 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec/workrec.dart';
-import 'package:workrec_app/task_detail_page.dart';
 
 import './view_model.dart';
 import './widgets/add_task_field.dart';
-import './widgets/current_task.dart';
 import './widgets/searchbar.dart';
 
 class TaskListPage extends StatelessWidget {
@@ -23,7 +21,7 @@ class TaskListPage extends StatelessWidget {
           final viewModel = context.watch<TaskListPageViewModel>();
 
           return Container(
-            color: const Color(0xFFF3F3F3),
+            color: Colors.white,
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [
@@ -40,40 +38,24 @@ class TaskListPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: CurrentTask(viewModel.currentTaskViewModel,
-                            onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                                builder: (context) => TaskDetailPage(
-                                    client: client,
-                                    taskId: viewModel.currentTaskId)),
-                          );
-                        }),
+                    const SliverToBoxAdapter(
+                      child: Divider(
+                        height: 1,
+                        color: Color(0xFFA5A5A5),
                       ),
                     ),
-                    SliverPadding(
-                      padding: const EdgeInsets.all(16),
+                    SliverSafeArea(
+                      top: false,
                       sliver: _TaskListView(
                         viewModel: viewModel.taskListViewModel,
                       ),
                     ),
-                    const SliverSafeArea(
-                      top: false,
-                      sliver: SliverToBoxAdapter(
-                        child: SizedBox(height: 44),
-                      ),
-                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 44)),
                   ],
                 ),
                 SafeArea(
                   top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: AddTaskField(onAddTask: viewModel.onAddTask),
-                  ),
+                  child: AddTaskField(onAddTask: viewModel.onAddTask),
                 ),
               ],
             ),
@@ -98,12 +80,7 @@ class _TaskListView extends StatelessWidget {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           if (index.isEven) {
-            final isFirst = index == 0;
-            final isLast =
-                index ~/ 2 == viewModel.taskListItemViewModels.length - 1;
             return _TaskListRow(
-              isFirst: isFirst,
-              isLast: isLast,
               viewModel: viewModel.taskListItemViewModels[index ~/ 2],
             );
           } else {
@@ -120,27 +97,15 @@ class _TaskListRow extends StatelessWidget {
   const _TaskListRow({
     Key? key,
     required this.viewModel,
-    this.isFirst = false,
-    this.isLast = false,
   }) : super(key: key);
 
   final TaskListItemViewModel viewModel;
-  final bool isFirst;
-  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     const _space = SizedBox(height: 8, width: 8);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: isFirst
-            ? const BorderRadius.vertical(top: Radius.circular(16))
-            : (isLast
-                ? const BorderRadius.vertical(bottom: Radius.circular(16))
-                : BorderRadius.zero),
-      ),
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
@@ -150,7 +115,7 @@ class _TaskListRow extends StatelessWidget {
               Text(
                 viewModel.title,
                 style: Theme.of(context).textTheme.headline6!.copyWith(
-                      fontSize: 17,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
               ),

@@ -13,7 +13,7 @@ on:
 
 env:
   GOOGLE_SERVICE_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICE_JSON }}
-  FLUTTER_VERSION: 2.7.0
+  FLUTTER_VERSION: 2.8.0
 
 jobs:
   build:

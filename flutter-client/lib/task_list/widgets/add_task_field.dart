@@ -49,7 +49,7 @@ class _AddTaskFieldState extends State<AddTaskField> {
               ),
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(0)),
               ),
               filled: true,
               fillColor: Color(0xB3D4D4D4),
@@ -60,7 +60,9 @@ class _AddTaskFieldState extends State<AddTaskField> {
             textAlignVertical: TextAlignVertical.top,
             style: const TextStyle(fontSize: 15),
             onSubmitted: (title) {
-              widget.onAddTask(title);
+              if (title.isNotEmpty) {
+                widget.onAddTask(title);
+              }
               _titleController.clear();
             },
           ),

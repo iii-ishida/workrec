@@ -4,7 +4,7 @@ import 'package:workrec/workrec.dart';
 
 import './auth/auth_page.dart';
 import './auth/auth_provider.dart';
-import './task_list/task_list_page.dart';
+import './home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         repo: authRepo,
         builder: ((userId) => userId.isEmpty
             ? AuthPage(viewModel: AuthViewModel(repo: authRepo))
-            : TaskListPage(client: WorkrecClient(userId: userId))),
+            : Home(client: WorkrecClient(userId: userId))),
       ),
     );
   }
