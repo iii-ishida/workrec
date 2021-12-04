@@ -19,7 +19,7 @@
   },
   {
     "target": "doc",
-    "public": "workrec/doc/api"
+    "public": "doc/api"
   }],
   "emulators": {
     "auth": {

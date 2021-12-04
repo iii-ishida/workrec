@@ -28,10 +28,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   provider: ^5.0.0
-  mockito: ^5.0.10
 
-  workrec:
-    path: workrec
+  equatable: ^2.0.0
+  quiver: ^3.0.0
+
+  firebase_core: ^1.8.0
+  firebase_auth: ^3.1.4
+  cloud_firestore: ^2.5.4
+
+  clock: ^1.1.0
+  fake_async: ^1.2.0
+  mockito: ^5.0.10
+  stream_transform: ^2.0.0
 
 dev_dependencies:
   flutter_test:

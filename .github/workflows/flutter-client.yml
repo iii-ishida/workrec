@@ -35,10 +35,8 @@ jobs:
         channel: beta
     - name: Install dependencies
       run: cd flutter-client && flutter pub get
-    - name: Run tests app
+    - name: Run tests
       run: cd flutter-client && flutter analyze && flutter test && flutter format --dry-run --set-exit-if-changed .
-    - name: Run tests lib
-      run: cd flutter-client/workrec && flutter analyze && flutter test && flutter format --dry-run --set-exit-if-changed .
     - name: Upload goldens if tests fail.
       uses: actions/upload-artifact@v1
       if: failure()
@@ -93,7 +91,7 @@ jobs:
     - run: flutter pub global activate dartdoc
     - name: Build and Deploy
       run: |-
-        cd flutter-client/workrec
+        cd flutter-client
         firebase use ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
         flutter pub global run dartdoc && firebase target:apply hosting doc ${{ secrets.FIREBASE_APP_PROJECT }}-doc && firebase deploy --only hosting:doc --project ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
 

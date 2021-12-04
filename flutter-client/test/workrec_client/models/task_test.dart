@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:workrec/src/models/task.dart';
+import 'package:workrec_app/workrec_client/models/task.dart';
 
 void main() {
   group('Task', () {

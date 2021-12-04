@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:workrec/src/models/models.dart';
+import 'package:workrec_app/workrec_client/models/work_time.dart';
 
 void main() {
   group('WorkTime.workingTime', () {

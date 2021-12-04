@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec/workrec.dart';
+import 'package:workrec_app/workrec_client/client.dart';
+import 'package:workrec_app/workrec_client/models/task.dart';
 
 class TaskDetailPage extends StatelessWidget {
   final WorkrecClient client;
