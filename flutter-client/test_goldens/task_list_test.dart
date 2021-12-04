@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:workrec/workrec.dart';
-import 'package:workrec_app/task_list/task_list_page.dart';
+import 'package:workrec_app/widgets/task_list/task_list_page.dart';
 
 import 'task_list_test.mocks.dart';
 
