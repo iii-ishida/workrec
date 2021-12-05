@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workrec_app/workrec_client/repositories/auth/auth_repo.dart';
+import 'package:workrec_app/auth_client/auth_client.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key, required this.viewModel}) : super(key: key);
@@ -76,18 +76,18 @@ class _AuthPageState extends State<AuthPage> {
 }
 
 class AuthViewModel {
-  final AuthRepo repo;
+  final AuthClient authClient;
   String _email = '';
   String _password = '';
 
-  AuthViewModel({required this.repo});
+  AuthViewModel({required this.authClient});
 
   Future<void> signIn() async {
     if (!validateEmail() || !validatePassword()) {
       return;
     }
 
-    await repo.signInWithEmailAndPassword(
+    await authClient.signInWithEmailAndPassword(
       email: _email,
       password: _password,
     );

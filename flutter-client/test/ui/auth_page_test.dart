@@ -1,20 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:workrec_app/workrec_client/repositories/auth/auth_repo.dart';
+import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/widgets/auth/auth_page.dart';
 
 import 'auth_page_test.mocks.dart';
 
-@GenerateMocks([AuthRepo])
+@GenerateMocks([AuthClient])
 void main() {
   group('AuthViewModel', () {
-    late MockAuthRepo repo;
+    late MockAuthClient client;
     late AuthViewModel model;
 
     setUp(() {
-      repo = MockAuthRepo();
-      model = AuthViewModel(repo: repo);
+      client = MockAuthClient();
+      model = AuthViewModel(authClient: client);
     });
 
     group('.validateEmail', () {
@@ -46,31 +46,32 @@ void main() {
     });
 
     group('.signIn', () {
-      test('email が空の場合は repo.signInWithEmailAndPassword を実行しないこと', () {
+      test('email が空の場合は client.signInWithEmailAndPassword を実行しないこと', () {
         model.onChangeEmail('');
         model.onChangePassword('somepassword');
 
         model.signIn();
 
-        verifyNever(repo.signInWithEmailAndPassword(
+        verifyNever(client.signInWithEmailAndPassword(
           email: anyNamed('email'),
           password: anyNamed('password'),
         ));
       });
 
-      test('password が空の場合は repo.signInWithEmailAndPassword を実行しないこと', () {
+      test('password が空の場合は client.signInWithEmailAndPassword を実行しないこと', () {
         model.onChangeEmail('test@example.com');
         model.onChangePassword('');
 
         model.signIn();
 
-        verifyNever(repo.signInWithEmailAndPassword(
+        verifyNever(client.signInWithEmailAndPassword(
           email: anyNamed('email'),
           password: anyNamed('password'),
         ));
       });
 
-      test('email と password が空でない場合は repo.signInWithEmailAndPassword を実行すること',
+      test(
+          'email と password が空でない場合は client.signInWithEmailAndPassword を実行すること',
           () {
         const email = 'test@example.com';
         const password = 'somepassword';
@@ -79,7 +80,7 @@ void main() {
 
         model.signIn();
 
-        verify(repo.signInWithEmailAndPassword(
+        verify(client.signInWithEmailAndPassword(
           email: email,
           password: password,
         ));

@@ -5,8 +5,7 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:workrec_app/workrec_client/repositories/auth/auth_repo.dart'
-    as _i2;
+import 'package:workrec_app/auth_client/auth_client.dart' as _i2;
 
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: avoid_setters_without_getters
@@ -17,11 +16,11 @@ import 'package:workrec_app/workrec_client/repositories/auth/auth_repo.dart'
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 
-/// A class which mocks [AuthRepo].
+/// A class which mocks [AuthClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthRepo extends _i1.Mock implements _i2.AuthRepo {
-  MockAuthRepo() {
+class MockAuthClient extends _i1.Mock implements _i2.AuthClient {
+  MockAuthClient() {
     _i1.throwOnMissingStub(this);
   }
 

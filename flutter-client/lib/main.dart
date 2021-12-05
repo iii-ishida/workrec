@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:workrec_app/workrec_client/client.dart';
-import 'package:workrec_app/workrec_client/repositories/auth/auth_repo.dart';
+import 'package:workrec_app/auth_client/auth_client.dart';
 
 import './widgets/auth/auth_page.dart';
 import './widgets/auth/auth_provider.dart';
@@ -16,7 +16,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final authRepo = AuthRepo();
+  final authClient = AuthClient();
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +27,9 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: AuthProvider(
-        repo: authRepo,
+        authClient: authClient,
         builder: ((userId) => userId.isEmpty
-            ? AuthPage(viewModel: AuthViewModel(repo: authRepo))
+            ? AuthPage(viewModel: AuthViewModel(authClient: authClient))
             : Home(client: WorkrecClient(userId: userId))),
       ),
     );
