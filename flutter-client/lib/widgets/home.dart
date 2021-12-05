@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workrec_app/workrec_client/client.dart';
+import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 import './task_list/task_list_page.dart';
 

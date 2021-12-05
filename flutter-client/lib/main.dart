@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:workrec_app/workrec_client/client.dart';
+import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 
 import './widgets/auth/auth_page.dart';

@@ -1,7 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:workrec_app/workrec_client/client.dart';
+import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
 
 import './widgets/current_task.dart';

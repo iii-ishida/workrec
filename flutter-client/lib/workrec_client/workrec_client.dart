@@ -1,5 +1,5 @@
 import './models/task.dart';
-import './repositories/task/task_repo.dart';
+import './repo/task_repo.dart';
 
 class WorkrecClient {
   final TaskRepo _repo;

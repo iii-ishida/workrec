@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workrec_app/workrec_client/client.dart';
+import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 import './view_model.dart';
 import './widgets/add_task_field.dart';

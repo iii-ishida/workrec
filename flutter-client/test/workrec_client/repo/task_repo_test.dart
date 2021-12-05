@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
-import 'package:workrec_app/workrec_client/repositories/task/task_repo.dart';
+import 'package:workrec_app/workrec_client/repo/task_repo.dart';
 
 import 'task_repo_test.mocks.dart';
 
