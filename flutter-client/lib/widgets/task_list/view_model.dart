@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
 
-import './widgets/current_task.dart';
+import './current_task.dart';
 
 typedef _RecordTaskFunc = Future<void> Function(String);
 

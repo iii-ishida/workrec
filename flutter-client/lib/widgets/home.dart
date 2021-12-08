@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 
-import './task_list/task_list_page.dart';
+import './task_list/task_list.dart';
 
 class Home extends StatefulWidget {
   final WorkrecClient client;
@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
         currentIndex: _selectedIndex,
       ),
       body: [
-        TaskListPage(client: widget.client),
+        TaskList(client: widget.client),
         const Placeholder(),
         const Placeholder(),
       ].elementAt(_selectedIndex),

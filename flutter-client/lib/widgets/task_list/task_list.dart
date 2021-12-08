@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 import './view_model.dart';
-import './widgets/add_task_field.dart';
-import './widgets/searchbar.dart';
+import './add_task_field.dart';
+import './searchbar.dart';
 
-class TaskListPage extends StatelessWidget {
+class TaskList extends StatelessWidget {
   final WorkrecClient client;
 
-  const TaskListPage({Key? key, required this.client}) : super(key: key);
+  const TaskList({Key? key, required this.client}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

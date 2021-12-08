@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:workrec_app/widgets/task_list/task_list_page.dart';
+import 'package:workrec_app/widgets/task_list/task_list.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
 
@@ -29,12 +29,12 @@ void main() {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: TaskListPage(client: client),
+      home: TaskList(client: client),
     ));
 
     await tester.pump(Duration.zero);
 
-    await expectLater(find.byType(TaskListPage), matchesGoldenFile('main.png'));
+    await expectLater(find.byType(TaskList), matchesGoldenFile('main.png'));
   });
 }
 
