@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 import './view_model.dart';
-import './add_task_field.dart';
 import './searchbar.dart';
 
 class TaskList extends StatelessWidget {
@@ -22,40 +21,27 @@ class TaskList extends StatelessWidget {
 
           return Container(
             color: Colors.white,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                CustomScrollView(
-                  slivers: [
-                    SliverSafeArea(
-                      bottom: false,
-                      sliver: SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SearchBar(
-                            onChangeSearchText: viewModel.onChangeSearchText,
-                          ),
-                        ),
+            child: CustomScrollView(
+              slivers: [
+                SliverSafeArea(
+                  bottom: false,
+                  sliver: SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SearchBar(
+                        onChangeSearchText: viewModel.onChangeSearchText,
                       ),
                     ),
-                    const SliverToBoxAdapter(
-                      child: Divider(
-                        height: 1,
-                        color: Color(0xFFA5A5A5),
-                      ),
-                    ),
-                    SliverSafeArea(
-                      top: false,
-                      sliver: _TaskListView(
-                        viewModel: viewModel.taskListViewModel,
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 44)),
-                  ],
+                  ),
                 ),
-                SafeArea(
+                const SliverToBoxAdapter(
+                  child: Divider(height: 1, color: Color(0xFFA5A5A5)),
+                ),
+                SliverSafeArea(
                   top: false,
-                  child: AddTaskField(onAddTask: viewModel.onAddTask),
+                  sliver: _TaskListView(
+                    viewModel: viewModel.taskListViewModel,
+                  ),
                 ),
               ],
             ),

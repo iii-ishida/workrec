@@ -4,8 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
 
-import './current_task.dart';
-
 typedef _RecordTaskFunc = Future<void> Function(String);
 
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
@@ -13,7 +11,6 @@ final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 class TaskListPageViewModel extends ChangeNotifier {
   final WorkrecClient client;
   List<Task> _tasks = [];
-  Task _currentTask = Task.create(title: '');
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -26,23 +23,9 @@ class TaskListPageViewModel extends ChangeNotifier {
       _tasks = tasks;
       notifyListeners();
     });
-
-    client.currentTaskStream().listen((task) {
-      _currentTask = task;
-      notifyListeners();
-    });
   }
 
   void onChangeSearchText(String searchTest) {}
-
-  void onAddTask(String title) {
-    client.addNewTask(title: title);
-  }
-
-  String get currentTaskId => _currentTask.id;
-
-  CurrentTaskViewModel get currentTaskViewModel =>
-      CurrentTaskViewModel(_currentTask);
 
   TaskListViewModel get taskListViewModel => TaskListViewModel(
         tasks: _tasks,
