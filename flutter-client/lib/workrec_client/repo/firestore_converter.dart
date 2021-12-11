@@ -12,7 +12,7 @@ Map<String, dynamic> taskToFirestoreData({
 }) {
   return <String, dynamic>{
     if (task != null) 'title': task.title,
-    if (task != null) 'state': task.state.toShortString(),
+    if (task != null) 'state': task.state.name,
     if (createdAt != null) 'createdAt': createdAt,
     if (updatedAt != null) 'updatedAt': updatedAt,
   };
@@ -39,7 +39,7 @@ Task taskFromFirestoreDoc(
   return Task(
     id: doc.id,
     title: data['title'] as String,
-    state: taskStateFromShortString(data['state'] as String),
+    state: TaskState.values.byName(data['state'] as String),
     timeRecords: _workTimeListFromFirestoreDocs(workTimeDocs),
   );
 }

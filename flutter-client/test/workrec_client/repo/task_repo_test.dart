@@ -44,7 +44,7 @@ void main() {
 
         final data = {
           'title': task.title,
-          'state': task.state.toShortString(),
+          'state': task.state.name,
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         };

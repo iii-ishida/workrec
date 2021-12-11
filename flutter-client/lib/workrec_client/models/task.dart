@@ -12,32 +12,6 @@ enum TaskState {
   finished,
 }
 
-extension Strings on TaskState {
-  /// [String] に変換して返します
-  String toShortString() => toString().split('.').last;
-}
-
-/// [from] を [TaskState] に変換して返します
-/// [from] が不正な値の場合は [ArgumentError] を throw します
-TaskState taskStateFromShortString(String from) {
-  switch (from) {
-    case 'unstarted':
-      return TaskState.unstarted;
-    case 'started':
-      return TaskState.started;
-    case 'suspended':
-      return TaskState.suspended;
-    case 'resumed':
-      return TaskState.resumed;
-    case 'finished':
-      return TaskState.finished;
-    case 'unknown':
-      return TaskState.unknown;
-    default:
-      throw ArgumentError.value(from);
-  }
-}
-
 /// 記録対象のタスク
 class Task extends Equatable {
   /// id
