@@ -48,27 +48,35 @@ class TaskListViewModel {
     required this.resumeTask,
   });
 
-  List<TaskListItemViewModel> get taskListItemViewModels => tasks
-      .map((task) => TaskListItemViewModel(
+  List<TaskListItemViewModel> get rows => tasks
+      .map(
+        (task) => TaskListItemViewModel(
           task: task,
-          startTask: startTask,
-          suspendTask: suspendTask,
-          resumeTask: resumeTask))
+          onToggle: () => _handleToggle(task),
+        ),
+      )
       .toList();
+
+  Future<void> _handleToggle(Task task) async {
+    if (!task.isStarted) {
+      await startTask(task.id);
+    }
+    if (task.isWorking) {
+      await suspendTask(task.id);
+    } else {
+      await resumeTask(task.id);
+    }
+  }
 }
 
 class TaskListItemViewModel extends ChangeNotifier {
   TaskListItemViewModel({
     required this.task,
-    required this.startTask,
-    required this.suspendTask,
-    required this.resumeTask,
+    required this.onToggle,
   });
 
   final Task task;
-  final _RecordTaskFunc startTask;
-  final _RecordTaskFunc suspendTask;
-  final _RecordTaskFunc resumeTask;
+  final VoidCallback onToggle;
 
   String get title => task.title;
   String get startTime =>
@@ -81,7 +89,8 @@ class TaskListItemViewModel extends ChangeNotifier {
     return '$hour:$minutes';
   }
 
-  String get actionName {
+  /// トグルボタンのラベル内容
+  String get toggleButtonLabel {
     if (!task.isStarted) {
       return '開始';
     } else if (task.isWorking) {
@@ -91,28 +100,6 @@ class TaskListItemViewModel extends ChangeNotifier {
     }
   }
 
-  bool get isActionStart => !task.isWorking;
-
-  Future<void> handleToggle() async {
-    if (!task.isStarted) {
-      return await _handleStart();
-    }
-    if (task.isWorking) {
-      return await _handleSuspend();
-    } else {
-      return await _handleResume();
-    }
-  }
-
-  Future<void> _handleStart() async {
-    await startTask(task.id);
-  }
-
-  Future<void> _handleSuspend() async {
-    await suspendTask(task.id);
-  }
-
-  Future<void> _handleResume() async {
-    await resumeTask(task.id);
-  }
+  /// トグルボタンの表示を停止にする場合は true
+  bool get isNextSuspend => !task.isWorking;
 }

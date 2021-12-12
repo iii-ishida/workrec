@@ -66,14 +66,20 @@ class _TaskListView extends StatelessWidget {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           if (index.isEven) {
+            final row = viewModel.rows[index ~/ 2];
             return _TaskListRow(
-              viewModel: viewModel.taskListItemViewModels[index ~/ 2],
+              title: row.title,
+              startTime: row.startTime,
+              workingTime: row.workingTime,
+              isNextSuspend: row.isNextSuspend,
+              toggleButtonLabel: row.toggleButtonLabel,
+              onToggle: row.onToggle,
             );
           } else {
             return const Divider(height: 1, color: Color(0xFFE5E5E5));
           }
         },
-        childCount: (viewModel.taskListItemViewModels.length * 2) - 1,
+        childCount: (viewModel.rows.length * 2) - 1,
       ),
     );
   }
@@ -82,10 +88,20 @@ class _TaskListView extends StatelessWidget {
 class _TaskListRow extends StatelessWidget {
   const _TaskListRow({
     Key? key,
-    required this.viewModel,
+    required this.title,
+    required this.startTime,
+    required this.workingTime,
+    required this.isNextSuspend,
+    required this.toggleButtonLabel,
+    required this.onToggle,
   }) : super(key: key);
 
-  final TaskListItemViewModel viewModel;
+  final String title;
+  final String startTime;
+  final String workingTime;
+  final bool isNextSuspend;
+  final String toggleButtonLabel;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +115,7 @@ class _TaskListRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                viewModel.title,
+                title,
                 style: Theme.of(context).textTheme.headline6!.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -108,13 +124,13 @@ class _TaskListRow extends StatelessWidget {
               _space,
               Row(children: [
                 Text(
-                  '開始日時: ${viewModel.startTime}',
+                  '開始日時: $startTime',
                   style: Theme.of(context).textTheme.caption,
                 ),
               ]),
               Row(children: [
                 Text(
-                  '作業時間: ${viewModel.workingTime}',
+                  '作業時間: $workingTime',
                   style: Theme.of(context).textTheme.caption,
                 ),
               ]),
@@ -126,16 +142,14 @@ class _TaskListRow extends StatelessWidget {
               side: const BorderSide(width: 1, color: Colors.blue),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
-            onPressed: () => viewModel.handleToggle(),
+            onPressed: onToggle,
             child: Row(
               children: [
                 Icon(
-                  viewModel.isActionStart
-                      ? CupertinoIcons.play
-                      : CupertinoIcons.pause,
+                  isNextSuspend ? CupertinoIcons.pause :  CupertinoIcons.play,
                   size: 16,
                 ),
-                Text(viewModel.actionName),
+                Text(toggleButtonLabel),
               ],
             ),
           ),
