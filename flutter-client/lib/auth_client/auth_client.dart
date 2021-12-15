@@ -5,6 +5,8 @@ class AuthClient {
 
   AuthClient({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
+  String get currentUserId => _auth.currentUser?.uid ?? '';
+
   Stream<String> get userId =>
       _auth.authStateChanges().map((user) => user?.uid ?? '');
 

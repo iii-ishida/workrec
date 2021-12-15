@@ -1,19 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
+import 'package:workrec_app/widgets/auth/user_id_notifier.dart';
 
 import './task_list/task_list.dart';
 
-class Home extends StatefulWidget {
-  final WorkrecClient client;
+class Home extends StatelessWidget {
+  final int selectedIndex;
 
-  const Home({Key? key, required this.client}) : super(key: key);
+  const Home({Key? key, this.selectedIndex = 0}) : super(key: key);
+
+  static final routes = [
+    GoRoute(
+      path: '/',
+      redirect: (_) => '/list',
+    ),
+    GoRoute(
+      path: '/list',
+      builder: (_, __) => const Home(selectedIndex: 0),
+    ),
+    GoRoute(
+      path: '/working',
+      builder: (_, __) => const Home(selectedIndex: 1),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (_, __) => const Home(selectedIndex: 2),
+    ),
+  ];
 
   @override
-  createState() => _HomeState();
+  Widget build(BuildContext context) {
+    final userId = userIdOf(context);
+    return _Home(
+      client: WorkrecClient(userId: userId),
+      selectedIndex: selectedIndex,
+    );
+  }
 }
 
-class _HomeState extends State<Home> {
-  int _selectedIndex = 0;
+class _Home extends StatelessWidget {
+  final int selectedIndex;
+  final WorkrecClient client;
+
+  const _Home({
+    Key? key,
+    required this.client,
+    required this.selectedIndex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +67,34 @@ class _HomeState extends State<Home> {
             label: '設定',
           ),
         ],
-        onTap: _onItemTapped,
-        currentIndex: _selectedIndex,
+        onTap: (index) => _handleChangeTabIndex(context, index),
+        currentIndex: selectedIndex,
       ),
       body: [
-        TaskList(client: widget.client),
+        TaskList(client: client),
         const Placeholder(),
         const Placeholder(),
-      ].elementAt(_selectedIndex),
+      ].elementAt(selectedIndex),
+      floatingActionButton: selectedIndex == 0
+          ? FloatingActionButton(
+              onPressed: _handlePresentAddTask,
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _handleChangeTabIndex(BuildContext context, int index) {
+    if (index == 0) {
+      context.go('/list');
+    }
+    if (index == 1) {
+      context.go('/working');
+    }
+    if (index == 2) {
+      context.go('/settings');
+    }
   }
+
+  void _handlePresentAddTask() {}
 }

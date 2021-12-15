@@ -146,7 +146,7 @@ class _TaskListRow extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  isNextSuspend ? CupertinoIcons.pause :  CupertinoIcons.play,
+                  isNextSuspend ? CupertinoIcons.pause : CupertinoIcons.play,
                   size: 16,
                 ),
                 Text(toggleButtonLabel),

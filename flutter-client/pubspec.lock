@@ -320,6 +320,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.2"
+  go_router:
+    dependency: "direct main"
+    description:
+      name: go_router
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.5.2"
   graphs:
     dependency: transitive
     description:
@@ -439,6 +446,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
+  path_to_regexp:
+    dependency: transitive
+    description:
+      name: path_to_regexp
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
   pedantic:
     dependency: transitive
     description:
@@ -691,4 +705,4 @@ packages:
     version: "3.1.0"
 sdks:
   dart: ">=2.15.0-0 <3.0.0"
-  flutter: ">=1.16.0"
+  flutter: ">=1.17.0"
