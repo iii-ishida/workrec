@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 
 import './widgets/auth/auth_page.dart';
-import './widgets/auth/user_id_notifier.dart';
 import './widgets/home.dart';
 
 Future<void> main() async {
@@ -16,16 +15,27 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
+class _AuthUserNotifier extends ValueNotifier<AuthUser> {
+  final AuthClient authClient;
+
+  _AuthUserNotifier(this.authClient) : super(authClient.currentUser) {
+    authClient.userStream.listen((user) {
+      value = user;
+      notifyListeners();
+    });
+  }
+}
+
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
   final authClient = AuthClient();
-  late final userIdNotifier = UserIdNotifier(authClient);
+  late final authUserNotifier = _AuthUserNotifier(authClient);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<UserIdNotifier>.value(
-      value: userIdNotifier,
+    return ChangeNotifierProvider<_AuthUserNotifier>.value(
+      value: authUserNotifier,
       child: MaterialApp.router(
         title: 'Workrec',
         theme: ThemeData(
@@ -50,7 +60,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       redirect: (state) {
-        final userId = userIdNotifier.value.id;
+        final userId = authUserNotifier.value.id;
         final loggedIn = userId.isNotEmpty;
         final goingToLogin = state.location == _signInPath;
 
@@ -59,9 +69,10 @@ class MyApp extends StatelessWidget {
 
         return null;
       },
-      refreshListenable: userIdNotifier,
+      refreshListenable: authUserNotifier,
       navigatorBuilder: (context, child) {
-        return userIdNotifier.provider(
+        return Provider<AuthUser>.value(
+          value: authUserNotifier.value,
           child: child,
         );
       });

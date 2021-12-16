@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
-import 'package:workrec_app/widgets/auth/user_id_notifier.dart';
+import 'package:workrec_app/auth_client/auth_client.dart';
 
 import './task_list/task_list.dart';
 
@@ -31,7 +32,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = userIdOf(context);
+    final userId = context.read<AuthUser>().id;
     return _Home(
       client: WorkrecClient(userId: userId),
       selectedIndex: selectedIndex,

@@ -1,14 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+class AuthUser {
+  final String id;
+  const AuthUser({this.id = ''});
+}
+
 class AuthClient {
   final FirebaseAuth _auth;
 
   AuthClient({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
-  String get currentUserId => _auth.currentUser?.uid ?? '';
+  AuthUser get currentUser => AuthUser(id: _auth.currentUser?.uid ?? '');
 
-  Stream<String> get userId =>
-      _auth.authStateChanges().map((user) => user?.uid ?? '');
+  Stream<AuthUser> get userStream =>
+      _auth.authStateChanges().map((user) => AuthUser(id: user?.uid ?? ''));
 
   Future<void> signInWithEmailAndPassword({
     required String email,
