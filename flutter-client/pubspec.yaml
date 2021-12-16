@@ -32,9 +32,9 @@ dependencies:
   equatable: ^2.0.0
   quiver: ^3.0.0
 
-  firebase_core: ^1.8.0
-  firebase_auth: ^3.1.4
-  cloud_firestore: ^2.5.4
+  firebase_core: ^1.10.5
+  firebase_auth: ^3.3.3
+  cloud_firestore: ^3.1.4
 
   clock: ^1.1.0
   fake_async: ^1.2.0
