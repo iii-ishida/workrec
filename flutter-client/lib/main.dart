@@ -50,12 +50,12 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  static const _signInPath = '/signIn';
   late final _router = GoRouter(
       routes: [
         ...Home.routes,
         GoRoute(
-          path: _signInPath,
+          name: 'signIn',
+          path: '/signIn',
           builder: (context, state) => AuthPage(
             viewModel: AuthViewModel(authClient: authClient),
           ),
@@ -64,10 +64,11 @@ class MyApp extends StatelessWidget {
       redirect: (state) {
         final userId = authUserNotifier.value.id;
         final loggedIn = userId.isNotEmpty;
-        final goingToLogin = state.location == _signInPath;
+        final signInLoc = state.namedLocation('signIn');
+        final goingToSignIn = state.subloc == signInLoc;
 
-        if (!loggedIn && !goingToLogin) return _signInPath;
-        if (loggedIn && goingToLogin) return '/';
+        if (!loggedIn && !goingToSignIn) return state.namedLocation('signIn');
+        if (loggedIn && goingToSignIn) return '/';
 
         return null;
       },
