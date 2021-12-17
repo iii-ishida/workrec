@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'firebase_options.dart';
-import './widgets/auth/auth_page.dart';
+import './widgets/sign_in.dart';
 import './widgets/home.dart';
 
 Future<void> main() async {
@@ -56,8 +56,8 @@ class MyApp extends StatelessWidget {
         GoRoute(
           name: 'signIn',
           path: '/signIn',
-          builder: (context, state) => AuthPage(
-            viewModel: AuthViewModel(authClient: authClient),
+          builder: (context, state) => SignIn(
+            viewModel: SignInViewModel(authClient: authClient),
           ),
         ),
       ],

@@ -2,19 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
-import 'package:workrec_app/widgets/auth/auth_page.dart';
+import 'package:workrec_app/widgets/sign_in.dart';
 
-import 'auth_page_test.mocks.dart';
+import 'sign_in_test.mocks.dart';
 
 @GenerateMocks([AuthClient])
 void main() {
-  group('AuthViewModel', () {
+  group('SignInViewModel', () {
     late MockAuthClient client;
-    late AuthViewModel model;
+    late SignInViewModel model;
 
     setUp(() {
       client = MockAuthClient();
-      model = AuthViewModel(authClient: client);
+      model = SignInViewModel(authClient: client);
     });
 
     group('.validateEmail', () {

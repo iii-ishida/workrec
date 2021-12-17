@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 
-class AuthPage extends StatefulWidget {
-  const AuthPage({Key? key, required this.viewModel}) : super(key: key);
+class SignIn extends StatefulWidget {
+  const SignIn({Key? key, required this.viewModel}) : super(key: key);
 
-  final AuthViewModel viewModel;
+  final SignInViewModel viewModel;
 
   @override
-  State<AuthPage> createState() => _AuthPageState();
+  State<SignIn> createState() => _SignInState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _SignInState extends State<SignIn> {
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -75,12 +75,12 @@ class _AuthPageState extends State<AuthPage> {
   }
 }
 
-class AuthViewModel {
+class SignInViewModel {
   final AuthClient authClient;
   String _email = '';
   String _password = '';
 
-  AuthViewModel({required this.authClient});
+  SignInViewModel({required this.authClient});
 
   Future<void> signIn() async {
     if (!validateEmail() || !validatePassword()) {
