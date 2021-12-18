@@ -13,7 +13,8 @@ on:
 
 env:
   GOOGLE_SERVICE_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICE_JSON }}
-  FLUTTER_VERSION: 2.8.0
+  FLUTTER_VERSION: 2.9.0
+  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
 jobs:
   build:
@@ -33,10 +34,16 @@ jobs:
       with:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: beta
+    - name: Install firebase cli
+      run: npm install -g firebase-tools
+    - run: flutter pub global activate flutterfire_cli
     - name: Install dependencies
       run: cd flutter-client && flutter pub get
     - name: Run tests
-      run: cd flutter-client && flutter analyze && flutter test && flutter format --dry-run --set-exit-if-changed .
+      run: |-
+        cd flutter-client && flutter format --dry-run --set-exit-if-changed . 
+        flutterfire configure -p ${{ secrets.FIREBASE_APP_PROJECT }} -i ${{ secrets.IOS_BUNDLE_ID }} -a ${{ secrets.ANDROID_APP_ID }} -m ${{ secrets.IOS_BUNDLE_ID }}
+        flutter analyze && flutter test
     - name: Upload goldens if tests fail.
       uses: actions/upload-artifact@v1
       if: failure()
@@ -92,7 +99,7 @@ jobs:
     - name: Build and Deploy
       run: |-
         cd flutter-client
-        firebase use ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
+        firebase use ${{ secrets.FIREBASE_APP_PROJECT }}
         flutter pub global run dartdoc && firebase target:apply hosting doc ${{ secrets.FIREBASE_APP_PROJECT }}-doc && firebase deploy --only hosting:doc --project ${{ secrets.FIREBASE_APP_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
 
         # deploy-android:
