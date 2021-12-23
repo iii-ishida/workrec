@@ -54,7 +54,13 @@ class _SignInState extends State<SignIn> {
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: () => widget.viewModel.signIn(),
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
+
+                  await widget.viewModel.signIn();
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   alignment: Alignment.center,

@@ -24,17 +24,12 @@ class _AddNewTask extends StatefulWidget {
 
 class _AddNewTaskState extends State<_AddNewTask> {
   late final ViewModel _model;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     _model = ViewModel(client: widget.client);
-  }
-
-  @override
-  void dispose() {
-    _model.dispose();
-    super.dispose();
   }
 
   @override
@@ -47,21 +42,23 @@ class _AddNewTaskState extends State<_AddNewTask> {
             style: TextButton.styleFrom(
                 primary: Theme.of(context).colorScheme.onPrimary),
             onPressed: () async {
-              if (await _model.handleAddTask()) {
-                Navigator.pop(context);
+              if (!_formKey.currentState!.validate()) {
+                return;
               }
+              await _model.addTask();
+              Navigator.pop(context);
             },
             child: const Text('追加'),
           ),
         ],
       ),
       body: Form(
-        key: _model.formKey,
+        key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: TextFormField(
-            controller: _model.titleController,
             decoration: const InputDecoration(labelText: 'タイトル'),
+            onChanged: _model.onChangeTitle,
             validator: (_) => _model.validateTitle() ? null : 'タイトルを入力してください',
           ),
         ),
@@ -71,26 +68,24 @@ class _AddNewTaskState extends State<_AddNewTask> {
 }
 
 class ViewModel {
+  final WorkrecClient client;
+
   @visibleForTesting
   ViewModel({required this.client});
 
-  final WorkrecClient client;
+  String _title = '';
 
-  final formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
-
-  Future<bool> handleAddTask() async {
-    if (!(formKey.currentState?.validate() ?? false)) {
-      return false;
+  Future<void> addTask() async {
+    if (!validateTitle()) {
+      return;
     }
 
-    await client.addNewTask(title: titleController.text);
-    return true;
+    await client.addNewTask(title: _title);
   }
 
-  bool validateTitle() => titleController.text.isNotEmpty;
-
-  void dispose() {
-    titleController.dispose();
+  void onChangeTitle(String title) {
+    _title = title;
   }
+
+  bool validateTitle() => _title.isNotEmpty;
 }

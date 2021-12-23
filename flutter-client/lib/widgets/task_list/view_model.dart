@@ -10,12 +10,12 @@ final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
 class TaskListPageViewModel extends ChangeNotifier {
   final WorkrecClient client;
+  TaskListPageViewModel(this.client);
+
   List<Task> _tasks = [];
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
-
-  TaskListPageViewModel(this.client);
 
   void listen() {
     client.tasksStream().listen((tasks) {
