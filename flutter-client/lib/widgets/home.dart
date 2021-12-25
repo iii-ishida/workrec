@@ -23,7 +23,7 @@ class Home extends StatelessWidget {
       builder: (_, __) => const Home(selectedIndex: 0),
     ),
     GoRoute(
-      path: '/working',
+      path: '/dashboard',
       builder: (_, __) => const Home(selectedIndex: 1),
     ),
     GoRoute(
@@ -70,8 +70,8 @@ class _Home extends StatelessWidget {
             label: '一覧',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.timer_sharp),
-            label: '作業中',
+            icon: Icon(Icons.dashboard),
+            label: 'ダッシュボード',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -100,7 +100,7 @@ class _Home extends StatelessWidget {
       context.go('/tasks');
     }
     if (index == 1) {
-      context.go('/working');
+      context.go('/dashboard');
     }
     if (index == 2) {
       context.go('/settings');
