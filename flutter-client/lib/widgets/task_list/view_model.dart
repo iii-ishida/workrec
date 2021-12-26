@@ -69,6 +69,10 @@ class TaskListViewModel {
   }
 }
 
+enum ToggleAction {
+  start, suspend, resume,
+}
+
 class TaskListItemViewModel extends ChangeNotifier {
   TaskListItemViewModel({
     required this.task,
@@ -89,17 +93,14 @@ class TaskListItemViewModel extends ChangeNotifier {
     return '$hour:$minutes';
   }
 
-  /// トグルボタンのラベル内容
-  String get toggleButtonLabel {
+
+  ToggleAction get toggleAction {
     if (!task.isStarted) {
-      return '開始';
+      return ToggleAction.start;
     } else if (task.isWorking) {
-      return '停止';
+      return ToggleAction.suspend;
     } else {
-      return '再開';
+      return ToggleAction.resume;
     }
   }
-
-  /// トグルボタンの表示を停止にする場合は true
-  bool get isNextSuspend => !task.isWorking;
 }

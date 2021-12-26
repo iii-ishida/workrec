@@ -69,8 +69,7 @@ class _TaskListView extends StatelessWidget {
               title: row.title,
               startTime: row.startTime,
               workingTime: row.workingTime,
-              isNextSuspend: row.isNextSuspend,
-              toggleButtonLabel: row.toggleButtonLabel,
+              toggleAction: row.toggleAction,
               onToggle: row.onToggle,
             );
           } else {
@@ -89,16 +88,14 @@ class _TaskListRow extends StatelessWidget {
     required this.title,
     required this.startTime,
     required this.workingTime,
-    required this.isNextSuspend,
-    required this.toggleButtonLabel,
+    required this.toggleAction,
     required this.onToggle,
   }) : super(key: key);
 
   final String title;
   final String startTime;
   final String workingTime;
-  final bool isNextSuspend;
-  final String toggleButtonLabel;
+  final ToggleAction toggleAction;
   final VoidCallback onToggle;
 
   @override
@@ -144,15 +141,28 @@ class _TaskListRow extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  isNextSuspend ? CupertinoIcons.pause : CupertinoIcons.play,
+                  toggleAction == ToggleAction.suspend
+                      ? CupertinoIcons.pause
+                      : CupertinoIcons.play,
                   size: 16,
                 ),
-                Text(toggleButtonLabel),
+                Text(_toggleButtonLabel(toggleAction)),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _toggleButtonLabel(ToggleAction action) {
+    switch (action) {
+      case ToggleAction.start:
+        return '開始';
+      case ToggleAction.suspend:
+        return '停止';
+      case ToggleAction.resume:
+        return '再開';
+    }
   }
 }
