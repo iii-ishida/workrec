@@ -9,6 +9,10 @@ import './task_list/task_list.dart';
 import './dashboard.dart';
 import './settings.dart';
 
+const _indexOfTaskList = 0;
+const _indexOfDashboard = 1;
+const _indexOfSettings = 2;
+
 class Home extends StatelessWidget {
   final int selectedIndex;
 
@@ -21,15 +25,15 @@ class Home extends StatelessWidget {
     ),
     GoRoute(
       path: '/tasks',
-      builder: (_, __) => const Home(selectedIndex: 0),
+      builder: (_, __) => const Home(selectedIndex: _indexOfTaskList),
     ),
     GoRoute(
       path: '/dashboard',
-      builder: (_, __) => const Home(selectedIndex: 1),
+      builder: (_, __) => const Home(selectedIndex: _indexOfDashboard),
     ),
     GoRoute(
       path: '/settings',
-      builder: (_, __) => const Home(selectedIndex: 2),
+      builder: (_, __) => const Home(selectedIndex: _indexOfSettings),
     ),
     GoRoute(
       path: '/tasks/new',
@@ -64,6 +68,12 @@ class _Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: selectedIndex == _indexOfSettings
+          ? AppBar(
+              title: const Text('設定'),
+              elevation: 0,
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -87,7 +97,7 @@ class _Home extends StatelessWidget {
         const Dashboard(),
         Settings(),
       ].elementAt(selectedIndex),
-      floatingActionButton: selectedIndex == 0
+      floatingActionButton: selectedIndex == _indexOfTaskList
           ? FloatingActionButton(
               onPressed: () => _handlePresentAddTask(context),
               child: const Icon(Icons.add),
@@ -97,14 +107,13 @@ class _Home extends StatelessWidget {
   }
 
   void _handleChangeTabIndex(BuildContext context, int index) {
-    if (index == 0) {
-      context.go('/tasks');
-    }
-    if (index == 1) {
-      context.go('/dashboard');
-    }
-    if (index == 2) {
-      context.go('/settings');
+    switch (index) {
+      case _indexOfTaskList:
+        return context.go('/tasks');
+      case _indexOfDashboard:
+        return context.go('/dashboard');
+      case _indexOfSettings:
+        return context.go('/settings');
     }
   }
 

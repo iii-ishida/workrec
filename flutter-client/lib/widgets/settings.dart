@@ -9,13 +9,10 @@ class Settings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('設定'), elevation: 0),
-      body: ListView(children: [
-        ListTile(title: const Text('ログアウト'), onTap: _viewModel.signOut),
-        const Divider(height: 1, color: Color(0xFFA5A5A5)),
-      ]),
-    );
+    return ListView(children: [
+      ListTile(title: const Text('ログアウト'), onTap: _viewModel.signOut),
+      const Divider(height: 1, color: Color(0xFFA5A5A5)),
+    ]);
   }
 }
 

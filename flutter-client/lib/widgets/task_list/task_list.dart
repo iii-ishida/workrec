@@ -13,41 +13,39 @@ class TaskList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ChangeNotifierProvider<TaskListPageViewModel>(
-        create: (_) => TaskListPageViewModel(client)..listen(),
-        child: Builder(builder: (context) {
-          final viewModel = context.watch<TaskListPageViewModel>();
+    return ChangeNotifierProvider<TaskListPageViewModel>(
+      create: (_) => TaskListPageViewModel(client)..listen(),
+      child: Builder(builder: (context) {
+        final viewModel = context.watch<TaskListPageViewModel>();
 
-          return Container(
-            color: Colors.white,
-            child: CustomScrollView(
-              slivers: [
-                SliverSafeArea(
-                  bottom: false,
-                  sliver: SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SearchBar(
-                        onChangeSearchText: viewModel.onChangeSearchText,
-                      ),
+        return Container(
+          color: Colors.white,
+          child: CustomScrollView(
+            slivers: [
+              SliverSafeArea(
+                bottom: false,
+                sliver: SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SearchBar(
+                      onChangeSearchText: viewModel.onChangeSearchText,
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: Divider(height: 1, color: Color(0xFFA5A5A5)),
+              ),
+              const SliverToBoxAdapter(
+                child: Divider(height: 1, color: Color(0xFFA5A5A5)),
+              ),
+              SliverSafeArea(
+                top: false,
+                sliver: _TaskListView(
+                  viewModel: viewModel.taskListViewModel,
                 ),
-                SliverSafeArea(
-                  top: false,
-                  sliver: _TaskListView(
-                    viewModel: viewModel.taskListViewModel,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
