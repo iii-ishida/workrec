@@ -6,6 +6,7 @@ import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 import './add_new_task.dart';
 import './task_list/task_list.dart';
+import './dashboard.dart';
 import './settings.dart';
 
 class Home extends StatelessWidget {
@@ -83,7 +84,7 @@ class _Home extends StatelessWidget {
       ),
       body: [
         TaskList(client: client),
-        const Placeholder(),
+        const Dashboard(),
         Settings(),
       ].elementAt(selectedIndex),
       floatingActionButton: selectedIndex == 0
