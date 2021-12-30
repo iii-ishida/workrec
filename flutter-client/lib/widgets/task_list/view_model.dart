@@ -70,7 +70,9 @@ class TaskListViewModel {
 }
 
 enum ToggleAction {
-  start, suspend, resume,
+  start,
+  suspend,
+  resume,
 }
 
 class TaskListItemViewModel extends ChangeNotifier {
@@ -92,7 +94,6 @@ class TaskListItemViewModel extends ChangeNotifier {
     final minutes = '${workingMinutes % 60}'.padLeft(2, '0');
     return '$hour:$minutes';
   }
-
 
   ToggleAction get toggleAction {
     if (!task.isStarted) {
