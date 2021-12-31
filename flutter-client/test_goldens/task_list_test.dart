@@ -29,7 +29,7 @@ void main() {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: TaskList(client: client),
+      home: Scaffold(body: TaskList(client: client)),
     ));
 
     await tester.pump(Duration.zero);
