@@ -84,11 +84,17 @@ class TaskListItemViewModel extends ChangeNotifier {
   final Task task;
   final VoidCallback onToggle;
 
+  /// タイトル
   String get title => task.title;
+
+  /// 説明
   String get description => task.description;
+
+  /// 開始日時
   String get startTime =>
       task.isStarted ? _dateFormat.format(task.startTime) : '-';
 
+  /// 作業時間
   String get workingTime {
     final workingMinutes = task.workingTime.inMinutes;
     final hour = '${(workingMinutes / 60).floor()}'.padLeft(2, '0');
@@ -96,6 +102,8 @@ class TaskListItemViewModel extends ChangeNotifier {
     return '$hour:$minutes';
   }
 
+  /// 次のアクション
+  /// 開始, 停止 or 再開
   ToggleAction get toggleAction {
     if (!task.isStarted) {
       return ToggleAction.start;
