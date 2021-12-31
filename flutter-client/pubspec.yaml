@@ -41,6 +41,8 @@ dependencies:
   mockito: ^5.0.10
   stream_transform: ^2.0.0
   go_router: ^2.5.2
+  state_notifier: ^0.7.1
+  flutter_state_notifier: ^0.7.1
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 import './view_model.dart';
@@ -13,10 +14,10 @@ class TaskList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<TaskListPageViewModel>(
-      create: (_) => TaskListPageViewModel(client)..listen(),
+    return StateNotifierProvider<TaskListViewModelNotifier, TaskListViewModel>(
+      create: (_) => TaskListViewModelNotifier(client),
       child: Builder(builder: (context) {
-        final viewModel = context.watch<TaskListPageViewModel>();
+        final viewModel = context.watch<TaskListViewModel>();
 
         return Container(
           color: Colors.white,
@@ -39,7 +40,7 @@ class TaskList extends StatelessWidget {
               SliverSafeArea(
                 top: false,
                 sliver: _TaskListView(
-                  viewModel: viewModel.taskListViewModel,
+                  viewModel: viewModel,
                 ),
               ),
             ],

@@ -1,6 +1,6 @@
 import 'package:clock/clock.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:state_notifier/state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
 
@@ -8,34 +8,24 @@ typedef _RecordTaskFunc = Future<void> Function(String);
 
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
-class TaskListPageViewModel extends ChangeNotifier {
+class TaskListViewModelNotifier extends StateNotifier<TaskListViewModel> {
   final WorkrecClient client;
-  TaskListPageViewModel(this.client);
-
-  List<Task> _tasks = [];
-
-  bool _isLoading = true;
-  bool get isLoading => _isLoading;
-
-  void listen() {
+  TaskListViewModelNotifier(this.client) : super(TaskListViewModel.loading) {
     client.tasksStream().listen((tasks) {
-      _isLoading = false;
-      _tasks = tasks;
-      notifyListeners();
-    });
-  }
-
-  void onChangeSearchText(String searchTest) {}
-
-  TaskListViewModel get taskListViewModel => TaskListViewModel(
-        tasks: _tasks,
+      state = TaskListViewModel(
+        tasks: tasks,
         startTask: (id) => client.startTask(id, clock.now()),
         suspendTask: (id) => client.suspendTask(id, clock.now()),
         resumeTask: (id) => client.resumeTask(id, clock.now()),
       );
+    });
+  }
+
 }
 
 class TaskListViewModel {
+  final bool isLoading;
+
   final List<Task> tasks;
   final _RecordTaskFunc startTask;
   final _RecordTaskFunc suspendTask;
@@ -46,7 +36,18 @@ class TaskListViewModel {
     required this.startTask,
     required this.suspendTask,
     required this.resumeTask,
+    this.isLoading = false,
   });
+
+  static TaskListViewModel loading = TaskListViewModel(
+    isLoading: true,
+    tasks: [],
+    startTask: (_) async {},
+    suspendTask: (_) async {},
+    resumeTask: (_) async {},
+  );
+
+  void onChangeSearchText(String searchTest) {}
 
   List<TaskListItemViewModel> get rows => tasks
       .map(
@@ -56,6 +57,7 @@ class TaskListViewModel {
         ),
       )
       .toList();
+
 
   Future<void> _handleToggle(Task task) async {
     if (!task.isStarted) {
@@ -75,14 +77,14 @@ enum ToggleAction {
   resume,
 }
 
-class TaskListItemViewModel extends ChangeNotifier {
+class TaskListItemViewModel {
   TaskListItemViewModel({
     required Task task,
     required this.onToggle,
   }) : _task = task;
 
   final Task _task;
-  final VoidCallback onToggle;
+  final void Function() onToggle;
 
   /// タイトル
   String get title => _task.title;
