@@ -20,7 +20,6 @@ class TaskListViewModelNotifier extends StateNotifier<TaskListViewModel> {
       );
     });
   }
-
 }
 
 class TaskListViewModel {
@@ -53,20 +52,19 @@ class TaskListViewModel {
       .map(
         (task) => TaskListItemViewModel(
           task: task,
-          onToggle: () => _handleToggle(task),
+          onToggle: () async => _handleToggle(task),
         ),
       )
       .toList();
 
-
   Future<void> _handleToggle(Task task) async {
     if (!task.isStarted) {
-      await startTask(task.id);
+      return await startTask(task.id);
     }
     if (task.isWorking) {
-      await suspendTask(task.id);
+      return await suspendTask(task.id);
     } else {
-      await resumeTask(task.id);
+      return await resumeTask(task.id);
     }
   }
 }
@@ -84,7 +82,7 @@ class TaskListItemViewModel {
   }) : _task = task;
 
   final Task _task;
-  final void Function() onToggle;
+  final Future<void> Function() onToggle;
 
   /// タイトル
   String get title => _task.title;
