@@ -77,26 +77,26 @@ enum ToggleAction {
 
 class TaskListItemViewModel extends ChangeNotifier {
   TaskListItemViewModel({
-    required this.task,
+    required Task task,
     required this.onToggle,
-  });
+  }) : _task = task;
 
-  final Task task;
+  final Task _task;
   final VoidCallback onToggle;
 
   /// タイトル
-  String get title => task.title;
+  String get title => _task.title;
 
   /// 説明
-  String get description => task.description;
+  String get description => _task.description;
 
   /// 開始日時
   String get startTime =>
-      task.isStarted ? _dateFormat.format(task.startTime) : '-';
+      _task.isStarted ? _dateFormat.format(_task.startTime) : '-';
 
   /// 作業時間
   String get workingTime {
-    final workingMinutes = task.workingTime.inMinutes;
+    final workingMinutes = _task.workingTime.inMinutes;
     final hour = '${(workingMinutes / 60).floor()}'.padLeft(2, '0');
     final minutes = '${workingMinutes % 60}'.padLeft(2, '0');
     return '$hour:$minutes';
@@ -105,9 +105,9 @@ class TaskListItemViewModel extends ChangeNotifier {
   /// 次のアクション
   /// 開始, 停止 or 再開
   ToggleAction get toggleAction {
-    if (!task.isStarted) {
+    if (!_task.isStarted) {
       return ToggleAction.start;
-    } else if (task.isWorking) {
+    } else if (_task.isWorking) {
       return ToggleAction.suspend;
     } else {
       return ToggleAction.resume;
