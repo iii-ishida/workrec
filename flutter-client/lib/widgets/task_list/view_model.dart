@@ -85,6 +85,7 @@ class TaskListItemViewModel extends ChangeNotifier {
   final VoidCallback onToggle;
 
   String get title => task.title;
+  String get description => task.description;
   String get startTime =>
       task.isStarted ? _dateFormat.format(task.startTime) : '-';
 

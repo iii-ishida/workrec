@@ -20,6 +20,9 @@ class Task extends Equatable {
   /// タスクのタイトル
   final String title;
 
+  /// タスクの説明
+  final String description;
+
   /// タスクの状態
   final TaskState state;
 
@@ -29,6 +32,7 @@ class Task extends Equatable {
   const Task({
     required this.id,
     required this.title,
+    required this.description,
     required this.state,
     required this.timeRecords,
   });
@@ -59,10 +63,11 @@ class Task extends Equatable {
   }
 
   /// [Task] 作成して返します
-  factory Task.create({required String title}) {
+  factory Task.create({required String title, String description = ''}) {
     return Task(
       id: '',
       title: title,
+      description: description,
       state: TaskState.unstarted,
       timeRecords: const [],
     );
@@ -116,6 +121,7 @@ class Task extends Equatable {
 
   Task _copyWith({
     String? title,
+    String? description,
     TaskState? state,
     List<WorkTime>? timeRecords,
     DateTime? updatedAt,
@@ -124,10 +130,11 @@ class Task extends Equatable {
       id: id,
       state: state ?? this.state,
       title: title ?? this.title,
+      description: description ?? this.description,
       timeRecords: timeRecords ?? this.timeRecords,
     );
   }
 
   @override
-  List<Object> get props => [id, title, state, timeRecords];
+  List<Object> get props => [id, title, description, state, timeRecords];
 }

@@ -55,11 +55,26 @@ class _AddNewTaskState extends State<_AddNewTask> {
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: TextFormField(
-            decoration: const InputDecoration(labelText: 'タイトル'),
-            onChanged: _model.onChangeTitle,
-            validator: (_) => _model.validateTitle() ? null : 'タイトルを入力してください',
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'タイトル'),
+                onChanged: _model.onChangeTitle,
+                validator: (_) =>
+                    _model.validateTitle() ? null : 'タイトルを入力してください',
+              ),
+              Expanded(
+                child: TextFormField(
+                  decoration: const InputDecoration(labelText: '説明'),
+                  maxLines: null,
+                  onChanged: _model.onChangeDescription,
+                ),
+              ),
+              SafeArea(top: false, child: Container()),
+            ],
           ),
         ),
       ),
@@ -74,17 +89,22 @@ class ViewModel {
   ViewModel({required this.client});
 
   String _title = '';
+  String _description = '';
 
   Future<void> addTask() async {
     if (!validateTitle()) {
       return;
     }
 
-    await client.addNewTask(title: _title);
+    await client.addNewTask(title: _title, description: _description);
   }
 
   void onChangeTitle(String title) {
     _title = title;
+  }
+
+  void onChangeDescription(String description) {
+    _description = description;
   }
 
   bool validateTitle() => _title.isNotEmpty;

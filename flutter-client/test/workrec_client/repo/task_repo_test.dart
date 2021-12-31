@@ -39,11 +39,13 @@ void main() {
 
     group('.addNewTask', () {
       test('作成したタスクを引数にして collection.add を実行すること', () async {
-        final task = Task.create(title: 'some title');
+        final task =
+            Task.create(title: 'some title', description: 'some description');
         await repo.addTask(task);
 
-        final data = {
+        final data = <String, dynamic>{
           'title': task.title,
+          'description': task.description,
           'state': task.state.name,
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),

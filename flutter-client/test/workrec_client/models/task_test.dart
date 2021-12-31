@@ -5,13 +5,17 @@ void main() {
   group('Task', () {
     group('.create', () {
       const title = 'some task';
-      final actual = Task.create(title: title);
+      const description = 'some description';
+      final actual = Task.create(title: title, description: description);
 
       test('id が空文字であること', () {
         expect(actual.id, '');
       });
       test('title が引数の [title] であること', () {
         expect(actual.title, title);
+      });
+      test('description が引数の [description] であること', () {
+        expect(actual.description, description);
       });
       test('state が unstarted であること', () {
         expect(actual.state, TaskState.unstarted);
@@ -24,9 +28,10 @@ void main() {
       final time = DateTime.now();
       final actual = source.start(time);
 
-      test('id, title が変更されないこと', () {
+      test('id, title, description が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
+        expect(actual.description, source.description);
       });
       test('state が started であること', () {
         expect(actual.state, TaskState.started);
@@ -50,9 +55,10 @@ void main() {
       final time = DateTime.now();
       final actual = source.suspend(time);
 
-      test('id, title が変更されないこと', () {
+      test('id, title, description が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
+        expect(actual.description, source.description);
       });
       test('state が suspended であること', () {
         expect(actual.state, TaskState.suspended);
@@ -78,9 +84,10 @@ void main() {
       final time = DateTime.now();
       final actual = source.resume(time);
 
-      test('id, title が変更されないこと', () {
+      test('id, title, description が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
+        expect(actual.description, source.description);
       });
       test('state が resumed であること', () {
         expect(actual.state, TaskState.resumed);

@@ -9,7 +9,7 @@ void main() {
     setUp(() {
       model = TaskListViewModel(
           tasks: [
-            Task.create(title: 'some task')
+            Task.create(title: 'some task', description: 'some description')
                 .start(DateTime(2021, 1, 2, 10, 0))
                 .suspend(DateTime(2021, 1, 2, 12, 30)),
           ],
@@ -21,6 +21,9 @@ void main() {
     group('.rows', () {
       test('title', () {
         expect(model.rows[0].title, 'some task');
+      });
+      test('description', () {
+        expect(model.rows[0].description, 'some description');
       });
       test('startTime', () {
         expect(model.rows[0].startTime, '2021-01-02 10:00');

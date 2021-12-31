@@ -67,6 +67,7 @@ class _TaskListView extends StatelessWidget {
             final row = viewModel.rows[index ~/ 2];
             return _TaskListRow(
               title: row.title,
+              description: row.description,
               startTime: row.startTime,
               workingTime: row.workingTime,
               toggleAction: row.toggleAction,
@@ -86,6 +87,7 @@ class _TaskListRow extends StatelessWidget {
   const _TaskListRow({
     Key? key,
     required this.title,
+    required this.description,
     required this.startTime,
     required this.workingTime,
     required this.toggleAction,
@@ -93,6 +95,7 @@ class _TaskListRow extends StatelessWidget {
   }) : super(key: key);
 
   final String title;
+  final String description;
   final String startTime;
   final String workingTime;
   final ToggleAction toggleAction;
@@ -115,6 +118,11 @@ class _TaskListRow extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
+              ),
+              _space,
+              Text(
+                description,
+                style: Theme.of(context).textTheme.caption,
               ),
               _space,
               Row(children: [
