@@ -84,6 +84,9 @@ class TaskListItemViewModel {
   final Task _task;
   final Future<void> Function() onToggle;
 
+  /// ID
+  String get taskId => _task.id;
+
   /// タイトル
   String get title => _task.title;
 

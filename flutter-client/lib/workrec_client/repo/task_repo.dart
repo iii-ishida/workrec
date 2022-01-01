@@ -59,6 +59,15 @@ class TaskRepo {
     return _taskCollection(_store, userId).add(data);
   }
 
+  Future<void> updateTask(Task task) {
+    final data = taskToFirestoreData(
+      task: task,
+      updatedAt: FieldValue.serverTimestamp(),
+    );
+
+    return _taskCollection(_store, userId).doc(task.id).update(data);
+  }
+
   Future<void> runInTransaction(TransactionCallback callback) async {
     final tran = TaskTransaction(_store, userId);
     callback(tran);

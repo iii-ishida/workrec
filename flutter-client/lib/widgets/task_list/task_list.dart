@@ -1,14 +1,22 @@
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
+import 'package:workrec_app/widgets/edit_task.dart';
 
 import './view_model.dart';
 import './searchbar.dart';
 
 class TaskList extends StatelessWidget {
   final WorkrecClient client;
+  static final routes = [
+    GoRoute(
+      path: ':id',
+      builder: (_, state) => EditTask(taskId: state.params['id']!),
+    ),
+  ];
 
   const TaskList({Key? key, required this.client}) : super(key: key);
 
@@ -66,15 +74,19 @@ class _TaskListView extends StatelessWidget {
         (context, index) {
           if (index.isEven) {
             final row = viewModel.rows[index ~/ 2];
-            return _TaskListRow(
-              title: row.title,
-              description: row.description,
-              startTime: row.startTime,
-              workingTime: row.workingTime,
-              estimatedTime: row.estimatedTime,
-              toggleAction: row.toggleAction,
-              onToggle: row.onToggle,
-            );
+            return InkWell(
+                onTap: () {
+                  context.go('/tasks/${row.taskId}');
+                },
+                child: _TaskListRow(
+                  title: row.title,
+                  description: row.description,
+                  startTime: row.startTime,
+                  workingTime: row.workingTime,
+                  estimatedTime: row.estimatedTime,
+                  toggleAction: row.toggleAction,
+                  onToggle: row.onToggle,
+                ));
           } else {
             return const Divider(height: 1, color: Color(0xFFE5E5E5));
           }

@@ -34,6 +34,19 @@ class WorkrecClient {
     ));
   }
 
+  Future<void> updateTask(
+    Task task, {
+    String? title,
+    String? description,
+    int? estimatedTime,
+  }) async {
+    return _repo.updateTask(task.edit(
+      title: title,
+      description: description,
+      estimatedTime: estimatedTime,
+    ));
+  }
+
   Future<void> startTask(String taskId, DateTime timestamp) async {
     final task = await findTaskById(taskId);
     final started = task.start(timestamp);

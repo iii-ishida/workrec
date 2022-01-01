@@ -41,6 +41,16 @@ class Task extends Equatable {
     required this.timeRecords,
   });
 
+  /// 空タスク
+  static const empty = Task(
+    id: '',
+    title: '',
+    description: '',
+    estimatedTime: 0,
+    state: TaskState.unstarted,
+    timeRecords: [],
+  );
+
   WorkTime get lastTimeRecord => timeRecords.last;
 
   /// 作業時間
@@ -76,6 +86,20 @@ class Task extends Equatable {
       estimatedTime: estimatedTime,
       state: TaskState.unstarted,
       timeRecords: const [],
+    );
+  }
+
+  /// タスクのプロパティを編集します
+  Task edit({
+    String? title,
+    String? description,
+    int? estimatedTime,
+  }) {
+    return _copyWith(
+      title: title,
+      description: description,
+      estimatedTime: estimatedTime,
+      updatedAt: clock.now(),
     );
   }
 
