@@ -13,6 +13,7 @@ Map<String, dynamic> taskToFirestoreData({
   return <String, dynamic>{
     if (task != null) 'title': task.title,
     if (task != null) 'description': task.description,
+    if (task != null) 'estimatedTime': task.estimatedTime,
     if (task != null) 'state': task.state.name,
     if (createdAt != null) 'createdAt': createdAt,
     if (updatedAt != null) 'updatedAt': updatedAt,
@@ -41,6 +42,7 @@ Task taskFromFirestoreDoc(
     id: doc.id,
     title: data['title'] as String,
     description: data['description'] as String,
+    estimatedTime: data['estimatedTime'] as int,
     state: TaskState.values.byName(data['state'] as String),
     timeRecords: _workTimeListFromFirestoreDocs(workTimeDocs),
   );

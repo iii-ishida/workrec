@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
@@ -66,6 +67,19 @@ class _AddNewTaskState extends State<_AddNewTask> {
                 validator: (_) =>
                     _model.validateTitle() ? null : 'タイトルを入力してください',
               ),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: '見積もり時間',
+                  suffix: Text('分'),
+                ),
+                textAlign: TextAlign.end,
+                keyboardType: const TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: false,
+                ),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: _model.onChangeEstimatedTime,
+              ),
               Expanded(
                 child: TextFormField(
                   decoration: const InputDecoration(labelText: '説明'),
@@ -90,13 +104,18 @@ class ViewModel {
 
   String _title = '';
   String _description = '';
+  String _estimatedTime = '';
 
   Future<void> addTask() async {
     if (!validateTitle()) {
       return;
     }
 
-    await client.addNewTask(title: _title, description: _description);
+    await client.addNewTask(
+      title: _title,
+      description: _description,
+      estimatedTime: int.tryParse(_estimatedTime) ?? 0,
+    );
   }
 
   void onChangeTitle(String title) {
@@ -105,6 +124,10 @@ class ViewModel {
 
   void onChangeDescription(String description) {
     _description = description;
+  }
+
+  void onChangeEstimatedTime(String estimatedTime) {
+    _estimatedTime = estimatedTime;
   }
 
   bool validateTitle() => _title.isNotEmpty;

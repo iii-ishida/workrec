@@ -22,9 +22,16 @@ class WorkrecClient {
     return _repo.tasksStream().asyncMap((futures) => Future.wait(futures));
   }
 
-  Future<void> addNewTask(
-      {required String title, required String description}) async {
-    return _repo.addTask(Task.create(title: title, description: description));
+  Future<void> addNewTask({
+    required String title,
+    required String description,
+    required int estimatedTime,
+  }) async {
+    return _repo.addTask(Task.create(
+      title: title,
+      description: description,
+      estimatedTime: estimatedTime,
+    ));
   }
 
   Future<void> startTask(String taskId, DateTime timestamp) async {

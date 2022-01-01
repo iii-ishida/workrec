@@ -39,31 +39,66 @@ void main() {
 }
 
 List<Task> _newTasks() => [
-      _newTask('fixture-task-01', 'fixture task 01',
-              'fixture task description 01')
+      _newTask(
+        'fixture-task-01',
+        'fixture task 01',
+        'fixture task description 01',
+        90,
+      )
           .start(DateTime.utc(2021, 5, 10, 10, 00))
           .suspend(DateTime.utc(2021, 5, 10, 12, 00)),
-      _newTask('unstarted', 'fixture task 02', 'fixture task description 02'),
-      _newTask('current', 'fixture task 03', 'fixture task description 03')
+      _newTask(
+        'unstarted',
+        'fixture task 02',
+        'fixture task description 02',
+        90,
+      ),
+      _newTask(
+        'current',
+        'fixture task 03',
+        'fixture task description 03',
+        90,
+      )
           .start(DateTime.utc(2021, 5, 11, 10, 00))
           .suspend(DateTime.utc(2021, 5, 11, 12, 00))
           .resume(DateTime.utc(2021, 5, 11, 13, 00)),
-      _newTask('task-04', 'fixture task 04', 'fixture task description 04')
+      _newTask(
+        'task-04',
+        'fixture task 04',
+        'fixture task description 04',
+        90,
+      )
           .start(DateTime.utc(2021, 5, 13, 10, 00))
           .suspend(DateTime.utc(2021, 5, 13, 12, 30)),
-      _newTask('fixture-task-05', 'fixture task 05',
-              'fixture task description 05')
+      _newTask(
+        'fixture-task-05',
+        'fixture task 05',
+        'fixture task description 05',
+        90,
+      )
           .start(DateTime.utc(2021, 5, 14, 10, 00))
           .suspend(DateTime.utc(2021, 5, 15, 12, 30)),
-      _newTask('fixture-task-06', 'fixture task 06',
-              'fixture task description 06')
+      _newTask(
+        'fixture-task-06',
+        'fixture task 06',
+        'fixture task description 06',
+        90,
+      )
           .start(DateTime.utc(2021, 6, 14, 10, 00))
           .suspend(DateTime.utc(2021, 8, 14, 12, 34))
     ];
 
-Task _newTask(String id, String title, String description) => Task(
-    id: id,
-    state: TaskState.unstarted,
-    title: title,
-    description: description,
-    timeRecords: const []);
+Task _newTask(
+  String id,
+  String title,
+  String description,
+  int estimatedTime,
+) =>
+    Task(
+      id: id,
+      state: TaskState.unstarted,
+      title: title,
+      description: description,
+      estimatedTime: estimatedTime,
+      timeRecords: const [],
+    );

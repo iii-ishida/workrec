@@ -71,6 +71,7 @@ class _TaskListView extends StatelessWidget {
               description: row.description,
               startTime: row.startTime,
               workingTime: row.workingTime,
+              estimatedTime: row.estimatedTime,
               toggleAction: row.toggleAction,
               onToggle: row.onToggle,
             );
@@ -91,6 +92,7 @@ class _TaskListRow extends StatelessWidget {
     required this.description,
     required this.startTime,
     required this.workingTime,
+    required this.estimatedTime,
     required this.toggleAction,
     required this.onToggle,
   }) : super(key: key);
@@ -99,6 +101,7 @@ class _TaskListRow extends StatelessWidget {
   final String description;
   final String startTime;
   final String workingTime;
+  final String estimatedTime;
   final ToggleAction toggleAction;
   final VoidCallback onToggle;
 
@@ -138,6 +141,10 @@ class _TaskListRow extends StatelessWidget {
                   style: Theme.of(context).textTheme.caption,
                 ),
               ]),
+              Text(
+                '見積もり時間: $estimatedTime分',
+                style: Theme.of(context).textTheme.caption,
+              ),
             ],
           ),
           const Spacer(),

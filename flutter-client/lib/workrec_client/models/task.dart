@@ -23,6 +23,9 @@ class Task extends Equatable {
   /// タスクの説明
   final String description;
 
+  /// 見積もり時間（分）
+  final int estimatedTime;
+
   /// タスクの状態
   final TaskState state;
 
@@ -33,6 +36,7 @@ class Task extends Equatable {
     required this.id,
     required this.title,
     required this.description,
+    required this.estimatedTime,
     required this.state,
     required this.timeRecords,
   });
@@ -63,11 +67,13 @@ class Task extends Equatable {
   }
 
   /// [Task] 作成して返します
-  factory Task.create({required String title, String description = ''}) {
+  factory Task.create(
+      {required String title, String description = '', int estimatedTime = 0}) {
     return Task(
       id: '',
       title: title,
       description: description,
+      estimatedTime: estimatedTime,
       state: TaskState.unstarted,
       timeRecords: const [],
     );
@@ -122,6 +128,7 @@ class Task extends Equatable {
   Task _copyWith({
     String? title,
     String? description,
+    int? estimatedTime,
     TaskState? state,
     List<WorkTime>? timeRecords,
     DateTime? updatedAt,
@@ -131,6 +138,7 @@ class Task extends Equatable {
       state: state ?? this.state,
       title: title ?? this.title,
       description: description ?? this.description,
+      estimatedTime: estimatedTime ?? this.estimatedTime,
       timeRecords: timeRecords ?? this.timeRecords,
     );
   }

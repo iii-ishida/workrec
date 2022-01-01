@@ -42,10 +42,14 @@ class MockWorkrecClient extends _i1.Mock implements _i3.WorkrecClient {
               returnValue: Stream<List<_i2.Task>>.empty())
           as _i4.Stream<List<_i2.Task>>);
   @override
-  _i4.Future<void> addNewTask({String? title, String? description}) =>
+  _i4.Future<void> addNewTask(
+          {String? title, String? description, int? estimatedTime}) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #addNewTask, [], {#title: title, #description: description}),
+          Invocation.method(#addNewTask, [], {
+            #title: title,
+            #description: description,
+            #estimatedTime: estimatedTime
+          }),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override

@@ -26,6 +26,7 @@ void main() {
             id: 'some-task',
             title: 'some task',
             description: '',
+            estimatedTime: 0,
             state: TaskState.unstarted,
             timeRecords: [],
           )

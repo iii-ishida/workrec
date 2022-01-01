@@ -6,7 +6,12 @@ void main() {
     group('.create', () {
       const title = 'some task';
       const description = 'some description';
-      final actual = Task.create(title: title, description: description);
+      const estimatedTime = 90;
+      final actual = Task.create(
+        title: title,
+        description: description,
+        estimatedTime: estimatedTime,
+      );
 
       test('id が空文字であること', () {
         expect(actual.id, '');
@@ -16,6 +21,9 @@ void main() {
       });
       test('description が引数の [description] であること', () {
         expect(actual.description, description);
+      });
+      test('estimatedTime が引数の [estimatedTime] であること', () {
+        expect(actual.estimatedTime, estimatedTime);
       });
       test('state が unstarted であること', () {
         expect(actual.state, TaskState.unstarted);
@@ -28,10 +36,11 @@ void main() {
       final time = DateTime.now();
       final actual = source.start(time);
 
-      test('id, title, description が変更されないこと', () {
+      test('id, title, description, estimatedTime が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
         expect(actual.description, source.description);
+        expect(actual.estimatedTime, source.estimatedTime);
       });
       test('state が started であること', () {
         expect(actual.state, TaskState.started);
@@ -55,10 +64,11 @@ void main() {
       final time = DateTime.now();
       final actual = source.suspend(time);
 
-      test('id, title, description が変更されないこと', () {
+      test('id, title, description, estimatedTime が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
         expect(actual.description, source.description);
+        expect(actual.estimatedTime, source.estimatedTime);
       });
       test('state が suspended であること', () {
         expect(actual.state, TaskState.suspended);
@@ -84,10 +94,11 @@ void main() {
       final time = DateTime.now();
       final actual = source.resume(time);
 
-      test('id, title, description が変更されないこと', () {
+      test('id, title, description, estimatedTime が変更されないこと', () {
         expect(actual.id, source.id);
         expect(actual.title, source.title);
         expect(actual.description, source.description);
+        expect(actual.estimatedTime, source.estimatedTime);
       });
       test('state が resumed であること', () {
         expect(actual.state, TaskState.resumed);

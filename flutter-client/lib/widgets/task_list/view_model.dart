@@ -90,6 +90,9 @@ class TaskListItemViewModel {
   /// 説明
   String get description => _task.description;
 
+  /// 見積もり時間
+  String get estimatedTime => '${_task.estimatedTime}';
+
   /// 開始日時
   String get startTime =>
       _task.isStarted ? _dateFormat.format(_task.startTime) : '-';
