@@ -14,24 +14,14 @@ class AddNewTask extends StatelessWidget {
   }
 }
 
-class _AddNewTask extends StatefulWidget {
+class _AddNewTask extends StatelessWidget {
   final WorkrecClient client;
-
-  const _AddNewTask({Key? key, required this.client}) : super(key: key);
-
-  @override
-  State<_AddNewTask> createState() => _AddNewTaskState();
-}
-
-class _AddNewTaskState extends State<_AddNewTask> {
-  late final ViewModel _model;
+  final ViewModel _model;
   final _formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-    _model = ViewModel(client: widget.client);
-  }
+  _AddNewTask({Key? key, required this.client})
+      : _model = ViewModel(client: client),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +31,8 @@ class _AddNewTaskState extends State<_AddNewTask> {
         actions: [
           TextButton(
             style: TextButton.styleFrom(
-                primary: Theme.of(context).colorScheme.onPrimary),
+              primary: Theme.of(context).colorScheme.onPrimary,
+            ),
             onPressed: () async {
               if (!_formKey.currentState!.validate()) {
                 return;
