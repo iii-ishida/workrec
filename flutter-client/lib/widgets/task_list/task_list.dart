@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/widgets/edit_task.dart';
+import 'package:workrec_app/widgets/task_detail.dart';
 
 import './view_model.dart';
 import './searchbar.dart';
@@ -14,6 +15,10 @@ class TaskList extends StatelessWidget {
   static final routes = [
     GoRoute(
       path: ':id',
+      builder: (_, state) => TaskDetail(taskId: state.params['id']!),
+    ),
+    GoRoute(
+      path: ':id/edit',
       builder: (_, state) => EditTask(taskId: state.params['id']!),
     ),
   ];
