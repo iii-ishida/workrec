@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:state_notifier/state_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
@@ -36,6 +37,14 @@ class _EditTask extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Edit Task'),
+            leadingWidth: 100,
+            leading: TextButton(
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).colorScheme.onPrimary,
+              ),
+              onPressed: () => context.pop(),
+              child: const Text('キャンセル'),
+            ),
             actions: [
               TextButton(
                 style: TextButton.styleFrom(

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
@@ -20,6 +20,12 @@ class TaskList extends StatelessWidget {
     GoRoute(
       path: ':id/edit',
       builder: (_, state) => EditTask(taskId: state.params['id']!),
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        child: EditTask(taskId: state.params['id']!),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
     ),
   ];
 
