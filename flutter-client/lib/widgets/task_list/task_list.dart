@@ -6,6 +6,7 @@ import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/widgets/edit_task.dart';
 import 'package:workrec_app/widgets/task_detail.dart';
+import 'package:workrec_app/widgets/work_time_list.dart';
 
 import './view_model.dart';
 import './searchbar.dart';
@@ -16,6 +17,10 @@ class TaskList extends StatelessWidget {
     GoRoute(
       path: ':id',
       builder: (_, state) => TaskDetail(taskId: state.params['id']!),
+    ),
+    GoRoute(
+      path: ':id/work-times',
+      builder: (_, state) => WorkTimeList(taskId: state.params['id']!),
     ),
     GoRoute(
       path: ':id/edit',

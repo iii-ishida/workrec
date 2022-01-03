@@ -44,11 +44,11 @@ Task taskFromFirestoreDoc(
     description: data['description'] as String,
     estimatedTime: data['estimatedTime'] as int,
     state: TaskState.values.byName(data['state'] as String),
-    timeRecords: _workTimeListFromFirestoreDocs(workTimeDocs),
+    timeRecords: workTimeListFromFirestoreDocs(workTimeDocs),
   );
 }
 
-List<WorkTime> _workTimeListFromFirestoreDocs(List<_QueryDocument> docs) {
+List<WorkTime> workTimeListFromFirestoreDocs(List<_QueryDocument> docs) {
   return docs.map((doc) => _workTimeFromFirestoreDoc(doc)).toList();
 }
 

@@ -22,6 +22,13 @@ class TaskRepo {
         .then((doc) => _taskFromDoc(doc as _QueryDocument));
   }
 
+  Future<List<WorkTime>> getWorkTimeListByTaskId(String taskId) async {
+    final docs = await _workTimeCollection(_store, userId, taskId)
+        .orderBy('start')
+        .get();
+    return workTimeListFromFirestoreDocs(docs.docs as List<_QueryDocument>);
+  }
+
   Stream<String> currentTaskIdStream() {
     return _userDoc(userId).snapshots().map(
           (snapshots) => snapshots.exists

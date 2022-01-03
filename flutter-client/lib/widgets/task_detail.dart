@@ -49,6 +49,7 @@ class _TaskDetail extends StatelessWidget {
           body: model.isLoading
               ? const Center(child: CircularProgressIndicator())
               : _TaskDetailBody(
+                  taskId: taskId,
                   title: model.title,
                   description: model.description,
                   startTime: model.startTime,
@@ -61,6 +62,7 @@ class _TaskDetail extends StatelessWidget {
 }
 
 class _TaskDetailBody extends StatelessWidget {
+  final String taskId;
   final String title;
   final String description;
   final String startTime;
@@ -69,6 +71,7 @@ class _TaskDetailBody extends StatelessWidget {
 
   const _TaskDetailBody({
     Key? key,
+    required this.taskId,
     required this.title,
     required this.description,
     required this.startTime,
@@ -97,6 +100,10 @@ class _TaskDetailBody extends StatelessWidget {
         Text(
           '見積もり時間: $estimatedTime分',
           style: Theme.of(context).textTheme.caption,
+        ),
+        TextButton(
+          onPressed: () => context.push('/tasks/$taskId/work-times'),
+          child: Text('作業時間一覧', style: Theme.of(context).textTheme.button),
         ),
       ],
     );

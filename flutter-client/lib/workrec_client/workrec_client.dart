@@ -1,4 +1,5 @@
 import './models/task.dart';
+import './models/work_time.dart';
 import './repo/task_repo.dart';
 
 class WorkrecClient {
@@ -8,6 +9,10 @@ class WorkrecClient {
 
   Future<Task> findTaskById(String taskId) async {
     return _repo.findTaskById(taskId);
+  }
+
+  Future<List<WorkTime>> getWorkTimeListByTaskId(String taskId) async {
+    return _repo.getWorkTimeListByTaskId(taskId);
   }
 
   Stream<Task> currentTaskStream() {
