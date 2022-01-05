@@ -83,4 +83,20 @@ class WorkrecClient {
       tran.updateCurrentTaskId(resumed.id);
     });
   }
+
+  Future<void> updateWorkTime(
+    String taskId,
+    WorkTime workTime, {
+    DateTime? start,
+    DateTime? end,
+  }) async {
+    return _repo.runInTransaction((tran) {
+      tran.updateWorkTime(
+          taskId,
+          workTime.patch(
+            start: start,
+            end: end,
+          ));
+    });
+  }
 }
