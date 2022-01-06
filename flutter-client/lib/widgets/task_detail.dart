@@ -81,31 +81,35 @@ class _TaskDetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Text(title),
-        Text(
-          description,
-          style: Theme.of(context).textTheme.caption,
-        ),
-        Text(
-          '開始日時: $startTime',
-          style: Theme.of(context).textTheme.caption,
-        ),
-        Text(
-          '作業時間: $workingTime',
-          style: Theme.of(context).textTheme.caption,
-        ),
-        Text(
-          '見積もり時間: $estimatedTime分',
-          style: Theme.of(context).textTheme.caption,
-        ),
-        TextButton(
-          onPressed: () => context.push('/tasks/$taskId/work-times'),
-          child: Text('作業時間一覧', style: Theme.of(context).textTheme.button),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Text(title),
+          Text(
+            description,
+            style: Theme.of(context).textTheme.caption,
+          ),
+          Text(
+            '開始日時: $startTime',
+            style: Theme.of(context).textTheme.caption,
+          ),
+          Text(
+            '作業時間: $workingTime',
+            style: Theme.of(context).textTheme.caption,
+          ),
+          Text(
+            '見積もり時間: $estimatedTime分',
+            style: Theme.of(context).textTheme.caption,
+          ),
+          TextButton(
+            onPressed: () => context.push('/tasks/$taskId/work-times'),
+            child: Text('作業時間一覧', style: Theme.of(context).textTheme.button),
+          ),
+        ],
+      ),
     );
   }
 }
