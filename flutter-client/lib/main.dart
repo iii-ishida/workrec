@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'firebase_options.dart';
-import './widgets/sign_in.dart';
+import './widgets/auth/sign_in.dart';
+import './widgets/auth/sign_up.dart';
 import './widgets/home.dart';
 
 Future<void> main() async {
@@ -60,15 +61,24 @@ class MyApp extends StatelessWidget {
             viewModel: SignInViewModel(authClient: authClient),
           ),
         ),
+        GoRoute(
+          name: 'signUp',
+          path: '/signUp',
+          builder: (context, state) => SignUp(
+            viewModel: SignUpViewModel(authClient: authClient),
+          ),
+        ),
       ],
       redirect: (state) {
         final userId = authUserNotifier.value.id;
         final loggedIn = userId.isNotEmpty;
         final signInLoc = state.namedLocation('signIn');
-        final goingToSignIn = state.subloc == signInLoc;
+        final signUpLoc = state.namedLocation('signUp');
+        final goingToAuth =
+            state.subloc == signInLoc || state.subloc == signUpLoc;
 
-        if (!loggedIn && !goingToSignIn) return state.namedLocation('signIn');
-        if (loggedIn && goingToSignIn) return '/';
+        if (!loggedIn && !goingToAuth) return state.namedLocation('signIn');
+        if (loggedIn && goingToAuth) return '/';
 
         return null;
       },
