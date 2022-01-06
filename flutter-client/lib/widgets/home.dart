@@ -36,7 +36,7 @@ class Home extends StatelessWidget {
       builder: (_, __) => const Home(selectedIndex: _indexOfSettings),
     ),
     GoRoute(
-      path: '/tasks/new',
+      path: '/add_task',
       pageBuilder: (context, state) => MaterialPage(
         key: state.pageKey,
         fullscreenDialog: true,
@@ -118,6 +118,6 @@ class _Home extends StatelessWidget {
   }
 
   void _handlePresentAddTask(BuildContext context) {
-    context.push('/tasks/new');
+    context.push('/add_task');
   }
 }
