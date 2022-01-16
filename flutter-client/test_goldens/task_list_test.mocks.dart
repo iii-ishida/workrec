@@ -5,8 +5,7 @@
 import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:workrec_app/workrec_client/models/task.dart' as _i2;
-import 'package:workrec_app/workrec_client/models/work_time.dart' as _i5;
+import 'package:workrec_app/workrec_client/models/models.dart' as _i2;
 import 'package:workrec_app/workrec_client/workrec_client.dart' as _i3;
 
 // ignore_for_file: avoid_redundant_argument_values
@@ -34,10 +33,10 @@ class MockWorkrecClient extends _i1.Mock implements _i3.WorkrecClient {
               returnValue: Future<_i2.Task>.value(_FakeTask_0()))
           as _i4.Future<_i2.Task>);
   @override
-  _i4.Future<List<_i5.WorkTime>> getWorkTimeListByTaskId(String? taskId) =>
+  _i4.Future<List<_i2.WorkTime>> getWorkTimeListByTaskId(String? taskId) =>
       (super.noSuchMethod(Invocation.method(#getWorkTimeListByTaskId, [taskId]),
-              returnValue: Future<List<_i5.WorkTime>>.value(<_i5.WorkTime>[]))
-          as _i4.Future<List<_i5.WorkTime>>);
+              returnValue: Future<List<_i2.WorkTime>>.value(<_i2.WorkTime>[]))
+          as _i4.Future<List<_i2.WorkTime>>);
   @override
   _i4.Stream<_i2.Task> currentTaskStream() =>
       (super.noSuchMethod(Invocation.method(#currentTaskStream, []),
@@ -87,11 +86,9 @@ class MockWorkrecClient extends _i1.Mock implements _i3.WorkrecClient {
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
-  _i4.Future<void> updateWorkTime(String? taskId, _i5.WorkTime? workTime,
-          {DateTime? start, DateTime? end}) =>
+  _i4.Future<void> updateWorkTime(String? taskId, _i2.WorkTime? workTime) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #updateWorkTime, [taskId, workTime], {#start: start, #end: end}),
+          Invocation.method(#updateWorkTime, [taskId, workTime]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override

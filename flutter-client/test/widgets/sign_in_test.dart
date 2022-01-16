@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/widgets/auth/sign_in.dart';
-
 import 'sign_in_test.mocks.dart';
 
 @GenerateMocks([AuthClient])

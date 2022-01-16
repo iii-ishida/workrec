@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:workrec_app/workrec_client/models/task.dart';
 import 'package:workrec_app/workrec_client/models/work_time.dart';
-
 import 'firestore_converter.dart';
 
 typedef TransactionCallback = Function(TaskTransaction);

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
-
 import './add_new_task.dart';
-import './task_list/task_list.dart';
 import './dashboard.dart';
 import './settings.dart';
+import './task_list/task_list.dart';
 
 const _indexOfTaskList = 0;
 const _indexOfDashboard = 1;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:workrec_app/auth_client/auth_client.dart';
 
 class Settings extends StatelessWidget {

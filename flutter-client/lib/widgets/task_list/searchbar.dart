@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class SearchBar extends StatefulWidget {
   const SearchBar({Key? key, required this.onChangeSearchText})

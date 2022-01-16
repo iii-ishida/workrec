@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
-import 'package:state_notifier/state_notifier.dart';
-import 'package:provider/provider.dart';
+
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:state_notifier/state_notifier.dart';
+
 import 'package:workrec_app/auth_client/auth_client.dart';
+import 'package:workrec_app/workrec_client/models/models.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
-import 'package:workrec_app/workrec_client/models/task.dart';
 
 class TaskDetail extends StatelessWidget {
   final String taskId;

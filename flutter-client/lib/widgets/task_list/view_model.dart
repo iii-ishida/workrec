@@ -1,8 +1,9 @@
 import 'package:clock/clock.dart';
 import 'package:intl/intl.dart';
 import 'package:state_notifier/state_notifier.dart';
+
+import 'package:workrec_app/workrec_client/models/models.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
-import 'package:workrec_app/workrec_client/models/task.dart';
 
 typedef _RecordTaskFunc = Future<void> Function(String);
 
