@@ -6,7 +6,7 @@ import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/widgets/edit_task.dart';
 import 'package:workrec_app/widgets/task_detail.dart';
-import 'package:workrec_app/widgets/work_time_list.dart';
+import 'package:workrec_app/widgets/work_time_list/work_time_list.dart';
 
 import './view_model.dart';
 import './searchbar.dart';

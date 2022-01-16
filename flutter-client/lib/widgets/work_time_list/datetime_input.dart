@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
 class DateTimeInput extends StatefulWidget {
-  final DateTime initialDateTime;
+  final String? initialValue;
+  final DateTime? initialDateTime;
   final DateTime firstDateTime;
   final DateTime lastDateTime;
   final DateFormat _formatter;
@@ -12,12 +13,14 @@ class DateTimeInput extends StatefulWidget {
 
   DateTimeInput({
     Key? key,
-    required this.initialDateTime,
+    this.initialValue,
+    this.initialDateTime,
     required this.firstDateTime,
     required this.lastDateTime,
     required this.onChanged,
     DateFormat? formatter,
-  })  : _formatter = formatter ?? _dateFormat,
+  })  : assert(initialValue != null || initialDateTime != null),
+        _formatter = formatter ?? _dateFormat,
         super(key: key);
 
   @override
@@ -25,6 +28,7 @@ class DateTimeInput extends StatefulWidget {
 }
 
 class _DateTimeInputState extends State<DateTimeInput> {
+  late String _text;
   late DateTime _dateTime;
 
   DateTime _date(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -34,7 +38,8 @@ class _DateTimeInputState extends State<DateTimeInput> {
   initState() {
     super.initState();
 
-    _dateTime = widget.initialDateTime;
+    _dateTime = widget.initialDateTime ?? DateTime.now();
+    _text = widget.initialValue ?? widget._formatter.format(_dateTime);
   }
 
   @override
@@ -53,10 +58,11 @@ class _DateTimeInputState extends State<DateTimeInput> {
 
         setState(() {
           _dateTime = dateTime;
+          _text = widget._formatter.format(_dateTime);
           widget.onChanged(_dateTime);
         });
       },
-      child: Text(widget._formatter.format(_dateTime)),
+      child: Text(_text),
     );
   }
 
