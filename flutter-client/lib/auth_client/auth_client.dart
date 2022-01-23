@@ -35,5 +35,5 @@ class AuthClient {
     );
   }
 
-  Future<void> signOut() => _auth.signOut();
+  late final signOut = _auth.signOut;
 }

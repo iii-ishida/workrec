@@ -6,13 +6,8 @@ class WorkrecClient {
 
   WorkrecClient({required String userId}) : _repo = TaskRepo(userId: userId);
 
-  Future<Task> findTaskById(String taskId) async {
-    return _repo.findTaskById(taskId);
-  }
-
-  Future<List<WorkTime>> getWorkTimeListByTaskId(String taskId) async {
-    return _repo.getWorkTimeListByTaskId(taskId);
-  }
+  late final findTaskById = _repo.findTaskById;
+  late final getWorkTimeListByTaskId = _repo.getWorkTimeListByTaskId;
 
   Stream<Task> currentTaskStream() {
     return _repo.currentTaskIdStream().asyncMap((id) async {
@@ -22,34 +17,31 @@ class WorkrecClient {
     });
   }
 
-  Stream<List<Task>> tasksStream() {
-    return _repo.tasksStream().asyncMap((futures) => Future.wait(futures));
-  }
+  Stream<List<Task>> tasksStream() =>
+      _repo.tasksStream().asyncMap((futures) => Future.wait(futures));
 
   Future<void> addNewTask({
     required String title,
     required String description,
     required int estimatedTime,
-  }) async {
-    return _repo.addTask(Task.create(
-      title: title,
-      description: description,
-      estimatedTime: estimatedTime,
-    ));
-  }
+  }) =>
+      _repo.addTask(Task.create(
+        title: title,
+        description: description,
+        estimatedTime: estimatedTime,
+      ));
 
   Future<void> updateTask(
     Task task, {
     String? title,
     String? description,
     int? estimatedTime,
-  }) async {
-    return _repo.updateTask(task.edit(
-      title: title,
-      description: description,
-      estimatedTime: estimatedTime,
-    ));
-  }
+  }) =>
+      _repo.updateTask(task.edit(
+        title: title,
+        description: description,
+        estimatedTime: estimatedTime,
+      ));
 
   Future<void> startTask(String taskId, DateTime timestamp) async {
     final task = await findTaskById(taskId);
@@ -83,9 +75,8 @@ class WorkrecClient {
     });
   }
 
-  Future<void> updateWorkTime(String taskId, WorkTime workTime) async {
-    return _repo.runInTransaction((tran) {
-      tran.updateWorkTime(taskId, workTime);
-    });
-  }
+  Future<void> updateWorkTime(String taskId, WorkTime workTime) =>
+      _repo.runInTransaction((tran) {
+        tran.updateWorkTime(taskId, workTime);
+      });
 }
