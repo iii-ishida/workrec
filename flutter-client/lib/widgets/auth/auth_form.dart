@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workrec_app/widgets/styles.dart';
 
 class AuthForm extends StatefulWidget {
   final String buttonLabel;
@@ -42,7 +43,7 @@ class _AuthFormState extends State<AuthForm> {
             validator: (_) =>
                 _emailContoller.text.isNotEmpty ? null : 'メールアドレスを入力してください',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: SpacingUnit.medium),
           TextFormField(
             controller: _passwordContoller,
             obscureText: true,
@@ -53,7 +54,7 @@ class _AuthFormState extends State<AuthForm> {
             validator: (_) =>
                 _passwordContoller.text.isNotEmpty ? null : 'パスワードを入力してください',
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: SpacingUnit.large),
           ElevatedButton(
             onPressed: () async {
               if (!_formKey.currentState!.validate()) {
@@ -63,7 +64,7 @@ class _AuthFormState extends State<AuthForm> {
                   _emailContoller.text, _passwordContoller.text);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: SpacingUnit.medium),
               alignment: Alignment.center,
               width: double.infinity,
               child: Text(

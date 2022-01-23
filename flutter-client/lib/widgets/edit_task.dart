@@ -9,6 +9,7 @@ import 'package:state_notifier/state_notifier.dart';
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/models/models.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
+import 'package:workrec_app/widgets/styles.dart';
 
 class EditTask extends StatelessWidget {
   final String taskId;
@@ -68,11 +69,13 @@ class _EditTask extends StatelessWidget {
               : Form(
                   key: _formKey,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SpacingUnit.large,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        const SizedBox(height: 16),
+                        const SizedBox(height: SpacingUnit.medium),
                         TextFormField(
                           decoration: const InputDecoration(labelText: 'タイトル'),
                           initialValue: model.title,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:workrec_app/auth_client/auth_client.dart';
+import 'package:workrec_app/widgets/styles.dart';
 import './auth_form.dart';
 
 class SignIn extends StatelessWidget {
@@ -14,10 +15,10 @@ class SignIn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(SpacingUnit.large),
         child: Column(
           children: <Widget>[
-            const SizedBox(height: 16),
+            const SizedBox(height: SpacingUnit.medium),
             Align(
               alignment: Alignment.center,
               child: Text(
@@ -25,12 +26,12 @@ class SignIn extends StatelessWidget {
                 style: Theme.of(context).textTheme.headline6,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: SpacingUnit.large),
             AuthForm(
               buttonLabel: 'ログイン',
               onSubmit: (email, password) => viewModel.signIn(email, password),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: SpacingUnit.large),
             TextButton(
               style: TextButton.styleFrom(
                 primary: Theme.of(context).colorScheme.onPrimary,

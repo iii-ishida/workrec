@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:workrec_app/widgets/edit_task.dart';
 import 'package:workrec_app/widgets/task_detail.dart';
 import 'package:workrec_app/widgets/work_time_list/work_time_list.dart';
+import 'package:workrec_app/widgets/styles.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import './searchbar.dart';
 import './view_model.dart';
@@ -52,7 +53,7 @@ class TaskList extends StatelessWidget {
                 bottom: false,
                 sliver: SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(SpacingUnit.medium),
                     child: SearchBar(
                       onChangeSearchText: viewModel.onChangeSearchText,
                     ),
@@ -136,10 +137,8 @@ class _TaskListRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const _space = SizedBox(height: 8, width: 8);
-
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(SpacingUnit.medium),
       child: Row(
         children: [
           Column(
@@ -152,12 +151,12 @@ class _TaskListRow extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              _space,
+              const SizedBox(height: SpacingUnit.small),
               Text(
                 description,
                 style: Theme.of(context).textTheme.caption,
               ),
-              _space,
+              const SizedBox(height: SpacingUnit.small),
               Row(children: [
                 Text(
                   '開始日時: $startTime',
@@ -180,7 +179,10 @@ class _TaskListRow extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
               side: const BorderSide(width: 1, color: Colors.blue),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpacingUnit.medium,
+                vertical: SpacingUnit.small,
+              ),
             ),
             onPressed: onToggle,
             child: Row(
@@ -189,7 +191,7 @@ class _TaskListRow extends StatelessWidget {
                   toggleAction == ToggleAction.suspend
                       ? CupertinoIcons.pause
                       : CupertinoIcons.play,
-                  size: 16,
+                  size: SpacingUnit.medium,
                 ),
                 Text(_toggleButtonLabel(toggleAction)),
               ],

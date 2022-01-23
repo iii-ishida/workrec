@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
+import 'package:workrec_app/widgets/styles.dart';
 
 class AddNewTask extends StatelessWidget {
   const AddNewTask({Key? key}) : super(key: key);
@@ -49,11 +50,13 @@ class _AddNewTask extends StatelessWidget {
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SpacingUnit.large,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: SpacingUnit.medium),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'タイトル'),
                 onChanged: _model.onChangeTitle,
