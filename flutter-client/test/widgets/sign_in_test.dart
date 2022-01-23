@@ -19,7 +19,9 @@ void main() {
 
     group('.signIn', () {
       test('email が空の場合は client.signInWithEmailAndPassword を実行しないこと', () {
-        model.signIn('', 'somepassword');
+        model.onChangedEmail('');
+        model.onChangedPassword('somepassword');
+        model.signIn();
 
         verifyNever(client.signInWithEmailAndPassword(
           email: anyNamed('email'),
@@ -28,7 +30,9 @@ void main() {
       });
 
       test('password が空の場合は client.signInWithEmailAndPassword を実行しないこと', () {
-        model.signIn('test@example.com', '');
+        model.onChangedEmail('test@example.com');
+        model.onChangedPassword('');
+        model.signIn();
 
         verifyNever(client.signInWithEmailAndPassword(
           email: anyNamed('email'),
@@ -42,7 +46,9 @@ void main() {
         const email = 'test@example.com';
         const password = 'somepassword';
 
-        model.signIn(email, password);
+        model.onChangedEmail(email);
+        model.onChangedPassword(password);
+        model.signIn();
 
         verify(client.signInWithEmailAndPassword(
           email: email,

@@ -29,7 +29,9 @@ class SignIn extends StatelessWidget {
             const SizedBox(height: SpacingUnit.large),
             AuthForm(
               buttonLabel: 'ログイン',
-              onSubmit: (email, password) => viewModel.signIn(email, password),
+              onChangedEmail: viewModel.onChangedEmail,
+              onChangedPassword: viewModel.onChangedPassword,
+              onSubmit: viewModel.signIn,
             ),
             const SizedBox(height: SpacingUnit.large),
             TextButton(
@@ -52,9 +54,18 @@ class SignIn extends StatelessWidget {
 class SignInViewModel {
   final AuthClient authClient;
 
+  String _email = '';
+  String get email => _email;
+
+  String _password = '';
+  String get password => _password;
+
   SignInViewModel({required this.authClient});
 
-  Future<void> signIn(String email, String password) async {
+  void onChangedEmail(String email) => _email = email;
+  void onChangedPassword(String password) => _password = password;
+
+  Future<void> signIn() async {
     if (email.isEmpty || password.isEmpty) {
       return;
     }

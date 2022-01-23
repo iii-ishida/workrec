@@ -1,12 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:workrec_app/widgets/styles.dart';
 
 class AuthForm extends StatefulWidget {
   final String buttonLabel;
-  final Future<void> Function(String email, String password) onSubmit;
+  final ValueChanged<String> onChangedEmail;
+  final ValueChanged<String> onChangedPassword;
+  final AsyncCallback onSubmit;
 
-  const AuthForm({Key? key, required this.buttonLabel, required this.onSubmit})
-      : super(key: key);
+  const AuthForm({
+    Key? key,
+    required this.buttonLabel,
+    required this.onChangedEmail,
+    required this.onChangedPassword,
+    required this.onSubmit,
+  }) : super(key: key);
 
   @override
   createState() => _AuthFormState();
@@ -20,6 +28,13 @@ class _AuthFormState extends State<AuthForm> {
   @override
   initState() {
     super.initState();
+    _emailContoller.addListener(() {
+      widget.onChangedEmail(_emailContoller.text);
+    });
+
+    _passwordContoller.addListener(() {
+      widget.onChangedPassword(_passwordContoller.text);
+    });
   }
 
   @override
@@ -60,8 +75,7 @@ class _AuthFormState extends State<AuthForm> {
               if (!_formKey.currentState!.validate()) {
                 return;
               }
-              await widget.onSubmit(
-                  _emailContoller.text, _passwordContoller.text);
+              await widget.onSubmit();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: SpacingUnit.medium),

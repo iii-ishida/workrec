@@ -29,8 +29,9 @@ class SignUp extends StatelessWidget {
             const SizedBox(height: SpacingUnit.large),
             AuthForm(
               buttonLabel: 'ユーザー登録',
-              onSubmit: (email, password) =>
-                  viewModel.createUser(email, password),
+              onChangedEmail: viewModel.onChangedEmail,
+              onChangedPassword: viewModel.onChangedPassword,
+              onSubmit: viewModel.createUser,
             ),
             const SizedBox(height: SpacingUnit.large),
             TextButton(
@@ -55,7 +56,16 @@ class SignUpViewModel {
 
   SignUpViewModel({required this.authClient});
 
-  Future<void> createUser(String email, String password) async {
+  String _email = '';
+  String get email => _email;
+
+  String _password = '';
+  String get password => _password;
+
+  void onChangedEmail(String email) => _email = email;
+  void onChangedPassword(String password) => _password = password;
+
+  Future<void> createUser() async {
     if (email.isEmpty || password.isEmpty) {
       return;
     }
