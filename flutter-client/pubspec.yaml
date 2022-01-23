@@ -38,11 +38,11 @@ dependencies:
 
   clock: ^1.1.0
   fake_async: ^1.2.0
-  mockito: ^5.0.10
   stream_transform: ^2.0.0
   go_router: ^2.5.2
   state_notifier: ^0.7.1
   flutter_state_notifier: ^0.7.1
+  mocktail: ^0.2.0
 
 dev_dependencies:
   flutter_test:

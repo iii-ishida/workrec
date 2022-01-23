@@ -1,22 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'package:workrec_app/workrec_client/models/task.dart';
 import 'package:workrec_app/workrec_client/repo/task_repo.dart';
-import 'task_repo_test.mocks.dart';
 
-@GenerateMocks(
-  [
-    FirebaseFirestore,
-    DocumentReference,
-  ],
-  customMocks: [
-    MockSpec<CollectionReference<Map<String, dynamic>>>(
-        as: #MockCollectionReference)
-  ],
-)
+// ignore_for_file: subtype_of_sealed_class
+
+class MockCollectionReference extends Mock
+    implements CollectionReference<Map<String, dynamic>> {}
+
+class MockDocumentReference extends Mock
+    implements DocumentReference<Map<String, dynamic>> {}
+
+class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
+
 void main() {
   group('TaskRepo', () {
     const userId = 'some-user-id';
@@ -29,9 +27,9 @@ void main() {
       collection = MockCollectionReference();
       firestore = MockFirebaseFirestore();
 
-      when(firestore.collection(any)).thenReturn(collection);
-      when(firestore.doc(any)).thenReturn(MockDocumentReference());
-      when(collection.add(any))
+      when(() => firestore.collection(any())).thenReturn(collection);
+      when(() => firestore.doc(any())).thenReturn(MockDocumentReference());
+      when(() => collection.add(any()))
           .thenAnswer((_) async => MockDocumentReference());
 
       repo = TaskRepo(userId: userId, store: firestore);
@@ -55,7 +53,7 @@ void main() {
           'updatedAt': FieldValue.serverTimestamp(),
         };
 
-        verify(collection.add(data)).called(1);
+        verify(() => collection.add(data)).called(1);
       });
     });
   });

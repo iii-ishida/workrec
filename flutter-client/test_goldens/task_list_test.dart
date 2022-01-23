@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+
+import 'package:mocktail/mocktail.dart';
+
 import 'package:workrec_app/widgets/task_list/task_list.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/workrec_client/models/task.dart';
 
-import 'task_list_test.mocks.dart';
+class MockWorkrecClient extends Mock implements WorkrecClient {}
 
-@GenerateMocks(
-  [WorkrecClient],
-)
 void main() {
   testWidgets('Golden test', (WidgetTester tester) async {
     final client = MockWorkrecClient();
-    when(client.currentTaskStream()).thenAnswer(
+    when(() => client.currentTaskStream()).thenAnswer(
       (_) => Stream<Task>.fromIterable([
         _newTasks().firstWhere((task) => task.id == 'current'),
       ]),
     );
-    when(client.tasksStream()).thenAnswer(
+    when(() => client.tasksStream()).thenAnswer(
       (_) => Stream<List<Task>>.fromIterable([_newTasks()]),
     );
 
