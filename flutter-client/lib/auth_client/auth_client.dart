@@ -15,14 +15,15 @@ class AuthClient {
   Stream<AuthUser> get userStream =>
       _auth.authStateChanges().map((user) => AuthUser(id: user?.uid ?? ''));
 
-  Future<void> createUserWithEmailAndPassword({
+  Future<String> createUserWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
-    await _auth.createUserWithEmailAndPassword(
+    final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    return credential.user!.uid;
   }
 
   Future<void> signInWithEmailAndPassword({

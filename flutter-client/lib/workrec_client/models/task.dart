@@ -77,31 +77,32 @@ class Task extends Equatable {
   }
 
   /// [Task] 作成して返します
-  factory Task.create(
-      {required String title, String description = '', int estimatedTime = 0}) {
-    return Task(
-      id: '',
-      title: title,
-      description: description,
-      estimatedTime: estimatedTime,
-      state: TaskState.unstarted,
-      timeRecords: const [],
-    );
-  }
+  factory Task.create({
+    required String title,
+    String description = '',
+    int estimatedTime = 0,
+  }) =>
+      Task(
+        id: '',
+        title: title,
+        description: description,
+        estimatedTime: estimatedTime,
+        state: TaskState.unstarted,
+        timeRecords: const [],
+      );
 
   /// タスクのプロパティを編集します
   Task edit({
     String? title,
     String? description,
     int? estimatedTime,
-  }) {
-    return _copyWith(
-      title: title,
-      description: description,
-      estimatedTime: estimatedTime,
-      updatedAt: clock.now(),
-    );
-  }
+  }) =>
+      _copyWith(
+        title: title,
+        description: description,
+        estimatedTime: estimatedTime,
+        updatedAt: clock.now(),
+      );
 
   /// タスクの作業開始日時を記録します
   /// 既に開始している場合は [StateError] を throw します
@@ -156,16 +157,15 @@ class Task extends Equatable {
     TaskState? state,
     List<WorkTime>? timeRecords,
     DateTime? updatedAt,
-  }) {
-    return Task(
-      id: id,
-      state: state ?? this.state,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      estimatedTime: estimatedTime ?? this.estimatedTime,
-      timeRecords: timeRecords ?? this.timeRecords,
-    );
-  }
+  }) =>
+      Task(
+        id: id,
+        state: state ?? this.state,
+        title: title ?? this.title,
+        description: description ?? this.description,
+        estimatedTime: estimatedTime ?? this.estimatedTime,
+        timeRecords: timeRecords ?? this.timeRecords,
+      );
 
   @override
   List<Object> get props => [id, title, description, state, timeRecords];

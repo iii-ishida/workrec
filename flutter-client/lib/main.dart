@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:workrec_app/auth_client/auth_client.dart';
+import 'package:workrec_app/workrec_client/workrec_client.dart';
 import './widgets/auth/sign_in.dart';
 import './widgets/auth/sign_up.dart';
 import './widgets/home.dart';
@@ -67,7 +68,10 @@ class MyApp extends StatelessWidget {
           name: 'signUp',
           path: '/signUp',
           builder: (context, state) => SignUp(
-            viewModel: SignUpViewModel(authClient: authClient),
+            viewModel: SignUpViewModel(
+              workrecClient: WorkrecClient.forNotLoggedIn,
+              authClient: authClient,
+            ),
           ),
         ),
       ],

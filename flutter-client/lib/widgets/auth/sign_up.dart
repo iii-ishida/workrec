@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:workrec_app/auth_client/auth_client.dart';
+import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/widgets/styles.dart';
 import './auth_form.dart';
 
@@ -52,9 +53,10 @@ class SignUp extends StatelessWidget {
 }
 
 class SignUpViewModel {
+  final WorkrecClient workrecClient;
   final AuthClient authClient;
 
-  SignUpViewModel({required this.authClient});
+  SignUpViewModel({required this.workrecClient,  required this.authClient});
 
   String _email = '';
   String get email => _email;
@@ -70,9 +72,11 @@ class SignUpViewModel {
       return;
     }
 
-    await authClient.createUserWithEmailAndPassword(
+    final userId = await authClient.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+
+    await workrecClient.createUser(id: userId, email: email);
   }
 }

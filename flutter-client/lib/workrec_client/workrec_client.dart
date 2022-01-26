@@ -2,30 +2,60 @@ import './models/models.dart';
 import './repo/repo.dart';
 
 class WorkrecClient {
-  final TaskRepo _repo;
+  final TaskRepo _taskRepo;
+  final UserRepo _userRepo;
 
-  WorkrecClient({required String userId}) : _repo = TaskRepo(userId: userId);
+  WorkrecClient({required String userId})
+      : _taskRepo = TaskRepo(userId: userId),
+        _userRepo = UserRepo();
 
-  late final findTaskById = _repo.findTaskById;
-  late final getWorkTimeListByTaskId = _repo.getWorkTimeListByTaskId;
+  static WorkrecClient forNotLoggedIn = WorkrecClient(userId: '');
+
+  late final findTaskById = _taskRepo.findTaskById;
+  late final getWorkTimeListByTaskId = _taskRepo.getWorkTimeListByTaskId;
+
+  // User
+
+  Future<void> createUser({
+    required String id,
+    required String email,
+  }) =>
+      _userRepo.createUser(User.create(
+        id: id,
+        email: email,
+      ));
+
+  Future<void> editUser(User user, {
+    required String name,
+  }) =>
+      _userRepo.updateUser(user.edit(
+        name: name,
+      ));
+
+  Future<User> findUser(
+    String userId,
+  ) =>
+      _userRepo.findUserById(userId);
+
+  // Task
 
   Stream<Task> currentTaskStream() {
-    return _repo.currentTaskIdStream().asyncMap((id) async {
+    return _taskRepo.currentTaskIdStream().asyncMap((id) async {
       return id.isNotEmpty
-          ? await _repo.findTaskById(id)
+          ? await _taskRepo.findTaskById(id)
           : Task.create(title: '');
     });
   }
 
   Stream<List<Task>> tasksStream() =>
-      _repo.tasksStream().asyncMap((futures) => Future.wait(futures));
+      _taskRepo.tasksStream().asyncMap((futures) => Future.wait(futures));
 
   Future<void> addNewTask({
     required String title,
     required String description,
     required int estimatedTime,
   }) =>
-      _repo.addTask(Task.create(
+      _taskRepo.addTask(Task.create(
         title: title,
         description: description,
         estimatedTime: estimatedTime,
@@ -37,7 +67,7 @@ class WorkrecClient {
     String? description,
     int? estimatedTime,
   }) =>
-      _repo.updateTask(task.edit(
+      _taskRepo.updateTask(task.edit(
         title: title,
         description: description,
         estimatedTime: estimatedTime,
@@ -47,7 +77,7 @@ class WorkrecClient {
     final task = await findTaskById(taskId);
     final started = task.start(timestamp);
 
-    _repo.runInTransaction((tran) {
+    _taskRepo.runInTransaction((tran) {
       tran.updateTask(started);
       tran.addWorkTime(started.id, started.lastTimeRecord);
       tran.updateCurrentTaskId(started.id);
@@ -58,7 +88,7 @@ class WorkrecClient {
     final task = await findTaskById(taskId);
     final suspended = task.suspend(timestamp);
 
-    _repo.runInTransaction((tran) {
+    _taskRepo.runInTransaction((tran) {
       tran.updateTask(suspended);
       tran.updateWorkTime(suspended.id, suspended.lastTimeRecord);
     });
@@ -68,7 +98,7 @@ class WorkrecClient {
     final task = await findTaskById(taskId);
     final resumed = task.resume(timestamp);
 
-    _repo.runInTransaction((tran) {
+    _taskRepo.runInTransaction((tran) {
       tran.updateTask(resumed);
       tran.addWorkTime(resumed.id, resumed.lastTimeRecord);
       tran.updateCurrentTaskId(resumed.id);
@@ -76,7 +106,7 @@ class WorkrecClient {
   }
 
   Future<void> updateWorkTime(String taskId, WorkTime workTime) =>
-      _repo.runInTransaction((tran) {
+      _taskRepo.runInTransaction((tran) {
         tran.updateWorkTime(taskId, workTime);
       });
 }
