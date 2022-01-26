@@ -90,8 +90,8 @@ class MyApp extends StatelessWidget {
       },
       refreshListenable: authUserNotifier,
       navigatorBuilder: (context, child) {
-        return Provider<AuthUser>.value(
-          value: authUserNotifier.value,
+        return Provider<WorkrecClient>.value(
+          value: WorkrecClient(userId: authUserNotifier.value.id),
           child: child,
         );
       });

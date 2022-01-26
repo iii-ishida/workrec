@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:state_notifier/state_notifier.dart';
 
-import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/models/models.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/widgets/styles.dart';
@@ -17,8 +16,8 @@ class EditTask extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = context.read<AuthUser>().id;
-    return _EditTask(client: WorkrecClient(userId: userId), taskId: taskId);
+    final client = context.read<WorkrecClient>();
+    return _EditTask(client: client, taskId: taskId);
   }
 }
 

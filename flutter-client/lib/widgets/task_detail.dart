@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:state_notifier/state_notifier.dart';
 
-import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/models/models.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 
@@ -16,8 +15,8 @@ class TaskDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = context.read<AuthUser>().id;
-    return _TaskDetail(client: WorkrecClient(userId: userId), taskId: taskId);
+    final client = context.read<WorkrecClient>();
+    return _TaskDetail(client: client, taskId: taskId);
   }
 }
 

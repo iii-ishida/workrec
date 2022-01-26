@@ -56,7 +56,7 @@ class SignUpViewModel {
   final WorkrecClient workrecClient;
   final AuthClient authClient;
 
-  SignUpViewModel({required this.workrecClient,  required this.authClient});
+  SignUpViewModel({required this.workrecClient, required this.authClient});
 
   String _email = '';
   String get email => _email;

@@ -17,7 +17,11 @@ class UserRepo {
 
   Future<User> _userFromDoc(_QueryDocument doc) async {
     final data = doc.data()!;
-    return User(id: doc.id, email: data['email'] as String, name: data['name'] as String);
+    return User(
+      id: doc.id,
+      email: data['email'] as String,
+      name: data['name'] as String,
+    );
   }
 
   Future<void> createUser(User user) {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import './add_new_task.dart';
 import './dashboard.dart';
@@ -48,9 +47,9 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = context.read<AuthUser>().id;
+    final client = context.read<WorkrecClient>();
     return _Home(
-      client: WorkrecClient(userId: userId),
+      client: client,
       selectedIndex: selectedIndex,
     );
   }

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import 'package:workrec_app/widgets/styles.dart';
 
@@ -12,8 +11,8 @@ class AddNewTask extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = context.read<AuthUser>().id;
-    return _AddNewTask(client: WorkrecClient(userId: userId));
+    final client = context.read<WorkrecClient>();
+    return _AddNewTask(client: client);
   }
 }
 

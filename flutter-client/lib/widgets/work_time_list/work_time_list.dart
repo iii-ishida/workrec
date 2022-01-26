@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:provider/provider.dart';
 
-import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import './view_model.dart';
 
@@ -13,8 +12,8 @@ class WorkTimeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = context.read<AuthUser>().id;
-    return _WorkTimeList(client: WorkrecClient(userId: userId), taskId: taskId);
+    final client = context.read<WorkrecClient>();
+    return _WorkTimeList(client: client, taskId: taskId);
   }
 }
 

@@ -25,7 +25,8 @@ class WorkrecClient {
         email: email,
       ));
 
-  Future<void> editUser(User user, {
+  Future<void> editUser(
+    User user, {
     required String name,
   }) =>
       _userRepo.updateUser(user.edit(
