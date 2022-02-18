@@ -21,17 +21,6 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-class _AuthUserNotifier extends ValueNotifier<AuthUser> {
-  final AuthClient authClient;
-
-  _AuthUserNotifier(this.authClient) : super(authClient.currentUser) {
-    authClient.userStream.listen((user) {
-      value = user;
-      notifyListeners();
-    });
-  }
-}
-
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
@@ -95,4 +84,15 @@ class MyApp extends StatelessWidget {
           child: child,
         );
       });
+}
+
+class _AuthUserNotifier extends ValueNotifier<AuthUser> {
+  final AuthClient authClient;
+
+  _AuthUserNotifier(this.authClient) : super(authClient.currentUser) {
+    authClient.userStream.listen((user) {
+      value = user;
+      notifyListeners();
+    });
+  }
 }
