@@ -24,6 +24,7 @@ void main() {
       when(() => mock.resumeTask(any())).thenAnswer((_) async {});
 
       model = TaskListViewModel(
+        isLoading: false,
         tasks: [
           const Task(
             id: 'some-task',

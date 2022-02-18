@@ -14,6 +14,7 @@ class TaskListViewModelNotifier extends StateNotifier<TaskListViewModel> {
   TaskListViewModelNotifier(this.client) : super(TaskListViewModel.loading) {
     client.tasksStream().listen((tasks) {
       state = TaskListViewModel(
+        isLoading: false,
         tasks: tasks,
         startTask: (id) => client.startTask(id, clock.now()),
         suspendTask: (id) => client.suspendTask(id, clock.now()),
@@ -36,7 +37,7 @@ class TaskListViewModel {
     required this.startTask,
     required this.suspendTask,
     required this.resumeTask,
-    this.isLoading = false,
+    required this.isLoading,
   });
 
   static TaskListViewModel loading = TaskListViewModel(

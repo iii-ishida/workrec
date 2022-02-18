@@ -24,9 +24,10 @@ class Home extends StatelessWidget {
       redirect: (_) => '/tasks',
     ),
     GoRoute(
-        path: '/tasks',
-        builder: (_, __) => const Home(selectedIndex: _indexOfTaskList),
-        routes: TaskList.routes),
+      path: '/tasks',
+      builder: (_, __) => const Home(selectedIndex: _indexOfTaskList),
+      routes: TaskList.routes,
+    ),
     GoRoute(
       path: '/dashboard',
       builder: (_, __) => const Home(selectedIndex: _indexOfDashboard),

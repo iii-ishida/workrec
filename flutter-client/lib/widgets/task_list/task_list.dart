@@ -15,6 +15,8 @@ import './view_model.dart';
 
 class TaskList extends StatelessWidget {
   final WorkrecClient client;
+  const TaskList({Key? key, required this.client}) : super(key: key);
+
   static final routes = [
     GoRoute(
       path: ':id',
@@ -35,8 +37,6 @@ class TaskList extends StatelessWidget {
       ),
     ),
   ];
-
-  const TaskList({Key? key, required this.client}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +65,7 @@ class TaskList extends StatelessWidget {
               ),
               SliverSafeArea(
                 top: false,
-                sliver: _TaskListView(
-                  viewModel: viewModel,
-                ),
+                sliver: _TaskListView(viewModel: viewModel),
               ),
             ],
           ),
@@ -93,18 +91,19 @@ class _TaskListView extends StatelessWidget {
           if (index.isEven) {
             final row = viewModel.rows[index ~/ 2];
             return InkWell(
-                onTap: () {
-                  context.go('/tasks/${row.taskId}');
-                },
-                child: _TaskListRow(
-                  title: row.title,
-                  description: row.description,
-                  startTime: row.startTime,
-                  workingTime: row.workingTime,
-                  estimatedTime: row.estimatedTime,
-                  toggleAction: row.toggleAction,
-                  onToggle: row.onToggle,
-                ));
+              onTap: () {
+                context.go('/tasks/${row.taskId}');
+              },
+              child: _TaskListRow(
+                title: row.title,
+                description: row.description,
+                startTime: row.startTime,
+                workingTime: row.workingTime,
+                estimatedTime: row.estimatedTime,
+                toggleAction: row.toggleAction,
+                onToggle: row.onToggle,
+              ),
+            );
           } else {
             return const Divider(height: 1, color: Color(0xFFE5E5E5));
           }
@@ -176,27 +175,43 @@ class _TaskListRow extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(width: 1, color: Colors.blue),
-              padding: const EdgeInsets.symmetric(
-                horizontal: SpacingUnit.medium,
-                vertical: SpacingUnit.small,
-              ),
-            ),
-            onPressed: onToggle,
-            child: Row(
-              children: [
-                Icon(
-                  toggleAction == ToggleAction.suspend
-                      ? CupertinoIcons.pause
-                      : CupertinoIcons.play,
-                  size: SpacingUnit.medium,
-                ),
-                Text(_toggleButtonLabel(toggleAction)),
-              ],
-            ),
+          _ToggleButton(toggleAction, onTap: onToggle),
+        ],
+      ),
+    );
+  }
+}
+
+class _ToggleButton extends StatelessWidget {
+  final ToggleAction toggleAction;
+  final VoidCallback onTap;
+
+  const _ToggleButton(
+    this.toggleAction, {
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(width: 1, color: Colors.blue),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SpacingUnit.medium,
+          vertical: SpacingUnit.small,
+        ),
+      ),
+      onPressed: onTap,
+      child: Row(
+        children: [
+          Icon(
+            toggleAction == ToggleAction.suspend
+                ? CupertinoIcons.pause
+                : CupertinoIcons.play,
+            size: SpacingUnit.medium,
           ),
+          Text(_toggleButtonLabel(toggleAction)),
         ],
       ),
     );
