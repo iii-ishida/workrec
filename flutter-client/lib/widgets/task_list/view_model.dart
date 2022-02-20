@@ -1,6 +1,5 @@
 import 'package:clock/clock.dart';
 import 'package:intl/intl.dart';
-import 'package:state_notifier/state_notifier.dart';
 
 import 'package:workrec_app/workrec_client/models/models.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
@@ -9,19 +8,16 @@ typedef _RecordTaskFunc = Future<void> Function(String);
 
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
-class TaskListViewModelNotifier extends StateNotifier<TaskListViewModel> {
-  final WorkrecClient client;
-  TaskListViewModelNotifier(this.client) : super(TaskListViewModel.loading) {
-    client.tasksStream().listen((tasks) {
-      state = TaskListViewModel(
-        isLoading: false,
-        tasks: tasks,
-        startTask: (id) => client.startTask(id, clock.now()),
-        suspendTask: (id) => client.suspendTask(id, clock.now()),
-        resumeTask: (id) => client.resumeTask(id, clock.now()),
+Stream<TaskListViewModel> taskListViewModelStream(WorkrecClient client) {
+  return client.tasksStream().map(
+        (tasks) => TaskListViewModel(
+          isLoading: false,
+          tasks: tasks,
+          startTask: (id) => client.startTask(id, clock.now()),
+          suspendTask: (id) => client.suspendTask(id, clock.now()),
+          resumeTask: (id) => client.resumeTask(id, clock.now()),
+        ),
       );
-    });
-  }
 }
 
 class TaskListViewModel {

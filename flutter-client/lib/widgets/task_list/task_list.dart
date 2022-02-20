@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -40,8 +39,9 @@ class TaskList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StateNotifierProvider<TaskListViewModelNotifier, TaskListViewModel>(
-      create: (_) => TaskListViewModelNotifier(client),
+    return StreamProvider<TaskListViewModel>(
+      create: (_) => taskListViewModelStream(client),
+      initialData: TaskListViewModel.loading,
       child: Builder(builder: (context) {
         final viewModel = context.watch<TaskListViewModel>();
 
