@@ -26,7 +26,7 @@ class Home extends StatelessWidget {
     GoRoute(
       path: '/tasks',
       builder: (_, __) => const Home(selectedIndex: _indexOfTaskList),
-      routes: TaskList.routes,
+      routes: TaskListPage.routes,
     ),
     GoRoute(
       path: '/dashboard',
@@ -94,7 +94,7 @@ class _Home extends StatelessWidget {
         currentIndex: selectedIndex,
       ),
       body: [
-        TaskList(client: client),
+        TaskListPage(client: client),
         const Dashboard(),
         Settings(),
       ].elementAt(selectedIndex),

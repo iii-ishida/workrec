@@ -12,9 +12,9 @@ import 'package:workrec_app/workrec_client/workrec_client.dart';
 import './searchbar.dart';
 import './view_model.dart';
 
-class TaskList extends StatelessWidget {
+class TaskListPage extends StatelessWidget {
   final WorkrecClient client;
-  const TaskList({Key? key, required this.client}) : super(key: key);
+  const TaskListPage({Key? key, required this.client}) : super(key: key);
 
   static final routes = [
     GoRoute(
@@ -65,7 +65,7 @@ class TaskList extends StatelessWidget {
               ),
               SliverSafeArea(
                 top: false,
-                sliver: _TaskListView(viewModel: viewModel),
+                sliver: TaskList(viewModel: viewModel),
               ),
             ],
           ),
@@ -75,10 +75,11 @@ class TaskList extends StatelessWidget {
   }
 }
 
-class _TaskListView extends StatelessWidget {
+class TaskList extends StatelessWidget {
   final TaskListViewModel viewModel;
 
-  const _TaskListView({
+  @visibleForTesting
+  const TaskList({
     Key? key,
     required this.viewModel,
   }) : super(key: key);

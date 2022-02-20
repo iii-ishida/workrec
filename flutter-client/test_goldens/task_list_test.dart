@@ -27,12 +27,12 @@ void main() {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: TaskList(client: client)),
+      home: Scaffold(body: TaskListPage(client: client)),
     ));
 
     await tester.pump(Duration.zero);
 
-    await expectLater(find.byType(TaskList), matchesGoldenFile('main.png'));
+    await expectLater(find.byType(TaskListPage), matchesGoldenFile('main.png'));
   });
 }
 
