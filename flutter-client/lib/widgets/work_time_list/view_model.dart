@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart' show ValueChanged;
-
 import 'package:intl/intl.dart';
 import 'package:quiver/iterables.dart' as iterables;
 import 'package:state_notifier/state_notifier.dart';
@@ -9,38 +7,38 @@ import 'package:workrec_app/workrec_client/workrec_client.dart';
 
 final _dateFormat = DateFormat('yyyy-MM-dd hh:mm');
 
-class WorkTimeListViewModelNotifier
-    extends StateNotifier<WorkTimeListViewModel> {
-  final WorkrecClient client;
-  final String taskId;
+typedef _AsyncCallback = Future<void> Function();
+typedef _AsyncValueSetter<T> = Future<void> Function(T value);
+typedef _ValueChanged<T> = void Function(T value);
 
-  WorkTimeListViewModelNotifier({required this.client, required this.taskId})
-      : super(WorkTimeListViewModel(
-            isLoading: true, workTimeList: [], save: (_) async {})) {
-    client.getWorkTimeListByTaskId(taskId).then((workTimeList) {
-      state = WorkTimeListViewModel(
-        workTimeList: workTimeList,
-        save: (workTime) => client.updateWorkTime(
-          taskId,
-          workTime,
+Future<WorkTimeListViewModel> workTimeListFuture(
+  WorkrecClient client,
+  String taskId,
+) {
+  return client.getWorkTimeListByTaskId(taskId).then(
+        (workTimeList) => WorkTimeListViewModel(
+          workTimeList: workTimeList,
+          saveWorkTime: (workTime) => client.updateWorkTime(taskId, workTime),
         ),
       );
-    });
-  }
 }
-
-typedef _SaveFunc = Future<void> Function(WorkTime);
 
 class WorkTimeListViewModel {
   final bool isLoading;
   final List<WorkTime> workTimeList;
-  final _SaveFunc save;
+  final _AsyncValueSetter<WorkTime> saveWorkTime;
 
   WorkTimeListViewModel({
     required this.workTimeList,
-    required this.save,
+    required this.saveWorkTime,
     this.isLoading = false,
   });
+
+  static WorkTimeListViewModel loading = WorkTimeListViewModel(
+    isLoading: true,
+    workTimeList: [],
+    saveWorkTime: (_) async {},
+  );
 
   List<WorkTimeListItemViewModelNotifier> get rows =>
       iterables.enumerate(workTimeList).map((indexedWorkTime) {
@@ -51,107 +49,112 @@ class WorkTimeListViewModel {
 
         return WorkTimeListItemViewModelNotifier(
           workTime: workTime,
-          prevEnd: isFirst ? null : workTimeList[i - 1].end,
-          nextStart: isLast ? null : workTimeList[i + 1].start,
-          onSave: (updated) => save(updated),
+          endOfPrevWorkTime: isFirst ? null : workTimeList[i - 1].end,
+          startOfNextWorkTime: isLast ? null : workTimeList[i + 1].start,
+          onSave: _handleSave,
         );
       }).toList();
+
+  Future<void> _handleSave(WorkTime updated) async {
+    await saveWorkTime(updated);
+  }
 }
 
 class WorkTimeListItemViewModelNotifier
     extends StateNotifier<WorkTimeListItemViewModel> {
-  final DateTime? prevEnd;
-  final DateTime? nextStart;
   final WorkTime workTime;
-  final Future<void> Function(WorkTime) onSave;
+  final DateTime? endOfPrevWorkTime;
+  final DateTime? startOfNextWorkTime;
+  final _AsyncValueSetter<WorkTime> onSave;
 
   WorkTimeListItemViewModelNotifier({
     required this.workTime,
-    required this.prevEnd,
-    required this.nextStart,
+    required this.endOfPrevWorkTime,
+    required this.startOfNextWorkTime,
     required this.onSave,
-  }) : super(
-          WorkTimeListItemViewModel(
-            workTime: workTime,
-            prevEnd: prevEnd,
-            nextStart: nextStart,
-            hasChanged: false,
-            onChanged: (_) {},
-            onSave: () async {},
-          ),
-        ) {
-    state = state.copyWith(
-      workTime: state.workTime,
-      onChanged: _handleChanged,
-      onSave: () => onSave(state.workTime),
-    );
-  }
-
-  void _handleChanged(WorkTime workTime) {
-    state = state.copyWith(
+  }) : super(WorkTimeListItemViewModel.empty) {
+    state = WorkTimeListItemViewModel(
       workTime: workTime,
-      hasChanged: workTime != this.workTime,
+      endOfPrevWorkTime: endOfPrevWorkTime,
+      startOfNextWorkTime: startOfNextWorkTime,
+      hasChanged: false,
+      onChanged: (workTime) {
+        state = state.copyWith(
+          workTime: workTime,
+          hasChanged: workTime != this.workTime,
+        );
+      },
+      onSave: () => onSave(state.workTime),
     );
   }
 }
 
-class _Item {
+class _DateTimeInputViewModel {
   final String text;
-  final DateTime value;
-  final DateTime min;
-  final DateTime max;
+  final DateTime initialDateTime;
+  final DateTime firstDateTime;
+  final DateTime lastDateTime;
 
-  _Item({
+  _DateTimeInputViewModel({
     required this.text,
-    required this.value,
-    required this.min,
-    required this.max,
+    required this.initialDateTime,
+    required this.firstDateTime,
+    required this.lastDateTime,
   });
 
-  _Item copyWith({
+  _DateTimeInputViewModel copyWith({
     String? text,
-    DateTime? value,
-    DateTime? min,
-    DateTime? max,
+    DateTime? initialDateTime,
+    DateTime? firstDateTime,
+    DateTime? lastDateTime,
   }) {
-    return _Item(
+    return _DateTimeInputViewModel(
       text: text ?? this.text,
-      value: value ?? this.value,
-      min: min ?? this.min,
-      max: max ?? this.max,
+      initialDateTime: initialDateTime ?? this.initialDateTime,
+      firstDateTime: firstDateTime ?? this.firstDateTime,
+      lastDateTime: lastDateTime ?? this.lastDateTime,
     );
   }
 }
 
 class WorkTimeListItemViewModel {
   final WorkTime workTime;
-  final DateTime? prevEnd;
-  final DateTime? nextStart;
+  final DateTime? endOfPrevWorkTime;
+  final DateTime? startOfNextWorkTime;
   final bool hasChanged;
-  final ValueChanged<WorkTime> onChanged;
-  final Future<void> Function() onSave;
+  final _ValueChanged<WorkTime> onChanged;
+  final _AsyncCallback onSave;
 
   WorkTimeListItemViewModel({
     required this.workTime,
-    required this.prevEnd,
-    required this.nextStart,
+    required this.endOfPrevWorkTime,
+    required this.startOfNextWorkTime,
     required this.hasChanged,
     required this.onChanged,
     required this.onSave,
   });
 
-  _Item get start => _Item(
+  static final empty = WorkTimeListItemViewModel(
+    workTime: WorkTime.empty,
+    endOfPrevWorkTime: null,
+    startOfNextWorkTime: null,
+    hasChanged: false,
+    onChanged: (_) {},
+    onSave: () async {},
+  );
+
+  _DateTimeInputViewModel get start => _DateTimeInputViewModel(
         text: _dateFormat.format(workTime.start),
-        value: workTime.start,
-        min: prevEnd ?? DateTime(2000, 1, 1),
-        max: hasEnd ? workTime.end : DateTime(2999, 12, 31),
+        initialDateTime: workTime.start,
+        firstDateTime: endOfPrevWorkTime ?? DateTime(2000, 1, 1),
+        lastDateTime: hasEnd ? workTime.end : DateTime(2999, 12, 31),
       );
 
-  _Item get end => _Item(
+  _DateTimeInputViewModel get end => _DateTimeInputViewModel(
         text: _dateFormat.format(workTime.end),
-        value: workTime.end,
-        min: workTime.start,
-        max: nextStart ?? DateTime(2999, 12, 31),
+        initialDateTime: workTime.end,
+        firstDateTime: workTime.start,
+        lastDateTime: startOfNextWorkTime ?? DateTime(2999, 12, 31),
       );
 
   bool get hasEnd => workTime.hasEnd;
@@ -167,13 +170,13 @@ class WorkTimeListItemViewModel {
   WorkTimeListItemViewModel copyWith({
     WorkTime? workTime,
     bool? hasChanged,
-    Future<void> Function()? onSave,
-    ValueChanged<WorkTime>? onChanged,
+    _AsyncCallback? onSave,
+    _ValueChanged<WorkTime>? onChanged,
   }) {
     return WorkTimeListItemViewModel(
       workTime: workTime ?? this.workTime,
-      prevEnd: prevEnd,
-      nextStart: nextStart,
+      endOfPrevWorkTime: endOfPrevWorkTime,
+      startOfNextWorkTime: startOfNextWorkTime,
       hasChanged: hasChanged ?? this.hasChanged,
       onChanged: onChanged ?? this.onChanged,
       onSave: onSave ?? this.onSave,

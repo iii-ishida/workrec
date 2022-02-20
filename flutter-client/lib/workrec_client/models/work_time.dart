@@ -16,6 +16,8 @@ class WorkTime extends Equatable {
   WorkTime({required this.id, required this.start, DateTime? end})
       : end = end ?? _dateTimeZero;
 
+  static final empty = WorkTime(id: '', start: _dateTimeZero);
+
   /// 作業した時間を返します
   /// [end] が未設定の場合は [StateError] を throw します
   Duration get workingTime =>

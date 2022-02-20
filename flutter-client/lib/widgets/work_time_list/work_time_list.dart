@@ -29,11 +29,11 @@ class _WorkTimeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StateNotifierProvider<WorkTimeListViewModelNotifier,
-        WorkTimeListViewModel>(
-      create: (_) => WorkTimeListViewModelNotifier(
-        client: client,
-        taskId: taskId,
+    return FutureProvider<WorkTimeListViewModel>(
+      initialData: WorkTimeListViewModel.loading,
+      create: (_) => workTimeListFuture(
+        client,
+        taskId,
       ),
       child: Builder(builder: (context) {
         final model = context.watch<WorkTimeListViewModel>();
@@ -65,52 +65,39 @@ class _WorkTimeListItem extends StatelessWidget {
       value: viewModelNotifier,
       child: Builder(builder: (context) {
         final model = context.watch<WorkTimeListItemViewModel>();
-        return _WorkTimeListItemBody(viewModel: model);
+
+        return Row(children: [
+          _DateTimeInput(
+            text: model.start.text,
+            initialDateTime: model.start.initialDateTime,
+            firstDateTime: model.start.firstDateTime,
+            lastDateTime: model.start.lastDateTime,
+            onChanged: model.onChangeStart,
+          ),
+          const Text('~'),
+          model.hasEnd
+              ? _DateTimeInput(
+                  text: model.end.text,
+                  initialDateTime: model.end.initialDateTime,
+                  firstDateTime: model.end.firstDateTime,
+                  lastDateTime: model.end.lastDateTime,
+                  onChanged: model.onChangeEnd,
+                )
+              : const Text('-'),
+          if (model.hasChanged)
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).colorScheme.onPrimary,
+              ),
+              onPressed: model.onSave,
+              child: const Text(
+                'Save',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+        ]);
       }),
     );
-  }
-}
-
-class _WorkTimeListItemBody extends StatelessWidget {
-  final WorkTimeListItemViewModel viewModel;
-
-  const _WorkTimeListItemBody({
-    Key? key,
-    required this.viewModel,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      _DateTimeInput(
-        text: viewModel.start.text,
-        initialDateTime: viewModel.start.value,
-        firstDateTime: viewModel.start.min,
-        lastDateTime: viewModel.start.max,
-        onChanged: viewModel.onChangeStart,
-      ),
-      const Text('~'),
-      viewModel.hasEnd
-          ? _DateTimeInput(
-              text: viewModel.end.text,
-              initialDateTime: viewModel.end.value,
-              firstDateTime: viewModel.end.min,
-              lastDateTime: viewModel.end.max,
-              onChanged: viewModel.onChangeEnd,
-            )
-          : const Text('-'),
-      if (viewModel.hasChanged)
-        TextButton(
-          style: TextButton.styleFrom(
-            primary: Theme.of(context).colorScheme.onPrimary,
-          ),
-          onPressed: viewModel.onSave,
-          child: const Text(
-            'Save',
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-    ]);
   }
 }
 
