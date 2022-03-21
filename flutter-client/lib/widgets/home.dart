@@ -4,47 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:workrec_app/workrec_client/workrec_client.dart';
-import './add_new_task.dart';
 import './dashboard.dart';
 import './settings.dart';
 import './task_list/task_list.dart';
 
-const _indexOfTaskList = 0;
-const _indexOfDashboard = 1;
-const _indexOfSettings = 2;
+const homeIndexOfTaskList = 0;
+const homeIndexOfDashboard = 1;
+const homeIndexOfSettings = 2;
 
 class Home extends StatelessWidget {
   final int selectedIndex;
 
   const Home({Key? key, this.selectedIndex = 0}) : super(key: key);
-
-  static final routes = [
-    GoRoute(
-      path: '/',
-      redirect: (_) => '/tasks',
-    ),
-    GoRoute(
-      path: '/tasks',
-      builder: (_, __) => const Home(selectedIndex: _indexOfTaskList),
-      routes: TaskListPage.routes,
-    ),
-    GoRoute(
-      path: '/dashboard',
-      builder: (_, __) => const Home(selectedIndex: _indexOfDashboard),
-    ),
-    GoRoute(
-      path: '/settings',
-      builder: (_, __) => const Home(selectedIndex: _indexOfSettings),
-    ),
-    GoRoute(
-      path: '/add_task',
-      pageBuilder: (context, state) => MaterialPage(
-        key: state.pageKey,
-        fullscreenDialog: true,
-        child: const AddNewTask(),
-      ),
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +40,7 @@ class _Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: selectedIndex == _indexOfSettings
+      appBar: selectedIndex == homeIndexOfSettings
           ? AppBar(
               title: const Text('設定'),
               elevation: 0,
@@ -98,7 +69,7 @@ class _Home extends StatelessWidget {
         const Dashboard(),
         Settings(),
       ].elementAt(selectedIndex),
-      floatingActionButton: selectedIndex == _indexOfTaskList
+      floatingActionButton: selectedIndex == homeIndexOfTaskList
           ? FloatingActionButton(
               onPressed: () => _handlePresentAddTask(context),
               child: const Icon(Icons.add),
@@ -109,11 +80,11 @@ class _Home extends StatelessWidget {
 
   void _handleChangeTabIndex(BuildContext context, int index) {
     switch (index) {
-      case _indexOfTaskList:
+      case homeIndexOfTaskList:
         return context.go('/tasks');
-      case _indexOfDashboard:
+      case homeIndexOfDashboard:
         return context.go('/dashboard');
-      case _indexOfSettings:
+      case homeIndexOfSettings:
         return context.go('/settings');
     }
   }

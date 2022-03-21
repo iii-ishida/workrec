@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:workrec_app/widgets/edit_task.dart';
-import 'package:workrec_app/widgets/task_detail.dart';
-import 'package:workrec_app/widgets/work_time_list/work_time_list.dart';
 import 'package:workrec_app/widgets/styles.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
 import './searchbar.dart';
@@ -15,27 +12,6 @@ import './view_model.dart';
 class TaskListPage extends StatelessWidget {
   final WorkrecClient client;
   const TaskListPage({Key? key, required this.client}) : super(key: key);
-
-  static final routes = [
-    GoRoute(
-      path: ':id',
-      builder: (_, state) => TaskDetail(taskId: state.params['id']!),
-    ),
-    GoRoute(
-      path: ':id/work-times',
-      builder: (_, state) => WorkTimeList(taskId: state.params['id']!),
-    ),
-    GoRoute(
-      path: ':id/edit',
-      builder: (_, state) => EditTask(taskId: state.params['id']!),
-      pageBuilder: (context, state) => CustomTransitionPage<void>(
-        key: state.pageKey,
-        child: EditTask(taskId: state.params['id']!),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {

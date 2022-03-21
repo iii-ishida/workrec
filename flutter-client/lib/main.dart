@@ -6,9 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/workrec_client/workrec_client.dart';
-import './widgets/auth/sign_in.dart';
-import './widgets/auth/sign_up.dart';
-import './widgets/home.dart';
+import './widgets/routes.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -44,19 +42,7 @@ class MyApp extends StatelessWidget {
   }
 
   late final _router = GoRouter(
-      routes: [
-        ...Home.routes,
-        GoRoute(
-          name: 'signIn',
-          path: '/signIn',
-          builder: (context, state) => const SignIn(),
-        ),
-        GoRoute(
-          name: 'signUp',
-          path: '/signUp',
-          builder: (context, state) => const SignUp(),
-        ),
-      ],
+      routes: routes,
       redirect: (state) {
         final userId = authUserNotifier.value.id;
         final loggedIn = userId.isNotEmpty;
