@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:workrec_app/widgets/styles.dart';
 
 class AuthForm extends StatefulWidget {

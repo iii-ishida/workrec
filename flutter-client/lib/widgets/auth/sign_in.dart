@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'package:workrec_app/auth_client/auth_client.dart';
 import 'package:workrec_app/widgets/styles.dart';
 import './auth_form.dart';
 
 class SignIn extends StatelessWidget {
-  const SignIn({Key? key, required this.viewModel}) : super(key: key);
-
-  final SignInViewModel viewModel;
+  const SignIn({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final authClient = context.read<AuthClient>();
+    final viewModel = SignInViewModel(authClient: authClient);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(SpacingUnit.large),

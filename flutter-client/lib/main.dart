@@ -49,19 +49,12 @@ class MyApp extends StatelessWidget {
         GoRoute(
           name: 'signIn',
           path: '/signIn',
-          builder: (context, state) => SignIn(
-            viewModel: SignInViewModel(authClient: authClient),
-          ),
+          builder: (context, state) => const SignIn(),
         ),
         GoRoute(
           name: 'signUp',
           path: '/signUp',
-          builder: (context, state) => SignUp(
-            viewModel: SignUpViewModel(
-              workrecClient: WorkrecClient.forNotLoggedIn,
-              authClient: authClient,
-            ),
-          ),
+          builder: (context, state) => const SignUp(),
         ),
       ],
       redirect: (state) {
@@ -79,8 +72,15 @@ class MyApp extends StatelessWidget {
       },
       refreshListenable: authUserNotifier,
       navigatorBuilder: (context, child) {
-        return Provider<WorkrecClient>.value(
-          value: WorkrecClient(userId: authUserNotifier.value.id),
+        return MultiProvider(
+          providers: [
+            Provider<AuthClient>.value(
+              value: authClient,
+            ),
+            Provider<WorkrecClient>.value(
+              value: WorkrecClient(userId: authUserNotifier.value.id),
+            )
+          ],
           child: child,
         );
       });
