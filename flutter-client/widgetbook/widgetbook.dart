@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 import 'package:workrec_app/widgets/task_list/task_list.dart';
 import 'package:workrec_app/widgets/task_list/view_model.dart';
-import 'package:workrec_app/workrec_client/models/models.dart';
 
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 class HotreloadWidgetbook extends StatelessWidget {
@@ -38,27 +37,28 @@ class HotreloadWidgetbook extends StatelessWidget {
                       name: 'Dafault',
                       builder: (context) => CustomScrollView(slivers: [
                         TaskList(
-                          viewModel: _newViewModel(
-                            [
+                          viewModel: TaskListViewModel(
+                            isLoading: false,
+                            rows: [
                               _newRow(
                                 title: '開始タスク',
                                 description: 'xxxx',
-                                startTime: '2022-02-01 10:00',
-                                estimatedTime: 30,
+                                startTime: DateTime(2022, 2, 1, 10, 0),
+                                estimatedTime: const Duration(minutes: 30),
                                 toggleAction: ToggleAction.suspend,
                               ),
                               _newRow(
                                 title: '停止中タスク',
                                 description: 'yyyy',
-                                startTime: '2022-02-01 10:00',
-                                workingTime: '00:30',
+                                startTime: DateTime(2022, 2, 1, 10, 0),
+                                workingTime: const Duration(minutes: 30),
                                 toggleAction: ToggleAction.resume,
                               ),
                               _newRow(
                                 title: '作業中タスク',
                                 description: 'zzzz',
-                                startTime: '2022-02-01 10:00',
-                                workingTime: '01:30',
+                                startTime: DateTime(2022, 2, 1, 10, 0),
+                                workingTime: const Duration(minutes: 90),
                                 toggleAction: ToggleAction.suspend,
                               ),
                             ],
@@ -77,87 +77,23 @@ class HotreloadWidgetbook extends StatelessWidget {
   }
 }
 
-class _FixtureTaskListViewModel implements TaskListViewModel {
-  _FixtureTaskListViewModel(this._rows);
-  final List<TaskListItemViewModel> _rows;
-
-  @override
-  bool get isLoading => false;
-
-  @override
-  List<Task> get tasks => [];
-
-  @override
-  Future<void> Function(String) get startTask => (_) async {};
-
-  @override
-  Future<void> Function(String) get suspendTask => (_) async {};
-
-  @override
-  Future<void> Function(String) get resumeTask => (_) async {};
-
-  @override
-  void onChangeSearchText(String _) {}
-
-  @override
-  List<TaskListItemViewModel> get rows => _rows;
-}
-
-class _FixtureTaskListItemViewModel implements TaskListItemViewModel {
-  _FixtureTaskListItemViewModel({
-    required this.taskId,
-    required this.title,
-    required this.description,
-    required this.estimatedTime,
-    required this.startTime,
-    required this.workingTime,
-    required this.toggleAction,
-  });
-
-  @override
-  final String taskId;
-
-  @override
-  final String title;
-
-  @override
-  final String description;
-
-  @override
-  final String estimatedTime;
-
-  @override
-  final String startTime;
-
-  @override
-  final String workingTime;
-
-  @override
-  final ToggleAction toggleAction;
-
-  @override
-  Future<void> Function() get onToggle => () async {};
-}
-
-TaskListViewModel _newViewModel(List<TaskListItemViewModel> rows) =>
-    _FixtureTaskListViewModel(rows);
-
 final _random = Random();
 TaskListItemViewModel _newRow({
-  String? id,
+  String? taskId,
   String? title,
   String? description,
-  int? estimatedTime,
-  String? startTime,
-  String? workingTime,
+  Duration? estimatedTime,
+  Duration? workingTime,
+  DateTime? startTime,
   ToggleAction? toggleAction,
 }) =>
-    _FixtureTaskListItemViewModel(
-      taskId: id ?? _random.nextInt(10000).toString(),
+    TaskListItemViewModel(
+      taskId: taskId ?? _random.nextInt(10000).toString(),
       title: title ?? '新規作業',
       description: description ?? '',
-      estimatedTime: estimatedTime?.toString() ?? '0',
-      startTime: startTime ?? '',
-      workingTime: workingTime ?? '00:00',
+      estimatedTime: estimatedTime ?? Duration.zero,
+      startTime: startTime,
+      workingTime: workingTime ?? Duration.zero,
       toggleAction: toggleAction ?? ToggleAction.start,
+      onToggle: () async {},
     );
