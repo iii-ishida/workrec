@@ -69,7 +69,7 @@ class TaskList extends StatelessWidget {
             final row = viewModel.rows[index ~/ 2];
             return InkWell(
               onTap: () {
-                context.go('/tasks/${row.taskId}');
+                context.push('/tasks/${row.taskId}');
               },
               child: _TaskListRow(
                 title: row.title,
