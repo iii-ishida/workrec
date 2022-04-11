@@ -20,44 +20,58 @@ class TaskListPage extends StatelessWidget {
       initialData: TaskListViewModel.loading,
       child: Builder(builder: (context) {
         final viewModel = context.watch<TaskListViewModel>();
-
-        return Container(
-          color: Colors.white,
-          child: CustomScrollView(
-            slivers: [
-              SliverSafeArea(
-                bottom: false,
-                sliver: SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(SpacingUnit.medium),
-                    child: SearchBar(
-                      onChangeSearchText: viewModel.onChangeSearchText,
-                    ),
-                  ),
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: Divider(height: 1, color: Color(0xFFA5A5A5)),
-              ),
-              SliverSafeArea(
-                top: false,
-                sliver: TaskList(viewModel: viewModel),
-              ),
-            ],
-          ),
-        );
+        return TaskListScreen(viewModel: viewModel);
       }),
     );
   }
 }
 
-class TaskList extends StatelessWidget {
+class TaskListScreen extends StatelessWidget {
+  @visibleForTesting
+  const TaskListScreen({
+    Key? key,
+    required this.viewModel,
+  }) : super(key: key);
+
   final TaskListViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: CustomScrollView(
+        slivers: [
+          SliverSafeArea(
+            bottom: false,
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(SpacingUnit.medium),
+                child: SearchBar(
+                  onChangeSearchText: viewModel.onChangeSearchText,
+                ),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: Divider(height: 1, color: Color(0xFFA5A5A5)),
+          ),
+          SliverSafeArea(
+            top: false,
+            sliver: TaskList(rows: viewModel.rows),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TaskList extends StatelessWidget {
+  final List<TaskListItemViewModel> rows;
 
   @visibleForTesting
   const TaskList({
     Key? key,
-    required this.viewModel,
+    required this.rows,
   }) : super(key: key);
 
   @override
@@ -66,12 +80,12 @@ class TaskList extends StatelessWidget {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           if (index.isEven) {
-            final row = viewModel.rows[index ~/ 2];
+            final row = rows[index ~/ 2];
             return InkWell(
               onTap: () {
                 context.push('/tasks/${row.taskId}');
               },
-              child: _TaskListRow(
+              child: TaskListRow(
                 title: row.title,
                 description: row.description,
                 startTime: row.startTime,
@@ -85,14 +99,16 @@ class TaskList extends StatelessWidget {
             return const Divider(height: 1, color: Color(0xFFE5E5E5));
           }
         },
-        childCount: (viewModel.rows.length * 2) - 1,
+        childCount: (rows.length * 2) - 1,
       ),
     );
   }
 }
 
-class _TaskListRow extends StatelessWidget {
-  const _TaskListRow({
+class TaskListRow extends StatelessWidget {
+
+  @visibleForTesting
+  const TaskListRow({
     Key? key,
     required this.title,
     required this.description,

@@ -27,44 +27,40 @@ class HotreloadWidgetbook extends StatelessWidget {
                   useCases: [
                     WidgetbookUseCase(
                       name: 'Loading',
-                      builder: (context) => CustomScrollView(slivers: [
-                        TaskList(
-                          viewModel: TaskListViewModel.loading,
-                        )
-                      ]),
+                      builder: (context) => TaskListScreen(
+                        viewModel: TaskListViewModel.loading,
+                      ),
                     ),
                     WidgetbookUseCase(
                       name: 'Dafault',
-                      builder: (context) => CustomScrollView(slivers: [
-                        TaskList(
-                          viewModel: TaskListViewModel(
-                            isLoading: false,
-                            rows: [
-                              _newRow(
-                                title: '開始タスク',
-                                description: 'xxxx',
-                                startTime: DateTime(2022, 2, 1, 10, 0),
-                                estimatedTime: const Duration(minutes: 30),
-                                toggleAction: ToggleAction.suspend,
-                              ),
-                              _newRow(
-                                title: '停止中タスク',
-                                description: 'yyyy',
-                                startTime: DateTime(2022, 2, 1, 10, 0),
-                                workingTime: const Duration(minutes: 30),
-                                toggleAction: ToggleAction.resume,
-                              ),
-                              _newRow(
-                                title: '作業中タスク',
-                                description: 'zzzz',
-                                startTime: DateTime(2022, 2, 1, 10, 0),
-                                workingTime: const Duration(minutes: 90),
-                                toggleAction: ToggleAction.suspend,
-                              ),
-                            ],
-                          ),
-                        )
-                      ]),
+                      builder: (context) => TaskListScreen(
+                        viewModel: TaskListViewModel(
+                          isLoading: false,
+                          rows: [
+                            _newRow(
+                              title: '開始タスク',
+                              description: 'xxxx',
+                              startTime: DateTime(2022, 2, 1, 10, 0),
+                              estimatedTime: const Duration(minutes: 30),
+                              toggleAction: ToggleAction.suspend,
+                            ),
+                            _newRow(
+                              title: '停止中タスク',
+                              description: 'yyyy',
+                              startTime: DateTime(2022, 2, 1, 10, 0),
+                              workingTime: const Duration(minutes: 30),
+                              toggleAction: ToggleAction.resume,
+                            ),
+                            _newRow(
+                              title: '作業中タスク',
+                              description: 'zzzz',
+                              startTime: DateTime(2022, 2, 1, 10, 0),
+                              workingTime: const Duration(minutes: 90),
+                              toggleAction: ToggleAction.suspend,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
