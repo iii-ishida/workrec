@@ -13,6 +13,7 @@ void main() {
 
     await tester.pump(Duration.zero);
 
-    await expectLater(find.byType(TaskListPage), matchesGoldenFile('task_list.png'));
+    await expectLater(
+        find.byType(TaskListPage), matchesGoldenFile('task_list.png'));
   });
 }

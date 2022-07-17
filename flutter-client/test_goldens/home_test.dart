@@ -16,4 +16,3 @@ void main() {
     await expectLater(find.byType(Home), matchesGoldenFile('home.png'));
   });
 }
-

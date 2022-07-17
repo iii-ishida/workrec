@@ -9,9 +9,9 @@ class Sizes {
   static const padding = EdgeInsets.all(32.0);
   static const marginSmall = 8.0;
   static const marginMedium = SpacingUnit.medium;
-  static const buttonPadding = EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0);
+  static const buttonPadding =
+      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0);
 }
-
 
 class ThemeColors {
   static const gray900 = Color.fromARGB(255, 28, 28, 30);
