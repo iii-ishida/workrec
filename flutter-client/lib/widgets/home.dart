@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './task_list.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -13,7 +14,11 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Placeholder(),
+      body: [
+        const TaskListPage(),
+        const Placeholder(),
+        const Placeholder(),
+      ][_index],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
