@@ -3,7 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:widgetbook/widgetbook.dart';
 
 import 'package:workrec/widgets/home.dart';
+import 'package:workrec/widgets/task_list.dart';
 
+// ignore_for_file: invalid_use_of_visible_for_testing_member
 class HotReload extends StatelessWidget {
   const HotReload({Key? key}) : super(key: key);
 
@@ -48,6 +50,29 @@ class HotReload extends StatelessWidget {
                     WidgetbookUseCase(
                       name: 'Dafault',
                       builder: (context) => const Home(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            WidgetbookFolder(
+              name: 'TaskListPage',
+              widgets: [
+                WidgetbookComponent(
+                  name: 'TaskListScreen',
+                  useCases: [
+                    WidgetbookUseCase(
+                      name: 'Dafault',
+                      builder: (context) => const TaskListScreen(),
+                    ),
+                  ],
+                ),
+                WidgetbookComponent(
+                  name: 'TaskListTile',
+                  useCases: [
+                    WidgetbookUseCase(
+                      name: 'Dafault',
+                      builder: (context) => const TaskListTile(),
                     ),
                   ],
                 ),
