@@ -37,17 +37,12 @@ jobs:
 
     - name: Check format change
       run: cd flutter-client && flutter format --dry-run --set-exit-if-changed .
-    - name: Make firebase_options.dart
-      run: |-
-        flutter pub global activate flutterfire_cli
-        cd flutter-client
-        flutterfire configure -p ${{ secrets.FIREBASE_APP_PROJECT }} -i ${{ secrets.IOS_BUNDLE_ID }} -a ${{ secrets.ANDROID_APP_ID }} -m ${{ secrets.IOS_BUNDLE_ID }}
     - name: Run tests
       run: cd flutter-client && flutter analyze && flutter test
 
   golden-test:
     name: golden test
-    runs-on: macos-10.15
+    runs-on: macos-12
 
     steps:
     - uses: actions/checkout@v2
@@ -61,7 +56,7 @@ jobs:
       if: failure()
       with:
         name: goldens
-        path: flutter-client/test/pages/failures/
+        path: flutter-client/test_goldens/failures/
 
   deploy-web:
     needs: [build, golden-test]
@@ -76,11 +71,6 @@ jobs:
       with:
         node-version: '14'
     - run: npm install -g firebase-tools
-    - name: Make firebase_options.dart
-      run: |-
-        flutter pub global activate flutterfire_cli
-        cd flutter-client 
-        flutterfire configure -p ${{ secrets.FIREBASE_APP_PROJECT }} -i ${{ secrets.IOS_BUNDLE_ID }} -a ${{ secrets.ANDROID_APP_ID }} -m ${{ secrets.IOS_BUNDLE_ID }}
     - name: Build and Deploy
       run: |-
         cd flutter-client
