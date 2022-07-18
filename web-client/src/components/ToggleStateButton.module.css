@@ -1,4 +1,0 @@
-.toggleButton {
-  composes: normal from './shared-styles/button.css';
-  width: 6em;
-}
