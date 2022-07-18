@@ -41,7 +41,7 @@ class TaskListState extends State<TaskListScreen> {
 
         final statusBarHeight = MediaQuery.of(context).viewPadding.top;
         final appBarHeight =
-            (MediaQuery.of(context).size.width / 1.618) - statusBarHeight;
+            (MediaQuery.of(context).size.width / 1.6) - statusBarHeight;
         final ratio = controller.offset / appBarHeight;
         setState(() {
           x = 1 - min(ratio, 1);
@@ -57,7 +57,7 @@ class TaskListState extends State<TaskListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final appBarHeight = (MediaQuery.of(context).size.width / 1.618);
+    final appBarHeight = (MediaQuery.of(context).size.width / 1.6);
 
     return DecoratedBox(
       decoration: const BoxDecoration(
