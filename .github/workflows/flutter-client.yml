@@ -58,46 +58,46 @@ jobs:
         name: goldens
         path: flutter-client/test_goldens/failures/
 
-  deploy-web:
-    needs: [build, golden-test]
-    name: Deploy web
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/setup-flutter
-      with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-    - run: npm install -g firebase-tools
-    - name: Build and Deploy
-      run: |-
-        cd flutter-client
-        firebase use ${{ secrets.FIREBASE_APP_PROJECT }}
-        flutter build web && firebase target:apply hosting app ${{ secrets.FIREBASE_APP_PROJECT }}
-        firebase deploy --only hosting:app --project ${{ secrets.FIREBASE_APP_PROJECT }}
+        # deploy-web:
+        #   needs: [build, golden-test]
+        #   name: Deploy web
+        #   runs-on: ubuntu-latest
+        #   steps:
+        #   - uses: actions/checkout@v2
+        #   - uses: ./.github/actions/setup-flutter
+        #     with:
+        #       flutter-version: ${{ env.FLUTTER_VERSION }}
+        #   - uses: actions/setup-node@v2
+        #     with:
+        #       node-version: '14'
+        #   - run: npm install -g firebase-tools
+        #   - name: Build and Deploy
+        #     run: |-
+        #       cd flutter-client
+        #       firebase use ${{ secrets.FIREBASE_APP_PROJECT }}
+        #       flutter build web && firebase target:apply hosting app ${{ secrets.FIREBASE_APP_PROJECT }}
+        #       firebase deploy --only hosting:app --project ${{ secrets.FIREBASE_APP_PROJECT }}
 
-  deploy-doc:
-    needs: [build, golden-test]
-    name: Deploy doc
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/setup-flutter
-      with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-    - run: npm install -g firebase-tools
-    - run: flutter pub global activate dartdoc
-    - name: Build and Deploy
-      run: |-
-        cd flutter-client
-        firebase use ${{ secrets.FIREBASE_APP_PROJECT }}
-        flutter pub global run dartdoc && firebase target:apply hosting doc ${{ secrets.FIREBASE_APP_PROJECT }}-doc
-        firebase deploy --only hosting:doc --project ${{ secrets.FIREBASE_APP_PROJECT }}
+        # deploy-doc:
+        #   needs: [build, golden-test]
+        #   name: Deploy doc
+        #   runs-on: ubuntu-latest
+        #   steps:
+        #   - uses: actions/checkout@v2
+        #   - uses: ./.github/actions/setup-flutter
+        #     with:
+        #       flutter-version: ${{ env.FLUTTER_VERSION }}
+        #   - uses: actions/setup-node@v2
+        #     with:
+        #       node-version: '14'
+        #   - run: npm install -g firebase-tools
+        #   - run: flutter pub global activate dartdoc
+        #   - name: Build and Deploy
+        #     run: |-
+        #       cd flutter-client
+        #       firebase use ${{ secrets.FIREBASE_APP_PROJECT }}
+        #       flutter pub global run dartdoc && firebase target:apply hosting doc ${{ secrets.FIREBASE_APP_PROJECT }}-doc
+        #       firebase deploy --only hosting:doc --project ${{ secrets.FIREBASE_APP_PROJECT }}
 
   # deploy-android:
   #   needs: build
