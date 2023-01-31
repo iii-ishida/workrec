@@ -1,47 +1,32 @@
-import strawberry
-
-from fastapi import FastAPI
-from strawberry.asgi import GraphQL
-
-from google.cloud import datastore
-
-@strawberry.type
-class User:
-    name: str
-    age: int
+from fastapi import FastAPI, Depends
+from strawberry.fastapi import BaseContext, GraphQLRouter
+from app.workrec import WorkrecClient, CloudDatastoreRepo
+from app.schema import schema
 
 
-@strawberry.type
-class Query:
-    @strawberry.field
-    def user(self) -> User:
-        return User(name="Sam", age=30)
+class CustomContext(BaseContext):
+    def __init__(self, client: WorkrecClient):
+        self.client = client
 
 
-# Instantiates a client
-datastore_client = datastore.Client()
+repo = CloudDatastoreRepo()
+client = WorkrecClient(repo=repo)
 
-# The kind for the new entity
-kind = "Task"
-# The name/ID for the new entity
-name = "sampletask1"
-# The Cloud Datastore key for the new entity
-task_key = datastore_client.key(kind, name)
 
-# Prepares the new entity
-task = datastore.Entity(key=task_key)
-task["description"] = "Buy milk"
+def custom_context_dependency() -> CustomContext:
+    return CustomContext(client)
 
-# Saves the entity
-datastore_client.put(task)
 
-print(f"Saved {task.key.name}: {task['description']}")
+async def get_context(
+    custom_context=Depends(custom_context_dependency),
+):
+    return custom_context
 
-schema = strawberry.Schema(query=Query)
 
-graphql_app = GraphQL(schema)
-
+graphql_app = GraphQLRouter(
+    schema,
+    context_getter=get_context,
+)
 
 app = FastAPI()
-app.add_route("/graphql", graphql_app)
-app.add_websocket_route("/graphql", graphql_app)
+app.include_router(graphql_app, prefix="/graphql")

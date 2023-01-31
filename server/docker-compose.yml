@@ -7,16 +7,18 @@ services:
       - .env
     environment:
       DATASTORE_EMULATOR_HOST: "datastore:${EMULATOR_PORT}"
+      PORT: 8080
     volumes:
       - .:/app
     depends_on:
       datastore:
         condition: service_healthy
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
   datastore:
     image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
     environment:
       DATASTORE_PROJECT_ID: ${GCLOUD_PROJECT}
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${EMULATOR_PORT}"]
       interval: 3s
@@ -24,4 +26,3 @@ services:
       retries: 3
       start_period: 1s
     command: gcloud beta emulators datastore start --project ${GCLOUD_PROJECT} --host-port 0.0.0.0:${EMULATOR_PORT} --no-store-on-disk --use-firestore-in-datastore-mode
-
