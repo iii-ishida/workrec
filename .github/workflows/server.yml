@@ -23,42 +23,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        elixir-version: '1.12.2' # Define the elixir version [required]
-        otp-version: '24.0' # Define the OTP version [required]
-    - name: Restore dependencies cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          server/deps
-          server/priv/plts
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
+        python-version: '3.11'
+        cache: 'pip'
     - name: Install dependencies
-      run: cd server && mkdir -p priv/plts && MIX_ENV=dev mix do local.hex --force, local.rebar --force, deps.get, dialyzer --plt
-    - name: Run tests
-      run: cd server && MIX_ENV=dev mix dialyzer && mix credo --strict && mix format --check-formatted && mix compile --warnings-as-errors && mix test
+      run: |
+        cd server
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # - name: Lint with flake8
+        #   run: |
+        #     cd server
+        #     flake8 . --count --show-source --statistics
+        # - name: Test with pytest
+        #   run: |
+        #     cd server
+        #     pytest
 
   deploy:
     needs: build
     name: Deploy
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
-    - uses: actions/checkout@v2
-    - uses: google-github-actions/setup-gcloud@master
+    - uses: actions/checkout@v3
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
       with:
-        project_id: ${{ env.PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
     - name: Authorize Docker push
       run: gcloud auth configure-docker
     - name: Build and Push Container
       run: |-
         cd server
-        rm -rf ./priv/plts
-        docker build --build-arg=CLIENT_ORIGIN=${{ env.CLIENT_ORIGIN }} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
+        docker build --build-arg=CLIENT_ORIGIN=${{ env.CLIENT_ORIGIN }} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
         docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
     - name: Deploy to Cloud Run
       run: |-
