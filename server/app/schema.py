@@ -1,18 +1,31 @@
 import strawberry
 from strawberry.types import Info
 from typing import Optional
+from datetime import datetime
+
+from app.workrec import Task, WorkrecClient
 
 
 @strawberry.type
-class Task:
+class TaskNode:
     id: strawberry.ID
     title: str
-    working_time: int
+    total_working_time: int
+    state: str
+
+    @classmethod
+    def from_task(cls, task: Task) -> "TaskNode":
+        return TaskNode(
+            id=task.id,
+            title=task.title,
+            total_working_time=task.total_working_time,
+            state=task.state,
+        )
 
 
 @strawberry.type
 class TaskEdge:
-    node: Task
+    node: TaskNode
 
 
 @strawberry.type
@@ -33,15 +46,11 @@ class Query:
     def tasks(
         self, *, limit: Optional[int] = None, cursor: Optional[str] = None, info: Info
     ) -> TasksConnection:
-        client = info.context.client
+        client: WorkrecClient = info.context.client
         tasks, cursor = client.task_list(
             user_id="some-user-id", limit=limit, cursor=cursor
         )
-        print(f"TASK: {tasks}")
-        edges = [
-            TaskEdge(node=Task(id=t.id, title=t.title, working_time=t.working_time))
-            for t in tasks
-        ]
+        edges = [TaskEdge(node=TaskNode.from_task(t)) for t in tasks]
         return TasksConnection(
             edges=edges,
             page_info=PageInfo(has_next_page=bool(cursor), end_cursor=cursor),
@@ -51,10 +60,29 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    def create_task(self, title: str, info: Info) -> Task:
-        client = info.context.client
+    def create_task(self, title: str, info: Info) -> TaskNode:
+        client: WorkrecClient = info.context.client
         task_id = client.create_task(user_id="some-user-id", title=title)
-        return client.find_task(id=task_id)
+        t = client.find_task(task_id=task_id)
+        return TaskNode.from_task(t)
+
+    @strawberry.mutation
+    def start_work_on_task(
+        self, task_id: str, timestamp: datetime, info: Info
+    ) -> TaskNode:
+        client: WorkrecClient = info.context.client
+        client.start_work_on_task(task_id=task_id, timestamp=timestamp)
+        t = client.find_task(task_id=task_id)
+        return TaskNode.from_task(t)
+
+    @strawberry.mutation
+    def stop_work_on_task(
+        self, task_id: str, timestamp: datetime, info: Info
+    ) -> TaskNode:
+        client: WorkrecClient = info.context.client
+        client.stop_work_on_task(task_id=task_id, timestamp=timestamp)
+        t = client.find_task(task_id=task_id)
+        return TaskNode.from_task(t)
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
