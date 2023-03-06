@@ -1,0 +1,1 @@
+newman run -e ./postman/local.postman_environment.json ./postman/Mutations.postman_collection.json && newman run -e ./postman/local.postman_environment.json ./postman/Query.postman_collection.json
