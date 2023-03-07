@@ -35,14 +35,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # - name: Lint with flake8
-        #   run: |
-        #     cd server
-        #     flake8 . --count --show-source --statistics
-        # - name: Test with pytest
-        #   run: |
-        #     cd server
-        #     pytest
+    - name: Lint with flake8
+      run: |
+        cd server
+        flake8 ./app --count --show-source --statistics
+    - name: Test with pytest
+      run: |
+        cd server
+        pytest ./app
+    - name: docker compose up
+      run: cd server && docker compose up -d
+    - name: e2e test
+      run: cd server && sh test.sh
+    
 
   deploy:
     needs: build
@@ -66,7 +71,7 @@ jobs:
     - name: Build and Push Container
       run: |-
         cd server
-        docker build --build-arg=CLIENT_ORIGIN=${{ env.CLIENT_ORIGIN }} --build-arg=SECRET_KEY_BASE=$(mix phx.gen.secret) -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
+        docker build --build-arg=CLIENT_ORIGIN=${{ env.CLIENT_ORIGIN }} -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
         docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
     - name: Deploy to Cloud Run
       run: |-
