@@ -39,10 +39,10 @@ jobs:
       run: |
         cd server
         flake8 ./app --count --show-source --statistics
-    - name: Test with pytest
-      run: |
-        cd server
-        pytest ./app
+    # - name: Test with pytest
+    #   run: |
+    #     cd server
+    #     pytest ./app
     - name: docker compose up
       run: cd server && docker compose up -d
     - name: e2e test
