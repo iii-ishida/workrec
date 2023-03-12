@@ -13,6 +13,8 @@ services:
     depends_on:
       datastore:
         condition: service_healthy
+      firebase:
+        condition: service_started
   datastore:
     image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
     environment:
@@ -32,3 +34,11 @@ services:
       retries: 3
       start_period: 1s
     command: gcloud beta emulators datastore start --project ${GCLOUD_PROJECT} --host-port 0.0.0.0:${EMULATOR_PORT} --no-store-on-disk --use-firestore-in-datastore-mode
+  firebase:
+    build:
+      context: .
+      dockerfile: Dockerfile.firebase_emulator
+    ports:
+      - "8082:8082"
+      - "9099:9099"
+    command: firebase emulators:start --project ${GCLOUD_PROJECT} --only auth

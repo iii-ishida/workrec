@@ -6,6 +6,63 @@
 	},
 	"item": [
 		{
+			"name": "Create a User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();",
+							"pm.collectionVariables.set('id_token', response.idToken);",
+							"",
+							"pm.test(\"200 OK\", function () {",
+							"  pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\":\"user@example.com\",\"password\":\"PASSWORD\",\"returnSecureToken\":true}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-api-key",
+					"host": [
+						"localhost"
+					],
+					"port": "9099",
+					"path": [
+						"identitytoolkit.googleapis.com",
+						"v1",
+						"accounts:signUp"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "fake-api-key"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Create a Task",
 			"event": [
 				{
@@ -38,7 +95,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{id_token}}",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
@@ -81,7 +144,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{id_token}}",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
@@ -124,7 +193,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{id_token}}",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
@@ -167,7 +242,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{id_token}}",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
@@ -209,6 +290,11 @@
 		}
 	],
 	"variable": [
+		{
+			"key": "id_token",
+			"value": "",
+			"type": "default"
+		},
 		{
 			"key": "task_id",
 			"value": ""

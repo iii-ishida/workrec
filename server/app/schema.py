@@ -46,10 +46,12 @@ class Query:
     def tasks(
         self, *, limit: Optional[int] = None, cursor: Optional[str] = None, info: Info
     ) -> TasksConnection:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
         client: WorkrecClient = info.context.client
-        tasks, cursor = client.task_list(
-            user_id="some-user-id", limit=limit, cursor=cursor
-        )
+        tasks, cursor = client.task_list(user_id=user_id, limit=limit, cursor=cursor)
         edges = [TaskEdge(node=TaskNode.from_task(t)) for t in tasks]
         return TasksConnection(
             edges=edges,
@@ -61,8 +63,12 @@ class Query:
 class Mutation:
     @strawberry.mutation
     def create_task(self, title: str, info: Info) -> TaskNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
         client: WorkrecClient = info.context.client
-        task_id = client.create_task(user_id="some-user-id", title=title)
+        task_id = client.create_task(user_id=user_id, title=title)
         t = client.find_task(task_id=task_id)
         return TaskNode.from_task(t)
 
