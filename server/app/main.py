@@ -1,11 +1,12 @@
-from functools import cached_property
-from fastapi import FastAPI, Depends
-from strawberry.fastapi import BaseContext, GraphQLRouter
-from app.workrec import WorkrecClient, CloudDatastoreRepo
-from app.schema import schema
-import firebase_admin
-from firebase_admin import auth
 import os
+from functools import cached_property
+
+import firebase_admin
+from app.schema import schema
+from app.workrec import CloudDatastoreRepo, WorkrecClient
+from fastapi import Depends, FastAPI
+from firebase_admin import auth
+from strawberry.fastapi import BaseContext, GraphQLRouter
 
 if os.getenv("FIREBASE_AUTH_EMULATOR_HOST", "") == "":
     firebase_admin.initialize_app()

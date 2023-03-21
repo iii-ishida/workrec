@@ -1,9 +1,9 @@
-from .workrec import WorkrecClient, Task, Work
+from .workrec import WorkrecClient, Task, WorkSession
 from .repository import CloudDatastoreRepo
 
 __all__ = [
     "WorkrecClient",
     "Task",
-    "Work",
+    "WorkSession",
     "CloudDatastoreRepo",
 ]

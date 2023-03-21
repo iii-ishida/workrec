@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import StrEnum, auto
 from typing import NamedTuple, Optional
 from uuid import uuid4
+
 from app.workrec.repository import CloudDatastoreRepo
 
 
@@ -92,7 +93,9 @@ class WorkrecClient:
             task = Task(**task)
             task, work_time = task.start_work(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
-            self._repo.add(Work.__name__, id=work_time.id, entity=work_time._asdict())
+            self._repo.add(
+                WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+            )
 
     def stop_work_on_task(self, task_id, timestamp) -> None:
         """タスクの作業を停止します
@@ -109,10 +112,12 @@ class WorkrecClient:
             task = Task(**task)
             task, work_time = task.pause_work(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
-            self._repo.put(Work.__name__, id=work_time.id, entity=work_time._asdict())
+            self._repo.put(
+                WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+            )
 
 
-class Work(NamedTuple):
+class WorkSession(NamedTuple):
     task_id: str
     id: str
     start_time: datetime = datetime.min
@@ -121,20 +126,20 @@ class Work(NamedTuple):
     updated_at: datetime = datetime.min
 
     @classmethod
-    def new(cls, *, task_id: str) -> "Work":
-        id = f"{Work.__name__}-{task_id}-{str(uuid4())}"
-        return Work(task_id=task_id, id=id)
+    def new(cls, *, task_id: str) -> "WorkSession":
+        id = f"{WorkSession.__name__}-{task_id}-{str(uuid4())}"
+        return WorkSession(task_id=task_id, id=id)
 
     @property
     def working_time(self) -> int:
         """start_time ~ end_time までの経過時間を返します
 
-        >>> Work(task_id="", id="", start_time=datetime(2022, 1, 1, 12, 30), end_time=datetime(2022, 1, 1, 13, 30)).duration_in_seconds
+        >>> WorkSession(task_id="", id="", start_time=datetime(2022, 1, 1, 12, 30), end_time=datetime(2022, 1, 1, 13, 30)).duration_in_seconds
         3600
 
         end_time が datetime.min の場合は 0 を返します
 
-        >>> WorkTime(task_id="", id="", start_time=datetime(2022, 1, 1, 12, 30)).duration_in_seconds
+        >>> WorkSession(task_id="", id="", start_time=datetime(2022, 1, 1, 12, 30)).duration_in_seconds
         0
         """
 
@@ -146,20 +151,20 @@ class Work(NamedTuple):
 class TaskState(StrEnum):
     """タスクの状態"""
 
-    UNSTARTED = auto()
-    """未開始"""
+    NOT_STARTED = auto()
+    """未着手"""
 
-    STARTED = auto()
-    """開始"""
+    IN_PROGRESS = auto()
+    """作業中"""
 
     PAUSED = auto()
-    """停止"""
+    """一時停止"""
 
-    RESUMED = auto()
-    """再開"""
-
-    FINISHED = auto()
+    COMPLETED = auto()
     """完了"""
+
+    CANCELED = auto()
+    """中止"""
 
 
 class Task(NamedTuple):
@@ -179,7 +184,7 @@ class Task(NamedTuple):
             user_id=user_id,
             id=id,
             title=title,
-            state=TaskState.UNSTARTED,
+            state=TaskState.NOT_STARTED,
             total_working_time=0,
             last_work_dict={},
             created_at=datetime.min,
@@ -187,33 +192,27 @@ class Task(NamedTuple):
         )
 
     @property
-    def last_work(self) -> "Work":
-        return Work(**self.last_work_dict)
+    def last_work(self) -> "WorkSession":
+        return WorkSession(**self.last_work_dict)
 
-    def start_work(self, timestamp: datetime) -> tuple["Task", "Work"]:
-        """開始/再開状態にした Task と 開始時間を設定した Work を返します
+    def start_work(self, timestamp: datetime) -> tuple["Task", "WorkSession"]:
+        """作業中状態にした Task と 開始時間を設定した WorkSession を返します
 
-        :raises InvalidStateException: state が UNSTARTED でない
+        :raises InvalidStateException: state が NOT_STARTED でない
         """
-        if self.state != TaskState.UNSTARTED and self.state != TaskState.PAUSED:
+        if self.state != TaskState.NOT_STARTED and self.state != TaskState.PAUSED:
             raise InvalidStateException(f"state = {self.state}")
 
-        state = (
-            TaskState.STARTED
-            if self.state == TaskState.UNSTARTED
-            else TaskState.RESUMED
-        )
-
-        work = Work.new(task_id=self.id)._replace(start_time=timestamp)
-        task = self._replace(state=state, last_work_dict=work._asdict())
+        work = WorkSession.new(task_id=self.id)._replace(start_time=timestamp)
+        task = self._replace(state=TaskState.IN_PROGRESS, last_work_dict=work._asdict())
         return task, work
 
-    def pause_work(self, timestamp) -> tuple["Task", "Work"]:
+    def pause_work(self, timestamp) -> tuple["Task", "WorkSession"]:
         """中断状態にした Task と 終了時間を設定した Work を返します
 
-        :raises InvalidStateException: state が STARTED または RESUMED でない
+        :raises InvalidStateException: state が IN_PROGRESS でない
         """
-        if self.state != TaskState.STARTED and self.state != TaskState.RESUMED:
+        if self.state != TaskState.IN_PROGRESS:
             raise InvalidStateException(f"state = {self.state}")
 
         work = self.last_work._replace(end_time=timestamp)

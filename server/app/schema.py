@@ -1,9 +1,9 @@
-import strawberry
-from strawberry.types import Info
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
+import strawberry
 from app.workrec import Task, WorkrecClient
+from strawberry.types import Info
 
 
 @strawberry.type
