@@ -90,5 +90,12 @@ class Mutation:
         t = client.find_task(task_id=task_id)
         return TaskNode.from_task(t)
 
+    @strawberry.mutation
+    def complete_task(self, task_id: str, timestamp: datetime, info: Info) -> TaskNode:
+        client: WorkrecClient = info.context.client
+        client.complete_task(task_id=task_id, timestamp=timestamp)
+        t = client.find_task(task_id=task_id)
+        return TaskNode.from_task(t)
+
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

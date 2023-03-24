@@ -267,6 +267,55 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Complete Task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();",
+							"",
+							"pm.test(\"state が completed であること\", function () {",
+							"  pm.expect(response.data.completeTask.state).to.equal('completed');",
+							"});",
+							"",
+							"pm.test(\"totalWorkingTime が 7200 であること\", function () {",
+							"  pm.expect(response.data.completeTask.totalWorkingTime).to.equal(7200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{id_token}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation Mutation($task_id: String!) {\n  completeTask(\n    taskId: $task_id,\n    timestamp: \"2022-03-02 23:00\"\n  ) {\n    id\n    state\n    title\n    totalWorkingTime\n  }\n}",
+						"variables": "{\n\t\"task_id\": \"{{task_id}}\"\n}"
+					}
+				},
+				"url": {
+					"raw": "{{api_host}}/graphql",
+					"host": [
+						"{{api_host}}"
+					],
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [

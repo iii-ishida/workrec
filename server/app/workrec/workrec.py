@@ -78,7 +78,7 @@ class WorkrecClient:
             task = task._replace(title=title, updated_at=datetime.now())
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
 
-    def start_work_on_task(self, *, task_id: str, timestamp) -> None:
+    def start_work_on_task(self, *, task_id: str, timestamp: datetime) -> None:
         """タスクの作業を開始します
 
         :param task: 作業を開始するタスクのID
@@ -97,7 +97,7 @@ class WorkrecClient:
                 WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
             )
 
-    def stop_work_on_task(self, task_id, timestamp) -> None:
+    def stop_work_on_task(self, task_id, timestamp: datetime) -> None:
         """タスクの作業を停止します
 
         :param task: 作業を停止するタスクのID
@@ -116,6 +116,28 @@ class WorkrecClient:
                 WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
             )
 
+    def complete_task(self, *, task_id: str, timestamp: datetime) -> None:
+        """タスクを完了します
+
+        作業中の場合は作業を停止してから完了します
+
+        :param task_id: 完了するタスクのID
+        :param timestamp: 完了日時
+        """
+        with self._repo.transaction():
+            task = self._repo.get(Task.__name__, id=task_id)
+
+            if task is None:
+                raise NotFoundException()
+
+            task = Task(**task)
+            task, work_time = task.complete(timestamp)
+            self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+            if work_time:
+                self._repo.put(
+                    WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+                )
+
 
 class WorkSession(NamedTuple):
     task_id: str
@@ -132,7 +154,7 @@ class WorkSession(NamedTuple):
 
     @property
     def working_time(self) -> int:
-        """start_time ~ end_time までの経過時間を返します
+        """作業時間を返します
 
         >>> WorkSession(task_id="", id="", start_time=datetime(2022, 1, 1, 12, 30), end_time=datetime(2022, 1, 1, 13, 30)).duration_in_seconds
         3600
@@ -163,9 +185,6 @@ class TaskState(StrEnum):
     COMPLETED = auto()
     """完了"""
 
-    CANCELED = auto()
-    """中止"""
-
 
 class Task(NamedTuple):
     user_id: str
@@ -195,9 +214,10 @@ class Task(NamedTuple):
     def last_work(self) -> "WorkSession":
         return WorkSession(**self.last_work_dict)
 
-    def start_work(self, timestamp: datetime) -> tuple["Task", "WorkSession"]:
+    def start_work(self, /, timestamp: datetime) -> tuple["Task", "WorkSession"]:
         """作業中状態にした Task と 開始時間を設定した WorkSession を返します
 
+        :param timestamp: 開始日時
         :raises InvalidStateException: state が NOT_STARTED でない
         """
         if self.state != TaskState.NOT_STARTED and self.state != TaskState.PAUSED:
@@ -207,9 +227,10 @@ class Task(NamedTuple):
         task = self._replace(state=TaskState.IN_PROGRESS, last_work_dict=work._asdict())
         return task, work
 
-    def pause_work(self, timestamp) -> tuple["Task", "WorkSession"]:
+    def pause_work(self, /, timestamp: datetime) -> tuple["Task", "WorkSession"]:
         """中断状態にした Task と 終了時間を設定した Work を返します
 
+        :param timestamp: 中断日時
         :raises InvalidStateException: state が IN_PROGRESS でない
         """
         if self.state != TaskState.IN_PROGRESS:
@@ -223,3 +244,20 @@ class Task(NamedTuple):
             last_work_dict=work._asdict(),
         )
         return task, work
+
+    def complete(
+        self, /, timestamp: datetime
+    ) -> tuple["Task", Optional["WorkSession"]]:
+        """完了状態にした Task を返します
+
+        作業中の場合は、作業を終了してから完了状態にします
+
+        :param timestamp: 完了日時
+        """
+        if self.state == TaskState.IN_PROGRESS:
+            task, work = self.pause_work(timestamp=timestamp)
+            task = task._replace(state=TaskState.COMPLETED)
+            return task, work
+
+        task = self._replace(state=TaskState.COMPLETED)
+        return task, None
