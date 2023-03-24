@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:workrec/widgets/home.dart';
+import 'package:workrec/page/home.dart';
 
 void main() {
   testWidgets('Golden test', (WidgetTester tester) async {

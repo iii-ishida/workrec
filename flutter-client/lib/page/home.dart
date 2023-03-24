@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workrec/page/task_detail.dart';
 import './task_list.dart';
 
 class Home extends StatefulWidget {
@@ -16,7 +17,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: [
         const TaskListPage(),
-        const Placeholder(),
+        const TaskDetail(),
         const Placeholder(),
       ][_index],
       bottomNavigationBar: BottomNavigationBar(

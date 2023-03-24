@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:workrec/widgets/styles.dart';
+import 'package:workrec/page/styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math';
 import 'dart:ui';
 
-import 'hover_card.dart';
+import '../widget/hover_card.dart';
 
 class TaskListPage extends StatelessWidget {
   const TaskListPage({super.key});
@@ -123,13 +123,13 @@ class TaskListState extends State<TaskListScreen> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                FittedBox(
+                                const FittedBox(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
                                         '作業中タスク001',
                                         style: TextStyle(
@@ -327,11 +327,11 @@ class _Tile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'タスク001',
                       style: TextStyle(

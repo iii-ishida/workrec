@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:workrec/widgets/task_list.dart';
+import 'package:workrec/page/task_list.dart';
 
 void main() {
   group('TaskListScreen', () {
