@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		620690A229D302B2009E3731 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 620690A129D302B2009E3731 /* Apollo */; };
+		620690A429D302B2009E3731 /* ApolloTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 620690A329D302B2009E3731 /* ApolloTestSupport */; };
+		620690A629D30459009E3731 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620690A529D30459009E3731 /* TaskListView.swift */; };
+		620690A929D30B3E009E3731 /* task_list.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 620690A829D30B3E009E3731 /* task_list.graphql */; };
+		6235806C29D982EE00D56035 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6235806B29D982EE00D56035 /* AuthClient.swift */; };
 		6250468828ED79D700B6520E /* WorkrecApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6250468728ED79D700B6520E /* WorkrecApp.swift */; };
 		6250468A28ED79D700B6520E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6250468928ED79D700B6520E /* ContentView.swift */; };
 		6250468C28ED79D800B6520E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6250468B28ED79D800B6520E /* Assets.xcassets */; };
@@ -14,6 +19,9 @@
 		6250469A28ED79D800B6520E /* WorkrecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6250469928ED79D800B6520E /* WorkrecTests.swift */; };
 		625046A428ED79D800B6520E /* WorkrecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625046A328ED79D800B6520E /* WorkrecUITests.swift */; };
 		625046A628ED79D800B6520E /* WorkrecUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625046A528ED79D800B6520E /* WorkrecUITestsLaunchTests.swift */; };
+		6280F8F629D45AEA000B8256 /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6280F8F529D45AEA000B8256 /* ApiClient.swift */; };
+		6280F8F829D58650000B8256 /* mutation.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 6280F8F729D58650000B8256 /* mutation.graphql */; };
+		6280F8FF29D7F682000B8256 /* WorkrecGraphql in Frameworks */ = {isa = PBXBuildFile; productRef = 6280F8FE29D7F682000B8256 /* WorkrecGraphql */; };
 		62EEA50729D19CE4008CF3C9 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 62EEA50629D19CE4008CF3C9 /* FirebaseAuth */; };
 		62EEA50929D19CE4008CF3C9 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 62EEA50829D19CE4008CF3C9 /* FirebaseAuthCombine-Community */; };
 		62EEA50B29D1B826008CF3C9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 62EEA50A29D1B826008CF3C9 /* GoogleService-Info.plist */; };
@@ -38,6 +46,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		620690A529D30459009E3731 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
+		620690A829D30B3E009E3731 /* task_list.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = task_list.graphql; sourceTree = "<group>"; };
+		6235806B29D982EE00D56035 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
 		6250468428ED79D700B6520E /* Workrec.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Workrec.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6250468728ED79D700B6520E /* WorkrecApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecApp.swift; sourceTree = "<group>"; };
 		6250468928ED79D700B6520E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -49,6 +60,10 @@
 		6250469F28ED79D800B6520E /* WorkrecUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WorkrecUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		625046A328ED79D800B6520E /* WorkrecUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecUITests.swift; sourceTree = "<group>"; };
 		625046A528ED79D800B6520E /* WorkrecUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		6280F8F429D44C36000B8256 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6280F8F529D45AEA000B8256 /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiClient.swift; sourceTree = "<group>"; };
+		6280F8F729D58650000B8256 /* mutation.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = mutation.graphql; sourceTree = "<group>"; };
+		6280F8FC29D7F529000B8256 /* WorkrecGraphql */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = WorkrecGraphql; sourceTree = "<group>"; };
 		62EEA50A29D1B826008CF3C9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		62EEA50C29D1B889008CF3C9 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,7 +73,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6280F8FF29D7F682000B8256 /* WorkrecGraphql in Frameworks */,
 				62EEA50729D19CE4008CF3C9 /* FirebaseAuth in Frameworks */,
+				620690A429D302B2009E3731 /* ApolloTestSupport in Frameworks */,
+				620690A229D302B2009E3731 /* Apollo in Frameworks */,
 				62EEA50929D19CE4008CF3C9 /* FirebaseAuthCombine-Community in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,13 +98,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		620690A729D30464009E3731 /* TaskListView */ = {
+			isa = PBXGroup;
+			children = (
+				620690A529D30459009E3731 /* TaskListView.swift */,
+			);
+			path = TaskListView;
+			sourceTree = "<group>";
+		};
+		6235806A29D982C800D56035 /* AuthClient */ = {
+			isa = PBXGroup;
+			children = (
+				6235806B29D982EE00D56035 /* AuthClient.swift */,
+			);
+			path = AuthClient;
+			sourceTree = "<group>";
+		};
 		6250467B28ED79D700B6520E = {
 			isa = PBXGroup;
 			children = (
 				6250468628ED79D700B6520E /* Workrec */,
 				6250469828ED79D800B6520E /* WorkrecTests */,
 				625046A228ED79D800B6520E /* WorkrecUITests */,
+				6280F8FC29D7F529000B8256 /* WorkrecGraphql */,
 				6250468528ED79D700B6520E /* Products */,
+				6280F8FD29D7F682000B8256 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,8 +139,10 @@
 		6250468628ED79D700B6520E /* Workrec */ = {
 			isa = PBXGroup;
 			children = (
+				6280F8F429D44C36000B8256 /* Info.plist */,
 				6250468728ED79D700B6520E /* WorkrecApp.swift */,
 				62EEA50429D197E6008CF3C9 /* Views */,
+				6235806A29D982C800D56035 /* AuthClient */,
 				62BEA28329D1CB21000C7B49 /* ApiClient */,
 				6250468B28ED79D800B6520E /* Assets.xcassets */,
 				6250468D28ED79D800B6520E /* Workrec.entitlements */,
@@ -139,9 +177,19 @@
 			path = WorkrecUITests;
 			sourceTree = "<group>";
 		};
+		6280F8FD29D7F682000B8256 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		62BEA28329D1CB21000C7B49 /* ApiClient */ = {
 			isa = PBXGroup;
 			children = (
+				620690A829D30B3E009E3731 /* task_list.graphql */,
+				6280F8F729D58650000B8256 /* mutation.graphql */,
+				6280F8F529D45AEA000B8256 /* ApiClient.swift */,
 			);
 			path = ApiClient;
 			sourceTree = "<group>";
@@ -151,6 +199,7 @@
 			children = (
 				6250468928ED79D700B6520E /* ContentView.swift */,
 				62EEA50C29D1B889008CF3C9 /* SignInView.swift */,
+				620690A729D30464009E3731 /* TaskListView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -165,6 +214,7 @@
 				6250468028ED79D700B6520E /* Sources */,
 				6250468128ED79D700B6520E /* Frameworks */,
 				6250468228ED79D700B6520E /* Resources */,
+				6280F90029D7F786000B8256 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -174,6 +224,9 @@
 			packageProductDependencies = (
 				62EEA50629D19CE4008CF3C9 /* FirebaseAuth */,
 				62EEA50829D19CE4008CF3C9 /* FirebaseAuthCombine-Community */,
+				620690A129D302B2009E3731 /* Apollo */,
+				620690A329D302B2009E3731 /* ApolloTestSupport */,
+				6280F8FE29D7F682000B8256 /* WorkrecGraphql */,
 			);
 			productName = Workrec;
 			productReference = 6250468428ED79D700B6520E /* Workrec.app */;
@@ -249,6 +302,7 @@
 			mainGroup = 6250467B28ED79D700B6520E;
 			packageReferences = (
 				62EEA50529D19CE4008CF3C9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				620690A029D302B2009E3731 /* XCRemoteSwiftPackageReference "apollo-ios" */,
 			);
 			productRefGroup = 6250468528ED79D700B6520E /* Products */;
 			projectDirPath = "";
@@ -266,6 +320,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				620690A929D30B3E009E3731 /* task_list.graphql in Resources */,
+				6280F8F829D58650000B8256 /* mutation.graphql in Resources */,
 				6250469028ED79D800B6520E /* Preview Assets.xcassets in Resources */,
 				6250468C28ED79D800B6520E /* Assets.xcassets in Resources */,
 				62EEA50B29D1B826008CF3C9 /* GoogleService-Info.plist in Resources */,
@@ -288,6 +344,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		6280F90029D7F786000B8256 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n${SRCROOT}/apollo-ios-cli generate\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		6250468028ED79D700B6520E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -295,7 +371,10 @@
 			files = (
 				62EEA50D29D1B889008CF3C9 /* SignInView.swift in Sources */,
 				6250468A28ED79D700B6520E /* ContentView.swift in Sources */,
+				6280F8F629D45AEA000B8256 /* ApiClient.swift in Sources */,
 				6250468828ED79D700B6520E /* WorkrecApp.swift in Sources */,
+				6235806C29D982EE00D56035 /* AuthClient.swift in Sources */,
+				620690A629D30459009E3731 /* TaskListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +531,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Workrec/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Workrec/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -488,6 +568,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Workrec/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Workrec/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -641,6 +722,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		620690A029D302B2009E3731 /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apollographql/apollo-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		62EEA50529D19CE4008CF3C9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -652,6 +741,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		620690A129D302B2009E3731 /* Apollo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 620690A029D302B2009E3731 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = Apollo;
+		};
+		620690A329D302B2009E3731 /* ApolloTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 620690A029D302B2009E3731 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = ApolloTestSupport;
+		};
+		6280F8FE29D7F682000B8256 /* WorkrecGraphql */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WorkrecGraphql;
+		};
 		62EEA50629D19CE4008CF3C9 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 62EEA50529D19CE4008CF3C9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
