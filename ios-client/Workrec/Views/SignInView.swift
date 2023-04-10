@@ -6,8 +6,6 @@
 //
 
 import Combine
-import FirebaseAuth
-import FirebaseAuthCombineSwift
 import SwiftUI
 
 struct SignInView: View {
@@ -78,6 +76,8 @@ private class ViewModel: ObservableObject {
     case signIn
   }
 
+  private var authClient = AuthClient()
+
   var email = ""
   var password = ""
   @Published var mode: Mode = .signIn
@@ -99,22 +99,22 @@ private class ViewModel: ObservableObject {
   func submit() {
     guard isValid else { return }
 
-    var future: Future<AuthDataResult, Error>
+    var future: AnyPublisher<Void, Error>
 
     if mode == .signUp {
-      future = Auth.auth().createUser(withEmail: email, password: password)
+      future = authClient.createUser(withEmail: email, password: password)
     } else {
-      future = Auth.auth().signIn(withEmail: email, password: password)
+      future = authClient.signIn(withEmail: email, password: password)
     }
 
     handleAuthCompletion(result: future)
   }
 
   func signInAsAnonymus() {
-    handleAuthCompletion(result: Auth.auth().signInAnonymously())
+    handleAuthCompletion(result: authClient.signInAnonymously())
   }
 
-  private func handleAuthCompletion(result: Future<AuthDataResult, Error>) {
+  private func handleAuthCompletion(result: AnyPublisher<Void, Error>) {
     result
       .receive(on: RunLoop.main)
       .sink(

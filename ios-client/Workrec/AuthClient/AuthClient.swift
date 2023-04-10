@@ -7,6 +7,7 @@
 
 import Combine
 import FirebaseAuth
+import FirebaseAuthCombineSwift
 import Foundation
 
 class AuthState: ObservableObject {
@@ -24,7 +25,7 @@ struct AuthClient {
 
   mutating func watchAuthState() -> AnyPublisher<AuthState, Error> {
     let pub = PassthroughSubject<AuthState, Error>()
-    Auth.auth().idTokenDidChangePublisher().sink { user in
+    Auth.auth().authStateDidChangePublisher().sink { user in
       guard let user = user else {
         pub.send(AuthState(isSignedIn: false, token: ""))
         return
@@ -43,4 +44,15 @@ struct AuthClient {
     return pub.eraseToAnyPublisher()
   }
 
+  func createUser(withEmail email: String, password: String) -> AnyPublisher<Void, Error> {
+    Auth.auth().createUser(withEmail: email, password: password).map { _ in }.eraseToAnyPublisher()
+  }
+
+  func signIn(withEmail email: String, password: String) -> AnyPublisher<Void, Error> {
+    Auth.auth().signIn(withEmail: email, password: password).map { _ in }.eraseToAnyPublisher()
+  }
+
+  func signInAnonymously() -> AnyPublisher<Void, Error> {
+    Auth.auth().signInAnonymously().map { _ in }.eraseToAnyPublisher()
+  }
 }

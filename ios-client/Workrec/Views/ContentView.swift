@@ -6,8 +6,6 @@
 //
 
 import Combine
-import FirebaseAuth
-import FirebaseAuthCombineSwift
 import SwiftUI
 
 struct ContentView: View {
@@ -23,6 +21,7 @@ struct ContentView: View {
   }
 }
 
+@MainActor
 private class ViewModel: ObservableObject {
   @Published var apiClient = ApiClient()
   @Published var isSignedIn = false
@@ -34,10 +33,8 @@ private class ViewModel: ObservableObject {
   init() {
     Task {
       for try await auth in authClient.watchAuthState().values {
-        DispatchQueue.main.async {
-          self.isSignedIn = auth.isSignedIn
-          self.apiClient.authToken = auth.token
-        }
+        self.isSignedIn = auth.isSignedIn
+        self.apiClient.authToken = auth.token
       }
     }
   }
