@@ -14,7 +14,7 @@ struct ContentView: View {
 
   var body: some View {
     if model.isSignedIn {
-      TaskListView().environmentObject(model.apiClient)
+      TaskListView(apiClient: model.apiClient)
     } else {
       SignInView()
     }

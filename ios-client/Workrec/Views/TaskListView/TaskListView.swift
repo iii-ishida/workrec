@@ -10,8 +10,12 @@ import SwiftUI
 import WorkrecGraphql
 
 struct TaskListView: View {
-  @EnvironmentObject var apiClient: ApiClient
   @StateObject private var model = ViewModel()
+  private let apiClient: ApiClient
+
+  init(apiClient: ApiClient) {
+    self.apiClient = apiClient
+  }
 
   var body: some View {
     List {
@@ -25,19 +29,9 @@ struct TaskListView: View {
           await model.addTask(apiClient: apiClient)
         }
       }
-
     }.task {
       await model.fetch(apiClient: apiClient)
     }
-    //    List() {
-    //      ForEach(model.taskList) { task in
-    //        HStack {
-    //          Text(task.title)
-    //        }
-    //      }
-    //    } .task {
-    //      model.fetch()
-    //    }
   }
 }
 
@@ -51,10 +45,8 @@ private class ViewModel: ObservableObject {
 
   @MainActor func addTask(apiClient: ApiClient) async {
     do {
-      print("S: \(self.taskList)")
       try await apiClient.createTask(title: title)
       self.taskList = try await apiClient.taskList(limit: 10, cursor: nil)
-      print("TA: \(self.taskList)")
     } catch {
       print("ERR: \(error)")
     }
@@ -63,6 +55,6 @@ private class ViewModel: ObservableObject {
 
 struct TaskListView_Previews: PreviewProvider {
   static var previews: some View {
-    TaskListView()
+    return TaskListView(apiClient: MockApiClient())
   }
 }
