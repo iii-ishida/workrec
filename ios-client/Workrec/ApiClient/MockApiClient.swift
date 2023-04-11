@@ -11,9 +11,9 @@ class MockApiClient: ApiClient {
   override init() {
 
   }
-  override func taskList(limit: Int, cursor: String?) async throws -> [TaskListItem] {
-    return [
-      TaskListItem(id: "1", title: "some task", state: .notStarted)
-    ]
+  override func taskList(limit: Int, cursor: String?, ignoreCache: Bool = false) async throws -> [TaskListItem] {
+    (0..<10).map {
+      TaskListItem(id: UUID().uuidString, title: "some task \($0 + 1)", state: $0 == 0 ? .inProgress : .notStarted, totalWorkingTime: 0)
+    }
   }
 }

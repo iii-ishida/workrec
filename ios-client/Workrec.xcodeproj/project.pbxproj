@@ -20,6 +20,7 @@
 		625046A428ED79D800B6520E /* WorkrecUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625046A328ED79D800B6520E /* WorkrecUITests.swift */; };
 		625046A628ED79D800B6520E /* WorkrecUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625046A528ED79D800B6520E /* WorkrecUITestsLaunchTests.swift */; };
 		626D6BDB29E4269D004581CF /* MockApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626D6BDA29E4269D004581CF /* MockApiClient.swift */; };
+		626D6BDD29E43C0F004581CF /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626D6BDC29E43C0F004581CF /* TaskRow.swift */; };
 		6280F8F629D45AEA000B8256 /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6280F8F529D45AEA000B8256 /* ApiClient.swift */; };
 		6280F8F829D58650000B8256 /* mutation.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 6280F8F729D58650000B8256 /* mutation.graphql */; };
 		6280F8FF29D7F682000B8256 /* WorkrecGraphql in Frameworks */ = {isa = PBXBuildFile; productRef = 6280F8FE29D7F682000B8256 /* WorkrecGraphql */; };
@@ -62,6 +63,7 @@
 		625046A328ED79D800B6520E /* WorkrecUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecUITests.swift; sourceTree = "<group>"; };
 		625046A528ED79D800B6520E /* WorkrecUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkrecUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		626D6BDA29E4269D004581CF /* MockApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockApiClient.swift; sourceTree = "<group>"; };
+		626D6BDC29E43C0F004581CF /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		6280F8F429D44C36000B8256 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6280F8F529D45AEA000B8256 /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiClient.swift; sourceTree = "<group>"; };
 		6280F8F729D58650000B8256 /* mutation.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = mutation.graphql; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				620690A529D30459009E3731 /* TaskListView.swift */,
+				626D6BDC29E43C0F004581CF /* TaskRow.swift */,
 			);
 			path = TaskListView;
 			sourceTree = "<group>";
@@ -278,7 +281,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1400;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					6250468328ED79D700B6520E = {
 						CreatedOnToolsVersion = 14.0.1;
@@ -354,6 +357,7 @@
 				62EEA50D29D1B889008CF3C9 /* SignInView.swift in Sources */,
 				6250468A28ED79D700B6520E /* ContentView.swift in Sources */,
 				6280F8F629D45AEA000B8256 /* ApiClient.swift in Sources */,
+				626D6BDD29E43C0F004581CF /* TaskRow.swift in Sources */,
 				6250468828ED79D700B6520E /* WorkrecApp.swift in Sources */,
 				6235806C29D982EE00D56035 /* AuthClient.swift in Sources */,
 				620690A629D30459009E3731 /* TaskListView.swift in Sources */,
@@ -427,6 +431,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -485,6 +490,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -511,6 +517,7 @@
 				CODE_SIGN_ENTITLEMENTS = Workrec/Workrec.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Workrec/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -548,6 +555,7 @@
 				CODE_SIGN_ENTITLEMENTS = Workrec/Workrec.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Workrec/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -584,6 +592,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
@@ -606,6 +615,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
@@ -627,6 +637,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
@@ -648,6 +659,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;

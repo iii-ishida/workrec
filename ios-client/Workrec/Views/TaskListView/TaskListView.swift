@@ -21,7 +21,11 @@ struct TaskListView: View {
     List {
       ForEach(model.taskList) { task in
         HStack {
-          Text(task.title)
+          TaskRow(task: task) {
+            Task {
+              await model.startWorkOnTask(apiClient: apiClient, taskId: task.id)
+            }
+          }
         }
       }
       TextField("新規タスク", text: $model.title).onSubmit {
@@ -46,7 +50,25 @@ private class ViewModel: ObservableObject {
   @MainActor func addTask(apiClient: ApiClient) async {
     do {
       try await apiClient.createTask(title: title)
-      self.taskList = try await apiClient.taskList(limit: 10, cursor: nil)
+      self.taskList = try await apiClient.taskList(limit: 10, cursor: nil, ignoreCache: true)
+    } catch {
+      print("ERR: \(error)")
+    }
+  }
+
+  @MainActor func startWorkOnTask(apiClient: ApiClient, taskId: String) async {
+    do {
+      try await apiClient.startWorkOnTask(id: taskId, timestamp: Date.now)
+      self.taskList = try await apiClient.taskList(limit: 10, cursor: nil, ignoreCache: true)
+    } catch {
+      print("ERR: \(error)")
+    }
+  }
+
+  @MainActor func stopWorkOnTask(apiClient: ApiClient, taskId: String) async {
+    do {
+      try await apiClient.stopWorkOnTask(id: taskId, timestamp: Date.now)
+      self.taskList = try await apiClient.taskList(limit: 10, cursor: nil, ignoreCache: true)
     } catch {
       print("ERR: \(error)")
     }

@@ -18,6 +18,7 @@ struct ApiError: Error {
 enum TaskState: String {
   case notStarted = "not_started"
   case inProgress = "in_progress"
+  case paused = "paused"
   case completed
 }
 
@@ -25,6 +26,7 @@ struct TaskListItem: Identifiable {
   let id: String
   let title: String
   let state: TaskState
+  let totalWorkingTime: Int
 }
 
 class ApiClient: ObservableObject {
@@ -48,15 +50,17 @@ class ApiClient: ObservableObject {
     self.apolloClient = ApolloClient(networkTransport: requestChainTransport, store: store)
   }
 
-  func taskList(limit: Int, cursor: String?) async throws -> [TaskListItem] {
+  func taskList(limit: Int, cursor: String?, ignoreCache: Bool = false) async throws -> [TaskListItem] {
     try await withCheckedThrowingContinuation { con in
-      apolloClient.fetch(query: WorkrecGraphql.TaskListQuery(limit: limit, cursor: nil)) { result in
+      apolloClient.fetch(query: WorkrecGraphql.TaskListQuery(limit: limit, cursor: nil), cachePolicy: ignoreCache ? .fetchIgnoringCacheCompletely : .returnCacheDataElseFetch) { result in
         self.resume(result: result, continuation: con) {
           $0.tasks.edges.map {
             TaskListItem(
               id: $0.node.id,
               title: $0.node.title,
-              state: TaskState(rawValue: $0.node.state)!)
+              state: TaskState(rawValue: $0.node.state)!,
+              totalWorkingTime: $0.node.totalWorkingTime
+            )
           }
         }
       }
@@ -66,6 +70,22 @@ class ApiClient: ObservableObject {
   func createTask(title: String) async throws {
     try await withCheckedThrowingContinuation { con in
       apolloClient.perform(mutation: WorkrecGraphql.CreateTaskMutation(title: title)) { result in
+        self.resume(result: result, continuation: con) { _ in }
+      }
+    }
+  }
+
+  func startWorkOnTask(id: String, timestamp: Date) async throws {
+    try await withCheckedThrowingContinuation { con in
+      apolloClient.perform(mutation: WorkrecGraphql.StartWorkOnTaskMutation(taskId: id, timestamp: timestamp.ISO8601Format())) { result in
+        self.resume(result: result, continuation: con) { _ in }
+      }
+    }
+  }
+
+  func stopWorkOnTask(id: String, timestamp: Date) async throws {
+    try await withCheckedThrowingContinuation { con in
+      apolloClient.perform(mutation: WorkrecGraphql.StopWorkOnTaskMutation(taskId: id, timestamp: timestamp.ISO8601Format())) { result in
         self.resume(result: result, continuation: con) { _ in }
       }
     }

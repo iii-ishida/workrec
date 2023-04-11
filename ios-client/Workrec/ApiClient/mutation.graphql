@@ -3,3 +3,15 @@ mutation CreateTask($title: String!) {
     id 
   }
 }
+
+mutation StartWorkOnTask($taskId: String!, $timestamp: DateTime!) {
+  startWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
+    id
+  }
+}
+
+mutation StopWorkOnTask($taskId: String!, $timestamp: DateTime!) {
+  stopWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
+    id
+  }
+}
