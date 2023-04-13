@@ -2,8 +2,25 @@ from datetime import datetime
 from typing import Optional
 
 import strawberry
-from app.workrec import Task, WorkrecClient
+from app.workrec import Task, WorkSession, WorkrecClient
 from strawberry.types import Info
+
+
+@strawberry.type
+class WorkSessionNode:
+    id: strawberry.ID
+    start_time: datetime
+    end_time: datetime
+    working_time: int
+
+    @classmethod
+    def from_work(cls, work: WorkSession) -> "WorkSessionNode":
+        return WorkSessionNode(
+            id=work.id,
+            start_time=work.start_time,
+            end_time=work.end_time,
+            working_time=work.working_time,
+        )
 
 
 @strawberry.type
@@ -11,6 +28,7 @@ class TaskNode:
     id: strawberry.ID
     title: str
     total_working_time: int
+    last_work: WorkSessionNode
     state: str
 
     @classmethod
@@ -20,6 +38,7 @@ class TaskNode:
             title=task.title,
             total_working_time=task.total_working_time,
             state=task.state,
+            last_work=WorkSessionNode.from_work(task.last_work),
         )
 
 

@@ -212,6 +212,9 @@ class Task(NamedTuple):
 
     @property
     def last_work(self) -> "WorkSession":
+        if self.state == TaskState.NOT_STARTED:
+            return WorkSession(task_id=self.id, id="")
+
         return WorkSession(**self.last_work_dict)
 
     def start_work(self, /, timestamp: datetime) -> tuple["Task", "WorkSession"]:
