@@ -11,15 +11,19 @@ struct TaskRow: View {
   let task: TaskListItem
   let action: () -> Void
 
+  let dates = [Date(timeIntervalSinceNow: 0)]
+
   var body: some View {
-    HStack {
-      VStack(alignment: .leading) {
-        Text(task.title)
-        Text(timeText(seconds: task.totalWorkingTime))
-          .font(.caption)
+    TimelineView(.periodic(from: .now, by: task.state == .inProgress ? 60 : 0)) { _ in
+      HStack {
+        VStack(alignment: .leading) {
+          Text(task.title)
+          Text(timeText(seconds: task.totalWorkingTimeInCurrent))
+            .font(.caption)
+        }
+        Spacer()
+        ToggleButton(isPlay: task.state == .inProgress, action: action)
       }
-      Spacer()
-      ToggleButton(isPlay: task.state == .inProgress, action: action)
     }
   }
 
@@ -51,9 +55,9 @@ struct TaskRow_Previews: PreviewProvider {
   static var previews: some View {
     Group {
 
-      TaskRow(task: TaskListItem(id: "1", title: "some task", state: .notStarted, totalWorkingTime: 0)) {}
+      TaskRow(task: TaskListItem(id: "1", title: "some task", state: .notStarted, totalWorkingTime: 0, lastStartTime: Date.now)) {}
 
-      TaskRow(task: TaskListItem(id: "1", title: "some task", state: .inProgress, totalWorkingTime: 3600)) {}
+      TaskRow(task: TaskListItem(id: "1", title: "some task", state: .inProgress, totalWorkingTime: 3600, lastStartTime: Date.now)) {}
 
     }.previewLayout(.fixed(width: 300, height: 70))
   }

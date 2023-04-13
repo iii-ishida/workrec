@@ -23,7 +23,7 @@ struct TaskListView: View {
         HStack {
           TaskRow(task: task) {
             Task {
-              await model.startWorkOnTask(apiClient: apiClient, taskId: task.id)
+              await model.toggleWorkOnTask(apiClient: apiClient, task: task)
             }
           }
         }
@@ -56,9 +56,10 @@ private class ViewModel: ObservableObject {
     }
   }
 
-  @MainActor func startWorkOnTask(apiClient: ApiClient, taskId: String) async {
+  @MainActor func toggleWorkOnTask(apiClient: ApiClient, task: TaskListItem) async {
+    let f = task.state == .inProgress ? apiClient.stopWorkOnTask : apiClient.startWorkOnTask
     do {
-      try await apiClient.startWorkOnTask(id: taskId, timestamp: Date.now)
+      try await f(task.id, Date.now)
       self.taskList = try await apiClient.taskList(limit: 10, cursor: nil, ignoreCache: true)
     } catch {
       print("ERR: \(error)")

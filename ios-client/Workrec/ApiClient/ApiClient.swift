@@ -27,6 +27,14 @@ struct TaskListItem: Identifiable {
   let title: String
   let state: TaskState
   let totalWorkingTime: Int
+  let lastStartTime: Date
+
+  var totalWorkingTimeInCurrent: Int {
+    if state == .inProgress {
+      return totalWorkingTime + Int((Date.now.timeIntervalSince(lastStartTime)))
+    }
+    return totalWorkingTime
+  }
 }
 
 class ApiClient: ObservableObject {
@@ -52,14 +60,18 @@ class ApiClient: ObservableObject {
 
   func taskList(limit: Int, cursor: String?, ignoreCache: Bool = false) async throws -> [TaskListItem] {
     try await withCheckedThrowingContinuation { con in
-      apolloClient.fetch(query: WorkrecGraphql.TaskListQuery(limit: limit, cursor: nil), cachePolicy: ignoreCache ? .fetchIgnoringCacheCompletely : .returnCacheDataElseFetch) { result in
+      apolloClient.fetch(
+        query: WorkrecGraphql.TaskListQuery(limit: limit, cursor: nil),
+        cachePolicy: ignoreCache ? .fetchIgnoringCacheData : .returnCacheDataElseFetch
+      ) { result in
         self.resume(result: result, continuation: con) {
           $0.tasks.edges.map {
             TaskListItem(
               id: $0.node.id,
               title: $0.node.title,
               state: TaskState(rawValue: $0.node.state)!,
-              totalWorkingTime: $0.node.totalWorkingTime
+              totalWorkingTime: $0.node.totalWorkingTime,
+              lastStartTime: ISO8601DateFormatter().date(from: $0.node.lastWork.startTime) ?? Date(timeIntervalSince1970: 0)
             )
           }
         }

@@ -19,6 +19,10 @@ public class TaskListQuery: GraphQLQuery {
               state
               title
               totalWorkingTime
+              lastWork {
+                __typename
+                startTime
+              }
             }
           }
           pageInfo {
@@ -104,12 +108,29 @@ public class TaskListQuery: GraphQLQuery {
             .field("state", String.self),
             .field("title", String.self),
             .field("totalWorkingTime", Int.self),
+            .field("lastWork", LastWork.self),
           ] }
 
           public var id: WorkrecGraphql.ID { __data["id"] }
           public var state: String { __data["state"] }
           public var title: String { __data["title"] }
           public var totalWorkingTime: Int { __data["totalWorkingTime"] }
+          public var lastWork: LastWork { __data["lastWork"] }
+
+          /// Tasks.Edge.Node.LastWork
+          ///
+          /// Parent Type: `WorkSessionNode`
+          public struct LastWork: WorkrecGraphql.SelectionSet {
+            public let __data: DataDict
+            public init(data: DataDict) { __data = data }
+
+            public static var __parentType: ApolloAPI.ParentType { WorkrecGraphql.Objects.WorkSessionNode }
+            public static var __selections: [ApolloAPI.Selection] { [
+              .field("startTime", WorkrecGraphql.DateTime.self),
+            ] }
+
+            public var startTime: WorkrecGraphql.DateTime { __data["startTime"] }
+          }
         }
       }
 

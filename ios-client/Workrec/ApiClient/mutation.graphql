@@ -1,17 +1,44 @@
 mutation CreateTask($title: String!) {
   createTask(title: $title) {
-    id 
+    id
+    state
+    title
+    totalWorkingTime
+    lastWork {
+      id
+      startTime
+      endTime
+      workingTime
+    }
   }
 }
 
 mutation StartWorkOnTask($taskId: String!, $timestamp: DateTime!) {
   startWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
     id
+    state
+    title
+    totalWorkingTime
+    lastWork {
+      id
+      startTime
+      endTime
+      workingTime
+    }
   }
 }
 
 mutation StopWorkOnTask($taskId: String!, $timestamp: DateTime!) {
   stopWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
     id
+    state
+    title
+    totalWorkingTime
+    lastWork {
+      id
+      startTime
+      endTime
+      workingTime
+    }
   }
 }

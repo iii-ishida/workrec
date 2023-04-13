@@ -65,10 +65,18 @@ type TaskNode {
   id: ID!
   title: String!
   totalWorkingTime: Int!
+  lastWork: WorkSessionNode!
   state: String!
 }
 
 type TasksConnection {
   edges: [TaskEdge!]!
   pageInfo: PageInfo!
+}
+
+type WorkSessionNode {
+  id: ID!
+  startTime: DateTime!
+  endTime: DateTime!
+  workingTime: Int!
 }

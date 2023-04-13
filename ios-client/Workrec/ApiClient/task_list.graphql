@@ -6,6 +6,9 @@ query TaskList($limit: Int!, $cursor: String) {
         state
         title
         totalWorkingTime
+        lastWork {
+          startTime
+        }
       }
     }
     pageInfo {

@@ -26,6 +26,7 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
     case "TasksConnection": return WorkrecGraphql.Objects.TasksConnection
     case "TaskEdge": return WorkrecGraphql.Objects.TaskEdge
     case "TaskNode": return WorkrecGraphql.Objects.TaskNode
+    case "WorkSessionNode": return WorkrecGraphql.Objects.WorkSessionNode
     case "PageInfo": return WorkrecGraphql.Objects.PageInfo
     case "Mutation": return WorkrecGraphql.Objects.Mutation
     default: return nil
