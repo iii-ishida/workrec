@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 import { Form, V2_MetaFunction } from "@remix-run/react";
-import { signUpAnonymously } from "~/auth/authClient";
+import { signUpAnonymously } from "~/auth-client";
 
 export const meta: V2_MetaFunction = () => {
   return [{ title: "Sign In" }];
