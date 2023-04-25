@@ -27,9 +27,14 @@ class CustomContext(BaseContext):
         if authorization is None:
             return None
 
-        idToken = authorization.split(" ")[-1]
-        decoded = auth.verify_id_token(idToken)
-        return decoded["uid"] if decoded else None
+        cookieOrIdToken = authorization.split(" ")[-1]
+
+        try:
+            decoded = auth.verify_session_cookie(cookieOrIdToken)
+            return decoded["uid"] if decoded else None
+        except:
+            decoded = auth.verify_id_token(cookieOrIdToken)
+            return decoded["uid"] if decoded else None
 
 
 repo = CloudDatastoreRepo()
