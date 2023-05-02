@@ -6,6 +6,18 @@ export interface TaskListItem {
   lastStartTime: Date
 }
 
+export function taskListItemFromJson(obj: any): TaskListItem {
+  return {
+    id: obj.id,
+    title: obj.title,
+    totalWorkingTime: obj.totalWorkingTime,
+    state: obj.state,
+    lastStartTime: obj.lastStartTime
+      ? new Date(obj.lastStartTime)
+      : new Date(0),
+  }
+}
+
 export async function fetchTaskList(
   sessionCookie: string,
   limit: number,
@@ -33,36 +45,18 @@ export async function fetchTaskList(
   }
 `
 
-  return await fetch('http://localhost:8080/graphql', {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${sessionCookie}`,
-    },
-    method: 'POST',
-    body: JSON.stringify({
-      query,
-      variables: { limit, cursor },
-    }),
-  })
-    .then((res) => res.json())
-    .then((result) => {
-      if (result.errors) {
-        throw result.errors
-      }
+  const variables = { limit, cursor }
 
+  return await fetchGraphql({ query, variables, sessionCookie }).then(
+    (result) => {
       return result.data.tasks.edges.map((edge: any) => {
-        const node = edge.node
-        return {
-          id: node.id,
-          title: node.title,
-          totalWorkingTime: node.totalWorkingTime,
-          state: node.state,
-          lastStartTime: node.lastWork
-            ? new Date(node.lastWork.startTime)
-            : null,
-        }
+        return taskListItemFromJson({
+          ...edge.node,
+          lastStartTime: edge.node.lastWork?.startTime,
+        })
       })
-    })
+    }
+  )
 }
 
 export async function createTask(
@@ -85,8 +79,71 @@ export async function createTask(
     }
   }
 `
+  const variables = { title }
 
-  await fetch('http://localhost:8080/graphql', {
+  await fetchGraphql({ query, variables, sessionCookie })
+}
+
+export async function startWorkOnTask(
+  sessionCookie: string,
+  id: string
+): Promise<void> {
+  const query = `
+  mutation StartWorkOnTask($taskId: String!, $timestamp: DateTime!) {
+    startWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
+      id
+      state
+      title
+      totalWorkingTime
+      lastWork {
+        id
+        startTime
+        endTime
+        workingTime
+      }
+    }
+  }
+`
+
+  const variables = { taskId: id, timestamp: new Date().toISOString() }
+  await fetchGraphql({ query, variables, sessionCookie })
+}
+
+export async function stopWorkOnTask(
+  sessionCookie: string,
+  id: string
+): Promise<void> {
+  const query = `
+  mutation StopWorkOnTask($taskId: String!, $timestamp: DateTime!) {
+    stopWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
+      id
+      state
+      title
+      totalWorkingTime
+      lastWork {
+        id
+        startTime
+        endTime
+        workingTime
+      }
+    }
+  }
+`
+
+  const variables = { taskId: id, timestamp: new Date().toISOString() }
+  await fetchGraphql({ query, variables, sessionCookie })
+}
+
+async function fetchGraphql({
+  sessionCookie,
+  query,
+  variables,
+}: {
+  sessionCookie: string
+  query: string
+  variables: any
+}): Promise<any> {
+  return await fetch('http://localhost:8080/graphql', {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${sessionCookie}`,
@@ -94,7 +151,15 @@ export async function createTask(
     method: 'POST',
     body: JSON.stringify({
       query,
-      variables: { title },
+      variables,
     }),
   })
+    .then((res) => res.json())
+    .then((result) => {
+      if (result.errors) {
+        console.error(result)
+        throw result.errors
+      }
+      return result
+    })
 }
