@@ -4,6 +4,7 @@ module.exports = {
       // implement node event listeners here
     },
     supportFile: false,
+    chromeWebSecurity: false
   },
   env: {
     API_ORIGIN: 'http://localhost:8080',

@@ -97,6 +97,8 @@ class WorkrecClient:
                 WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
             )
 
+            self._stop_all_works(user_id=task.user_id, timestamp=timestamp, exclude=task_id)
+
     def stop_work_on_task(self, task_id, timestamp: datetime) -> None:
         """タスクの作業を停止します
 
@@ -138,6 +140,24 @@ class WorkrecClient:
                     WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
                 )
 
+    def _stop_work(self, task, timestamp: datetime) -> None:
+        task = Task(**task)
+        task, work_time = task.pause_work(timestamp)
+        self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+        self._repo.put(
+            WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+        )
+
+    def _stop_all_works(self, user_id: str, timestamp: datetime, exclude: str) -> None:
+        entities, _ = self._repo.list(
+            Task.__name__,
+            filters=[("user_id", "=", user_id), ("state", "=", TaskState.IN_PROGRESS)],
+        )
+
+        for task in entities:
+            if task.id != exclude:
+                self._stop_work(task, timestamp)
+
 
 class WorkSession(NamedTuple):
     task_id: str
@@ -164,7 +184,6 @@ class WorkSession(NamedTuple):
         >>> WorkSession(task_id="", id="", start_time=datetime(2022, 1, 1, 12, 30)).duration_in_seconds
         0
         """
-
         start = self.start_time.replace(tzinfo=None)
         end = self.end_time.replace(tzinfo=None)
         return (end - start).seconds if end != datetime.min else 0

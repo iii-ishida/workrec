@@ -77,6 +77,16 @@ class Query:
             page_info=PageInfo(has_next_page=bool(cursor), end_cursor=cursor),
         )
 
+    @strawberry.field
+    def task(self, *, id: strawberry.ID, info: Info) -> TaskNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
+        client: WorkrecClient = info.context.client
+        task = client.find_task(task_id=id)
+        return TaskNode.from_task(task)
+
 
 @strawberry.type
 class Mutation:

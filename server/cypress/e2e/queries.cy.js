@@ -1,3 +1,5 @@
+import { createTask } from "./helper";
+
 describe("Queries Test", () => {
   const url = Cypress.env("API_ORIGIN") + "/graphql";
   const email = Date.now() + "@example.com";
@@ -16,37 +18,7 @@ describe("Queries Test", () => {
     });
 
     idToken = response.body.idToken;
-  });
-
-  it("Should create tasks", async () => {
-    const query = `
-      mutation Mutation($title: String!) {
-        createTask(title: $title) {
-          id
-          title
-          totalWorkingTime
-          state
-        }
-      }
-    `;
-
-    const variables = { title: "New Task" };
-
-    const requests = [...Array(count)].map((_) =>
-      cy.request({
-        url,
-        method: "POST",
-        body: { query, variables },
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + idToken,
-        },
-      })
-    );
-
-    for await (let response of requests) {
-      expect(response.status).to.eq(200);
-    }
+    await createTask(idToken, count);
   });
 
   it("Should get tasks", async () => {

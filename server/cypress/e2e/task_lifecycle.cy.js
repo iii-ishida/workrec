@@ -1,4 +1,4 @@
-describe("Mutations Test", () => {
+describe("Task lifecycle Test", () => {
   const url = Cypress.env("API_ORIGIN") + "/graphql";
   const email = Date.now() + "@example.com";
 
