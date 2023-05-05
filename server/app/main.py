@@ -32,7 +32,7 @@ class CustomContext(BaseContext):
         try:
             decoded = auth.verify_session_cookie(cookieOrIdToken)
             return decoded["uid"] if decoded else None
-        except:
+        except Exception:
             decoded = auth.verify_id_token(cookieOrIdToken)
             return decoded["uid"] if decoded else None
 
