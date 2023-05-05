@@ -243,5 +243,49 @@ describe("Task lifecycle Test", () => {
       "2022-03-02T23:00:00+00:00"
     );
     expect(response.body.data.completeTask.lastWork.workingTime).to.be.eq(3600);
+  });it("Should complete a task", async () => {
+    const query = `
+      mutation Mutation($taskId: String!) {
+        completeTask(
+          taskId: $taskId,
+          timestamp: "2022-03-02 23:00"
+        ) {
+          id
+          state
+          title
+          totalWorkingTime
+          lastWork {
+            id
+            startTime
+            endTime
+            workingTime
+          }
+        }
+      }
+    `;
+
+    const variables = { taskId };
+
+    const response = await cy.request({
+      url,
+      method: "POST",
+      body: { query, variables },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + idToken,
+      },
+    });
+
+    expect(response.status).to.eq(200);
+    expect(response.body.data.completeTask.state).to.eq("completed");
+    expect(response.body.data.completeTask.totalWorkingTime).to.eq(7200);
+
+    expect(response.body.data.completeTask.lastWork.startTime).to.be.eq(
+      "2022-03-02T22:00:00+00:00"
+    );
+    expect(response.body.data.completeTask.lastWork.endTime).to.be.eq(
+      "2022-03-02T23:00:00+00:00"
+    );
+    expect(response.body.data.completeTask.lastWork.workingTime).to.be.eq(3600);
   });
 });

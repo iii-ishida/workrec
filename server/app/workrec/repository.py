@@ -12,10 +12,11 @@ class CloudDatastoreRepo:
         kind: str,
         *,
         filters: list[tuple[str, str, str]] = [],
+        order: list[str] = [],
         limit: Optional[int] = None,
         cursor: Optional[str] = None,
     ):
-        query = self._client.query(kind=kind, filters=filters)
+        query = self._client.query(kind=kind, filters=filters, order=order)
         result = query.fetch(
             limit=limit,
             start_cursor=cursor,
@@ -23,7 +24,7 @@ class CloudDatastoreRepo:
         entities = [e for e in result]
         cursor = (
             result.next_page_token.decode()
-            if self._has_next(kind, filters, result.next_page_token)
+            if self._has_next(kind, filters, order, result.next_page_token)
             else ""
         )
 
@@ -55,11 +56,11 @@ class CloudDatastoreRepo:
     def transaction(self):
         return self._client.transaction()
 
-    def _has_next(self, kind, filters, next_page_token):
+    def _has_next(self, kind, filters, order, next_page_token):
         if not next_page_token:
             return False
 
-        query = self._client.query(kind=kind, filters=filters)
+        query = self._client.query(kind=kind, filters=filters, order=order)
         result = query.fetch(
             limit=1,
             start_cursor=next_page_token,

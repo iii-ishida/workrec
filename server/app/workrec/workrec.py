@@ -28,6 +28,7 @@ class WorkrecClient:
         entities, cursor = self._repo.list(
             Task.__name__,
             filters=[("user_id", "=", user_id)],
+            order=["-created_at"],
             limit=limit,
             cursor=cursor,
         )
@@ -97,7 +98,9 @@ class WorkrecClient:
                 WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
             )
 
-            self._stop_all_works(user_id=task.user_id, timestamp=timestamp, exclude=task_id)
+            self._stop_all_works(
+                user_id=task.user_id, timestamp=timestamp, exclude=task_id
+            )
 
     def stop_work_on_task(self, task_id, timestamp: datetime) -> None:
         """タスクの作業を停止します
@@ -157,6 +160,24 @@ class WorkrecClient:
         for task in entities:
             if task.id != exclude:
                 self._stop_work(task, timestamp)
+
+    def work_session_list(
+        self, *, task_id: str, limit: Optional[int] = None, cursor: Optional[str] = None
+    ) -> tuple[list["WorkSession"], str]:
+        """タスクに紐づく作業のリストを返します
+
+        :param task_id: タスクのID
+        """
+        entities, cursor = self._repo.list(
+            WorkSession.__name__,
+            filters=[("task_id", "=", task_id)],
+            order=["start_time"],
+            limit=limit,
+            cursor=cursor,
+        )
+
+        cursor = cursor if cursor is not None else ""
+        return [WorkSession(**e) for e in entities], cursor
 
 
 class WorkSession(NamedTuple):

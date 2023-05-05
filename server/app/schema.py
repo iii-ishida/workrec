@@ -24,12 +24,42 @@ class WorkSessionNode:
 
 
 @strawberry.type
+class WorkSessionEdge:
+    node: WorkSessionNode
+
+
+@strawberry.type
+class WorkSessionsConnection:
+    edges: list[WorkSessionEdge]
+    page_info: "PageInfo"
+
+
+def work_session_list(
+    root: "TaskNode",
+    *,
+    limit: Optional[int] = None,
+    cursor: Optional[str] = None,
+    info: Info
+) -> "WorkSessionsConnection":
+    client: WorkrecClient = info.context.client
+    work_sessions, cursor = client.work_session_list(
+        task_id=root.id, limit=limit, cursor=cursor
+    )
+    edges = [WorkSessionEdge(node=WorkSessionNode.from_work(w)) for w in work_sessions]
+    return WorkSessionsConnection(
+        edges=edges,
+        page_info=PageInfo(has_next_page=bool(cursor), end_cursor=cursor),
+    )
+
+
+@strawberry.type
 class TaskNode:
     id: strawberry.ID
     title: str
     total_working_time: int
     last_work: WorkSessionNode
     state: str
+    work_sessions: WorkSessionsConnection = strawberry.field(resolver=work_session_list)
 
     @classmethod
     def from_task(cls, task: Task) -> "TaskNode":
