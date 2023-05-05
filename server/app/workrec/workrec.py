@@ -36,13 +36,18 @@ class WorkrecClient:
         cursor = cursor if cursor is not None else ""
         return [Task(**e) for e in entities], cursor
 
-    def find_task(self, *, task_id: str) -> "Task":
+    def find_task(self, *, user_id: str, task_id: str) -> "Task":
         """指定されたタスクを返します
 
         :param task_id: タスクのID
         """
         e = self._repo.get(Task.__name__, id=task_id)
-        return Task(**e)
+
+        task = Task(**e)
+        if task.user_id != user_id:
+            raise NotFoundException()
+
+        return task
 
     def create_task(self, *, user_id, title) -> str:
         """新しいタスクを作成します

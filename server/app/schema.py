@@ -114,7 +114,7 @@ class Query:
             raise Exception("unauthorized")
 
         client: WorkrecClient = info.context.client
-        task = client.find_task(task_id=id)
+        task = client.find_task(user_id=user_id, task_id=id)
         return TaskNode.from_task(task)
 
 
@@ -128,32 +128,44 @@ class Mutation:
 
         client: WorkrecClient = info.context.client
         task_id = client.create_task(user_id=user_id, title=title)
-        t = client.find_task(task_id=task_id)
+        t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
     @strawberry.mutation
     def start_work_on_task(
         self, task_id: str, timestamp: datetime, info: Info
     ) -> TaskNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
         client: WorkrecClient = info.context.client
         client.start_work_on_task(task_id=task_id, timestamp=timestamp)
-        t = client.find_task(task_id=task_id)
+        t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
     @strawberry.mutation
     def stop_work_on_task(
         self, task_id: str, timestamp: datetime, info: Info
     ) -> TaskNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
         client: WorkrecClient = info.context.client
         client.stop_work_on_task(task_id=task_id, timestamp=timestamp)
-        t = client.find_task(task_id=task_id)
+        t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
     @strawberry.mutation
     def complete_task(self, task_id: str, timestamp: datetime, info: Info) -> TaskNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
         client: WorkrecClient = info.context.client
         client.complete_task(task_id=task_id, timestamp=timestamp)
-        t = client.find_task(task_id=task_id)
+        t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
 
