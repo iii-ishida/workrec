@@ -46,8 +46,8 @@ jobs:
     - name: docker compose up
       run: cd server && docker compose up -d
     - name: e2e test
-      run: cd server && sh test.sh
-    
+      run: sh test.sh
+
 
   deploy:
     needs: build

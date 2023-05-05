@@ -1,0 +1,7 @@
+indexes:
+
+- kind: WorkSession
+  ancestor: no
+  properties:
+  - name: task_id
+  - name: start_time
