@@ -1,30 +1,20 @@
-import { createTask, toggleTask } from "./helper";
+describe('Queries Test', () => {
+  const url = Cypress.env('apiOrigin') + '/graphql'
+  const email = Date.now() + '@example.com'
+  const count = 10
 
-describe("Queries Test", () => {
-  const url = Cypress.env("API_ORIGIN") + "/graphql";
-  const email = Date.now() + "@example.com";
-  const count = 10;
+  let idToken
+  let cursor
 
-  let idToken;
-  let cursor;
+  let taskIds
 
-  let taskIds;
+  before(() => {
+    cy.task('createUser', email).then((token) => (idToken = token))
+    cy.task('createTasks', { email, count }).then((ids) => (taskIds = ids))
+  })
 
-  before(async () => {
-    const response = await cy.request({
-      url:
-        Cypress.env("FIREBASE_AUTH_ORIGIN") +
-        "/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-api-key",
-      method: "POST",
-      body: { email, password: "PASSWORD", returnSecureToken: true },
-    });
-
-    idToken = response.body.idToken;
-    taskIds = await createTask(idToken, count);
-  });
-
-  it("Should get tasks", async () => {
-    const limit = count - 1;
+  it('Should get tasks', () => {
+    const limit = count - 1
 
     const query = `
       query Query($limit: Int!) {
@@ -43,29 +33,29 @@ describe("Queries Test", () => {
           }
         }
       }
-    `;
+    `
 
-    const variables = { limit };
+    const variables = { limit }
 
-    const response = await cy.request({
+    cy.request({
       url,
-      method: "POST",
+      method: 'POST',
       body: { query, variables },
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + idToken,
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + idToken,
       },
-    });
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.data.tasks.edges.length).to.eq(limit)
+      expect(res.body.data.tasks.pageInfo.endCursor).to.not.be.empty
+      expect(res.body.data.tasks.pageInfo.hasNextPage).to.be.true
 
-    expect(response.status).to.eq(200);
-    expect(response.body.data.tasks.edges.length).to.eq(limit);
-    expect(response.body.data.tasks.pageInfo.endCursor).to.not.be.empty;
-    expect(response.body.data.tasks.pageInfo.hasNextPage).to.be.true;
+      cursor = res.body.data.tasks.pageInfo.endCursor
+    })
+  })
 
-    cursor = response.body.data.tasks.pageInfo.endCursor;
-  });
-
-  it("Should get continuation of tasks", async () => {
+  it('Should get continuation of tasks', () => {
     const query = `
       query Query($cursor: String!) {
         tasks(cursor: $cursor, limit: 1) {
@@ -83,31 +73,34 @@ describe("Queries Test", () => {
           }
         }
       }
-    `;
+    `
 
-    const variables = { cursor };
+    const variables = { cursor }
 
-    const response = await cy.request({
+    cy.request({
       url,
-      method: "POST",
+      method: 'POST',
       body: { query, variables },
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + idToken,
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + idToken,
       },
-    });
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.data.tasks.edges.length).to.eq(1)
+      expect(res.body.data.tasks.pageInfo.endCursor).to.be.empty
+      expect(res.body.data.tasks.pageInfo.hasNextPage).to.be.false
+    })
+  })
 
-    expect(response.status).to.eq(200);
-    expect(response.body.data.tasks.edges.length).to.eq(1);
-    expect(response.body.data.tasks.pageInfo.endCursor).to.be.empty;
-    expect(response.body.data.tasks.pageInfo.hasNextPage).to.be.false;
-  });
-
-  it("Should get related work sessions on a task", async () => {
-    const taskId = taskIds[0];
-    await toggleTask(idToken, taskId, new Date(2023, 1, 0, 10), count + 1)
-
-    console.log("TEST_ID", taskId)
+  it('Should get related work sessions on a task', () => {
+    const taskId = taskIds[0]
+    cy.task('toggleTask', {
+      idToken,
+      taskId,
+      timestamp: new Date(2023, 1, 0, 10),
+      count: count + 1,
+    })
 
     const query = `
       query Query($taskId: ID!, $workSessionLimit: Int!) {
@@ -130,23 +123,23 @@ describe("Queries Test", () => {
         }
       }
     }
-    `;
+    `
 
-    const variables = { taskId, workSessionLimit: count };
+    const variables = { taskId, workSessionLimit: count }
 
-    const response = await cy.request({
+    cy.request({
       url,
-      method: "POST",
+      method: 'POST',
       body: { query, variables },
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + idToken,
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + idToken,
       },
-    });
-
-    expect(response.status).to.eq(200);
-    expect(response.body.data.task.workSessions.edges.length).to.eq(count);
-    expect(response.body.data.task.workSessions.pageInfo.endCursor).to.not.be.empty;
-    expect(response.body.data.task.workSessions.pageInfo.hasNextPage).to.be.true;
-  });
-});
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.data.task.workSessions.edges.length).to.eq(count)
+      expect(res.body.data.task.workSessions.pageInfo.endCursor).to.not.be.empty
+      expect(res.body.data.task.workSessions.pageInfo.hasNextPage).to.be.true
+    })
+  })
+})
