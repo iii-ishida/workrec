@@ -1,9 +1,43 @@
+export type TaskState = 'not_started' | 'in_progress' | 'paused' | 'completed'
+
 export interface TaskListItem {
   id: string
   title: string
   totalWorkingTime: number
-  state: 'not_started' | 'in_progress' | 'paused' | 'completed'
+  state: TaskState
   lastStartTime: Date
+}
+
+export interface WorkSession {
+  id: string
+  startTime: Date
+  endTime: Date
+}
+
+export interface TaskDetail {
+  id: string
+  title: string
+  totalWorkingTime: number
+  state: TaskState
+  workSessions: WorkSession[]
+}
+
+export function taskDetailFromJson(obj: any): TaskDetail {
+  return {
+    id: obj.id,
+    title: obj.title,
+    totalWorkingTime: obj.totalWorkingTime,
+    state: obj.state,
+    workSessions: obj.workSessions,
+  }
+}
+
+export function workSessionFromJson(obj: any): WorkSession {
+  return {
+    id: obj.id,
+    startTime: obj.startTime ? new Date(obj.startTime) : new Date(0),
+    endTime: obj.endTime ? new Date(obj.endTime) : new Date(0),
+  }
 }
 
 export function taskListItemFromJson(obj: any): TaskListItem {
@@ -54,6 +88,50 @@ export async function fetchTaskList(
           ...edge.node,
           lastStartTime: edge.node.lastWork?.startTime,
         })
+      })
+    }
+  )
+}
+
+export async function fetchTaskDetail(
+  sessionCookie: string,
+  taskId: string,
+  workSessionLimit: number,
+  workSessionCursor?: string
+): Promise<TaskDetail> {
+  const query = `
+  query TaskDetail($taskId: ID!, $workSessionLimit: Int!, $workSessionCursor: String) {
+    task(id: $taskId) {
+      id
+      state
+      title
+      totalWorkingTime
+      workSessions(limit: $workSessionLimit, cursor: $workSessionCursor) {
+        edges {
+          node {
+            id
+            startTime
+            endTime
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+`
+
+  const variables = { taskId, workSessionLimit, workSessionCursor }
+
+  return await fetchGraphql({ query, variables, sessionCookie }).then(
+    (result) => {
+      return taskDetailFromJson({
+        ...result.data.task,
+        workSessions: result.data.task.workSessions.edges.map((edge: any) =>
+          workSessionFromJson(edge.node)
+        ),
       })
     }
   )

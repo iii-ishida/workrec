@@ -1,4 +1,4 @@
-import { Form, useLoaderData } from '@remix-run/react'
+import { Form, Link, useLoaderData } from '@remix-run/react'
 import { useState, useEffect } from 'react'
 import { TaskListItem, taskListItemFromJson } from '~/api-client'
 import { SubmitButton } from '~/components/submit-button'
@@ -43,10 +43,12 @@ function TaskList({ models }: { models: TaskListItem[] }) {
 function TaskListRow({ model, now }: { model: TaskListItem; now: Date }) {
   return (
     <div className="flex gap-2">
-      <p className="grow">{model.title}</p>
-      <p className="w-30 flex-none text-right">
-        {totalWorkingTimeText(model, now)}
-      </p>
+      <Link className="flex grow" to={`/tasks/${model.id}`}>
+        <p className="grow">{model.title}</p>
+        <p className="w-30 flex-none text-right">
+          {totalWorkingTimeText(model, now)}
+        </p>
+      </Link>
       <Form method="post" className="w-14 flex-none text-center">
         <input type="hidden" name="id" value={model.id} />
         <input type="hidden" name="state" value={model.state} />
