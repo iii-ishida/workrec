@@ -221,7 +221,8 @@ async function fetchGraphql({
   query: string
   variables: any
 }): Promise<any> {
-  return await fetch('http://localhost:8080/graphql', {
+  const url = `${process.env.API_ORIGIN}/graphql`
+  return await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${sessionCookie}`,
