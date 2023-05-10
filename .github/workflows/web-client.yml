@@ -1,0 +1,50 @@
+name: web-client CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+    - 'web-client/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+    - 'web-client/**'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVICE: web-client
+  REGION: asia-northeast1
+  API_ORIGIN: ${{ secrets.API_ORIGIN }}
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: actions/checkout@v3
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+    - name: Authorize Docker push
+      run: gcloud auth configure-docker
+    - name: Build and Push Container
+      run: |-
+        cd web-client
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
+    - name: Deploy to Cloud Run
+      run: |-
+        gcloud run deploy ${{ env.SERVICE }} \
+          --region ${{ env.REGION }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+          --platform "managed" \
+          --quiet
