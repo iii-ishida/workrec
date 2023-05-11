@@ -40,8 +40,8 @@ export default defineConfig({
           `
 
           const url = config.env.apiOrigin + '/graphql'
-          const requests = [...Array(count)].map((_, i) => {
-            return fetch(url, {
+          const requests = [...Array(count)].map(async (_, i) => {
+            return await fetch(url, {
               method: 'POST',
               body: JSON.stringify({
                 query,
