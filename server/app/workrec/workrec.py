@@ -33,8 +33,7 @@ class WorkrecClient:
             cursor=cursor,
         )
 
-        cursor = cursor if cursor is not None else ""
-        return [Task(**e) for e in entities], cursor
+        return [Task(**e) for e in entities], cursor or ""
 
     def find_task(self, *, user_id: str, task_id: str) -> "Task":
         """指定されたタスクを返します
@@ -181,8 +180,7 @@ class WorkrecClient:
             cursor=cursor,
         )
 
-        cursor = cursor if cursor is not None else ""
-        return [WorkSession(**e) for e in entities], cursor
+        return [WorkSession(**e) for e in entities], cursor or ""
 
 
 class WorkSession(NamedTuple):

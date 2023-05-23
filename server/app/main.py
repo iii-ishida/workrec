@@ -1,17 +1,16 @@
 import os
 from functools import cached_property
 
-import firebase_admin
 from app.schema import schema
 from app.workrec import CloudDatastoreRepo, WorkrecClient
-from fastapi import Depends, FastAPI
-from firebase_admin import auth
+from fastapi import FastAPI
+from firebase_admin import auth, initialize_app
 from strawberry.fastapi import BaseContext, GraphQLRouter
 
 if os.getenv("FIREBASE_AUTH_EMULATOR_HOST", "") == "":
-    firebase_admin.initialize_app()
+    initialize_app()
 else:
-    firebase_admin.initialize_app(options={"projectId": "demo-test"})
+    initialize_app(options={"projectId": "demo-test"})
 
 
 class CustomContext(BaseContext):
@@ -41,14 +40,8 @@ repo = CloudDatastoreRepo()
 client = WorkrecClient(repo=repo)
 
 
-def custom_context_dependency() -> CustomContext:
+def get_context() -> CustomContext:
     return CustomContext(client)
-
-
-async def get_context(
-    custom_context=Depends(custom_context_dependency),
-):
-    return custom_context
 
 
 graphql_app = GraphQLRouter(
