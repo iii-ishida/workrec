@@ -30,8 +30,6 @@ describe('Task lifecycle Test', () => {
 
     const variables = { title }
 
-    console.log('ID_TOKEN', idToken)
-
     await cy
       .request({
         url,

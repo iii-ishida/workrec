@@ -1,4 +1,4 @@
-describe('Start Test', () => {
+describe('startWorkOnTask', () => {
   const url = Cypress.env('apiOrigin') + '/graphql'
   const email = Date.now() + '@example.com'
 
@@ -10,7 +10,7 @@ describe('Start Test', () => {
     cy.task('createTasks', { email, count: 2 }).then((ids) => (taskIds = ids))
   })
 
-  it('Should stop other tasks', async () => {
+  it('他のタスクの作業を停止すること', async () => {
     const anotherTaskId = taskIds[0]
     const targetTaskId = taskIds[1]
 
