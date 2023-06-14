@@ -140,7 +140,7 @@ class Mutation:
             raise Exception("unauthorized")
 
         client: WorkrecClient = info.context.client
-        client.start_work_on_task(task_id=task_id, timestamp=timestamp)
+        client.start_work_on_task(user_id=user_id, task_id=task_id, timestamp=timestamp)
         t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
@@ -153,7 +153,7 @@ class Mutation:
             raise Exception("unauthorized")
 
         client: WorkrecClient = info.context.client
-        client.stop_work_on_task(task_id=task_id, timestamp=timestamp)
+        client.stop_work_on_task(user_id=user_id, task_id=task_id, timestamp=timestamp)
         t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
@@ -164,7 +164,7 @@ class Mutation:
             raise Exception("unauthorized")
 
         client: WorkrecClient = info.context.client
-        client.complete_task(task_id=task_id, timestamp=timestamp)
+        client.complete_task(user_id=user_id, task_id=task_id, timestamp=timestamp)
         t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 

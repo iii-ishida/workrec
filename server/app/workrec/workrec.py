@@ -40,13 +40,7 @@ class WorkrecClient:
 
         :param task_id: タスクのID
         """
-        e = self._repo.get(Task.__name__, id=task_id)
-
-        task = Task(**e)
-        if task.user_id != user_id:
-            raise NotFoundException()
-
-        return task
+        return self._get_task(user_id, task_id)
 
     def create_task(self, *, user_id, title) -> str:
         """新しいタスクを作成します
@@ -67,35 +61,27 @@ class WorkrecClient:
 
         return task.id
 
-    def update_task(self, *, task_id, title) -> None:
+    def update_task(self, *, user_id, task_id, title) -> None:
         """タスクを更新します
 
         :param task_id: 更新するタスクのID
         :param title: タスクのタイトル
         """
         with self._repo.transaction():
-            task = self._repo.get(Task.__name__, id=task_id)
+            task = self._get_task(user_id, task_id)
 
-            if task is None:
-                raise NotFoundException()
-
-            task = Task(**task)
             task = task._replace(title=title, updated_at=datetime.now())
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
 
-    def start_work_on_task(self, *, task_id: str, timestamp: datetime) -> None:
+    def start_work_on_task(self, *, user_id: str, task_id: str, timestamp: datetime) -> None:
         """タスクの作業を開始します
 
         :param task: 作業を開始するタスクのID
         :param timestamp: 開始日時
         """
         with self._repo.transaction():
-            task = self._repo.get(Task.__name__, id=task_id)
+            task = self._get_task(user_id, task_id)
 
-            if task is None:
-                raise NotFoundException()
-
-            task = Task(**task)
             task, work_time = task.start_work(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
             self._repo.add(
@@ -106,26 +92,22 @@ class WorkrecClient:
                 user_id=task.user_id, timestamp=timestamp, exclude=task_id
             )
 
-    def stop_work_on_task(self, task_id, timestamp: datetime) -> None:
+    def stop_work_on_task(self, *, user_id: str, task_id: str, timestamp: datetime) -> None:
         """タスクの作業を停止します
 
         :param task: 作業を停止するタスクのID
         :param timestamp: 停止日時
         """
         with self._repo.transaction():
-            task = self._repo.get(Task.__name__, id=task_id)
+            task = self._get_task(user_id, task_id)
 
-            if task is None:
-                raise NotFoundException()
-
-            task = Task(**task)
             task, work_time = task.pause_work(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
             self._repo.put(
                 WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
             )
 
-    def complete_task(self, *, task_id: str, timestamp: datetime) -> None:
+    def complete_task(self, *, user_id, task_id: str, timestamp: datetime) -> None:
         """タスクを完了します
 
         作業中の場合は作業を停止してから完了します
@@ -134,18 +116,28 @@ class WorkrecClient:
         :param timestamp: 完了日時
         """
         with self._repo.transaction():
-            task = self._repo.get(Task.__name__, id=task_id)
+            task = self._get_task(user_id, task_id)
 
-            if task is None:
-                raise NotFoundException()
-
-            task = Task(**task)
             task, work_time = task.complete(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
             if work_time:
                 self._repo.put(
                     WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
                 )
+
+    def _get_task(self, user_id, id) -> "Task":
+        entity = self._repo.get(Task.__name__, id=id)
+
+        if entity is None:
+            raise NotFoundException()
+
+        task = Task(**entity)
+
+        if task.user_id != user_id:
+            raise NotFoundException()
+
+        return task
+
 
     def _stop_work(self, task, timestamp: datetime) -> None:
         task = Task(**task)
