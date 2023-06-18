@@ -1,6 +1,7 @@
 from typing import Optional
 
 from google.cloud import datastore
+from contextlib import contextmanager
 
 
 class CloudDatastoreRepo:
@@ -82,27 +83,46 @@ class InMemoryRepo:
         limit: Optional[int] = None,
         cursor: Optional[str] = None,
     ):
-        entities = [e for e in self._data.get(kind, {}).values()]
-        last = entities[-1] if entities else {}
+        entities_map = self._data.get(kind, {})
 
         for prop, op, value in filters:
-            entities = [e for e in entities if self._compare(e.get(prop), op, value)]
+            entities_map = {
+                k: v
+                for k, v in entities_map.items()
+                if self._compare(v.get(prop), op, value)
+            }
 
         for prop in order:
-            entities = sorted(entities, key=lambda e: e.get(prop))
+            desc = prop.startswith("-")
+            prop = prop[1:] if desc else prop
+            entities_map = {
+                k: v
+                for k, v in sorted(
+                    entities_map.items(),
+                    key=lambda item: item[1].get(prop),
+                    reverse=desc,
+                )
+            }
+
+        entities = list(entities_map.values())
 
         if cursor:
             cursor_index = next(
-                (i for i, e in enumerate(entities) if e["key"] == cursor), None
+                (i for i, key in enumerate(entities_map.keys()) if key == cursor), None
             )
             if cursor_index is not None:
-                entities = entities[cursor_index + 1 :]
+                entities = entities[cursor_index + 1:]
 
         if limit:
             entities = entities[:limit]
 
-        cursor = entities[-1]["key"] if entities else ""
-        cursor = cursor if cursor != last["key"] else ""
+        cursor = (
+            list(entities_map.keys())[list(entities_map.values()).index(entities[-1])]
+            if entities
+            else ""
+        )
+        if cursor == list(entities_map.keys())[-1]:
+            cursor = ""
 
         return entities, cursor
 
@@ -115,8 +135,9 @@ class InMemoryRepo:
     def put(self, kind: str, *, id: str, entity: dict):
         self._data.setdefault(kind, {})[id] = entity
 
+    @contextmanager
     def transaction(self):
-        return None
+        yield None
 
     def _compare(self, a, op, b):
         if op == "=":

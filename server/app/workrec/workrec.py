@@ -73,7 +73,9 @@ class WorkrecClient:
             task = task._replace(title=title, updated_at=datetime.now())
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
 
-    def start_work_on_task(self, *, user_id: str, task_id: str, timestamp: datetime) -> None:
+    def start_work_on_task(
+        self, *, user_id: str, task_id: str, timestamp: datetime
+    ) -> None:
         """タスクの作業を開始します
 
         :param task: 作業を開始するタスクのID
@@ -92,7 +94,9 @@ class WorkrecClient:
                 user_id=task.user_id, timestamp=timestamp, exclude=task_id
             )
 
-    def stop_work_on_task(self, *, user_id: str, task_id: str, timestamp: datetime) -> None:
+    def stop_work_on_task(
+        self, *, user_id: str, task_id: str, timestamp: datetime
+    ) -> None:
         """タスクの作業を停止します
 
         :param task: 作業を停止するタスクのID
@@ -138,7 +142,6 @@ class WorkrecClient:
 
         return task
 
-
     def _stop_work(self, task, timestamp: datetime) -> None:
         task = Task(**task)
         task, work_time = task.pause_work(timestamp)
@@ -153,7 +156,8 @@ class WorkrecClient:
             filters=[("user_id", "=", user_id), ("state", "=", TaskState.IN_PROGRESS)],
         )
 
-        for task in entities:
+        for e in entities:
+            task = Task(**e)
             if task.id != exclude:
                 self._stop_work(task, timestamp)
 

@@ -45,6 +45,7 @@ class TestInMemoryRepo(unittest.TestCase):
         self.assertEqual(len(entities), 2)
         self.assertEqual(entities[0]["key"], "1")
         self.assertEqual(entities[1]["key"], "3")
+        self.assertEqual(cursor, "")
 
         # Test sorting entities
         entities, cursor = self.repo.list("Task", order=["title"])
@@ -127,11 +128,6 @@ class TestInMemoryRepo(unittest.TestCase):
         self.assertEqual(entity["key"], "1")
         self.assertEqual(entity["title"], "Updated Task")
         self.assertEqual(entity["completed"], True)
-
-    def test_transaction(self):
-        # Test that the transaction method returns None
-        result = self.repo.transaction()
-        self.assertIsNone(result)
 
 
 if __name__ == "__main__":
