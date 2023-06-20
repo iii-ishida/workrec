@@ -6,6 +6,10 @@ from uuid import uuid4
 from app.workrec.repository import CloudDatastoreRepo
 
 
+class InvalidParameterException(Exception):
+    pass
+
+
 class NotFoundException(Exception):
     pass
 
@@ -84,10 +88,10 @@ class WorkrecClient:
         with self._repo.transaction():
             task = self._get_task(user_id, task_id)
 
-            task, work_time = task.start_work(timestamp)
+            task, work_session = task.start_work(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
             self._repo.add(
-                WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+                WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
             )
 
             self._stop_all_works(
@@ -105,10 +109,10 @@ class WorkrecClient:
         with self._repo.transaction():
             task = self._get_task(user_id, task_id)
 
-            task, work_time = task.pause_work(timestamp)
+            task, work_session = task.pause_work(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
             self._repo.put(
-                WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+                WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
             )
 
     def complete_task(self, *, user_id, task_id: str, timestamp: datetime) -> None:
@@ -122,12 +126,96 @@ class WorkrecClient:
         with self._repo.transaction():
             task = self._get_task(user_id, task_id)
 
-            task, work_time = task.complete(timestamp)
+            task, work_session = task.complete(timestamp)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
-            if work_time:
+            if work_session:
                 self._repo.put(
-                    WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
+                    WorkSession.__name__,
+                    id=work_session.id,
+                    entity=work_session._asdict(),
                 )
+
+    def work_session_list(
+        self, *, task_id: str, limit: Optional[int] = None, cursor: Optional[str] = None
+    ) -> tuple[list["WorkSession"], str]:
+        """タスクに紐づく作業のリストを返します
+
+        :param task_id: タスクのID
+        """
+        entities, cursor = self._repo.list(
+            WorkSession.__name__,
+            filters=[("task_id", "=", task_id)],
+            order=["start_time"],
+            limit=limit,
+            cursor=cursor,
+        )
+
+        return [WorkSession(**e) for e in entities], cursor or ""
+
+    def edit_work_session(
+        self,
+        *,
+        user_id: str,
+        work_session_id: str,
+        start_time: datetime,
+        end_time: datetime,
+    ) -> None:
+        """作業の開始日時と終了日時を更新します
+
+        :param work_session_id: 更新する作業のID
+        :param start_time: 開始日時
+        :param end_time: 終了日時
+        """
+        with self._repo.transaction():
+            work_session = self._get_work_session(user_id, work_session_id)
+            prev_work_session, _ = self._repo.list(
+                WorkSession.__name__,
+                filters=[
+                    ("task_id", "=", work_session.task_id),
+                    ("end_time", "<=", work_session.start_time),
+                ],
+                limit=1,
+            )
+            next_work_session, _ = self._repo.list(
+                WorkSession.__name__,
+                filters=[
+                    ("task_id", "=", work_session.task_id),
+                    ("start_time", ">=", work_session.end_time),
+                ],
+                limit=1,
+            )
+
+            if prev_work_session:
+                prev_work_session = WorkSession(**prev_work_session[0])
+                if prev_work_session.end_time > start_time:
+                    raise InvalidParameterException(
+                        f"start_time is invalid: {start_time}"
+                    )
+
+            if next_work_session:
+                next_work_session = WorkSession(**next_work_session[0])
+                if next_work_session.start_time < end_time:
+                    raise InvalidParameterException(f"end_time is invalid: {end_time}")
+
+            work_session = work_session._replace(
+                start_time=start_time, end_time=end_time
+            )
+            self._repo.put(
+                WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
+            )
+
+    def _get_work_session(self, user_id, id) -> "WorkSession":
+        entity = self._repo.get(WorkSession.__name__, id=id)
+
+        if entity is None:
+            raise NotFoundException()
+
+        work_session = WorkSession(**entity)
+
+        if work_session.user_id != user_id:
+            raise NotFoundException()
+
+        return work_session
 
     def _get_task(self, user_id, id) -> "Task":
         entity = self._repo.get(Task.__name__, id=id)
@@ -161,25 +249,9 @@ class WorkrecClient:
             if task.id != exclude:
                 self._stop_work(task, timestamp)
 
-    def work_session_list(
-        self, *, task_id: str, limit: Optional[int] = None, cursor: Optional[str] = None
-    ) -> tuple[list["WorkSession"], str]:
-        """タスクに紐づく作業のリストを返します
-
-        :param task_id: タスクのID
-        """
-        entities, cursor = self._repo.list(
-            WorkSession.__name__,
-            filters=[("task_id", "=", task_id)],
-            order=["start_time"],
-            limit=limit,
-            cursor=cursor,
-        )
-
-        return [WorkSession(**e) for e in entities], cursor or ""
-
 
 class WorkSession(NamedTuple):
+    user_id: str
     task_id: str
     id: str
     start_time: datetime = datetime.min
@@ -188,9 +260,9 @@ class WorkSession(NamedTuple):
     updated_at: datetime = datetime.min
 
     @classmethod
-    def new(cls, *, task_id: str) -> "WorkSession":
+    def new(cls, *, user_id: str, task_id: str) -> "WorkSession":
         id = f"{WorkSession.__name__}-{task_id}-{str(uuid4())}"
-        return WorkSession(task_id=task_id, id=id)
+        return WorkSession(user_id=user_id, task_id=task_id, id=id)
 
     @property
     def working_time(self) -> int:
@@ -252,7 +324,7 @@ class Task(NamedTuple):
     @property
     def last_work(self) -> "WorkSession":
         if self.state == TaskState.NOT_STARTED:
-            return WorkSession(task_id=self.id, id="")
+            return WorkSession(user_id=self.user_id, task_id=self.id, id="")
 
         return WorkSession(**self.last_work_dict)
 
@@ -265,7 +337,9 @@ class Task(NamedTuple):
         if self.state != TaskState.NOT_STARTED and self.state != TaskState.PAUSED:
             raise InvalidStateException(f"state = {self.state}")
 
-        work = WorkSession.new(task_id=self.id)._replace(start_time=timestamp)
+        work = WorkSession.new(user_id=self.user_id, task_id=self.id)._replace(
+            start_time=timestamp
+        )
         task = self._replace(state=TaskState.IN_PROGRESS, last_work_dict=work._asdict())
         return task, work
 

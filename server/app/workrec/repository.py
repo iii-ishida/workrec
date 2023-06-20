@@ -111,7 +111,7 @@ class InMemoryRepo:
                 (i for i, key in enumerate(entities_map.keys()) if key == cursor), None
             )
             if cursor_index is not None:
-                entities = entities[cursor_index + 1:]
+                entities = entities[cursor_index + 1 :]
 
         if limit:
             entities = entities[:limit]
@@ -121,7 +121,7 @@ class InMemoryRepo:
             if entities
             else ""
         )
-        if cursor == list(entities_map.keys())[-1]:
+        if entities_map and cursor == list(entities_map.keys())[-1]:
             cursor = ""
 
         return entities, cursor
