@@ -152,6 +152,27 @@ class WorkrecClient:
 
         return [WorkSession(**e) for e in entities], cursor or ""
 
+    def add_work_session(
+        self, *, user_id: str, task_id: str, start_time: datetime, end_time: datetime
+    ) -> None:
+        """作業を追加します
+
+        :param task_id: 作業を追加するタスクのID
+        :param start_time: 開始日時
+        :param end_time: 終了日時
+        """
+        with self._repo.transaction():
+            task = self._get_task(user_id, task_id)
+
+            task, work_session = task.add_work_session(start_time, end_time)
+
+            self._validate_work_session(work_session)
+
+            self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+            self._repo.add(
+                WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
+            )
+
     def edit_work_session(
         self,
         *,
@@ -168,41 +189,49 @@ class WorkrecClient:
         """
         with self._repo.transaction():
             work_session = self._get_work_session(user_id, work_session_id)
-            prev_work_session, _ = self._repo.list(
-                WorkSession.__name__,
-                filters=[
-                    ("task_id", "=", work_session.task_id),
-                    ("end_time", "<=", work_session.start_time),
-                ],
-                limit=1,
-            )
-            next_work_session, _ = self._repo.list(
-                WorkSession.__name__,
-                filters=[
-                    ("task_id", "=", work_session.task_id),
-                    ("start_time", ">=", work_session.end_time),
-                ],
-                limit=1,
-            )
-
-            if prev_work_session:
-                prev_work_session = WorkSession(**prev_work_session[0])
-                if prev_work_session.end_time > start_time:
-                    raise InvalidParameterException(
-                        f"start_time is invalid: {start_time}"
-                    )
-
-            if next_work_session:
-                next_work_session = WorkSession(**next_work_session[0])
-                if next_work_session.start_time < end_time:
-                    raise InvalidParameterException(f"end_time is invalid: {end_time}")
-
             work_session = work_session._replace(
                 start_time=start_time, end_time=end_time
             )
+
+            self._validate_work_session(work_session)
+
             self._repo.put(
                 WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
             )
+
+    def _validate_work_session(self, work_session: "WorkSession") -> None:
+        prev_work_session, _ = self._repo.list(
+            WorkSession.__name__,
+            filters=[
+                ("task_id", "=", work_session.task_id),
+                ("id", "!=", work_session.id),
+                ("end_time", "<=", work_session.start_time),
+            ],
+            limit=1,
+        )
+        if prev_work_session:
+            prev_work_session = WorkSession(**prev_work_session[0])
+            if prev_work_session.end_time > work_session.start_time:
+                raise InvalidParameterException(
+                    f"start_time is invalid: {work_session.start_time}"
+                )
+
+        next_work_session, _ = self._repo.list(
+            WorkSession.__name__,
+            filters=[
+                ("task_id", "=", work_session.task_id),
+                ("id", "!=", work_session.id),
+                ("end_time", ">=", work_session.start_time),
+            ],
+            limit=1,
+        )
+
+        if next_work_session:
+            next_work_session = WorkSession(**next_work_session[0])
+            if next_work_session.start_time < work_session.end_time:
+                raise InvalidParameterException(
+                    f"end_time is invalid: {work_session.end_time}"
+                )
 
     def _get_work_session(self, user_id, id) -> "WorkSession":
         entity = self._repo.get(WorkSession.__name__, id=id)
@@ -377,3 +406,26 @@ class Task(NamedTuple):
 
         task = self._replace(state=TaskState.COMPLETED)
         return task, None
+
+    def add_work_session(
+        self, /, start_time: datetime, end_time: datetime
+    ) -> tuple["Task", "WorkSession"]:
+        """WorkSession を追加した Task を返します
+
+        :param work: 追加する WorkSession
+        """
+        work = WorkSession.new(user_id=self.user_id, task_id=self.id)._replace(
+            start_time=start_time, end_time=end_time
+        )
+
+        task = self._replace(
+            total_working_time=self.total_working_time + work.working_time
+        )
+
+        if (
+            not self.last_work_dict
+            or WorkSession(**self.last_work_dict).end_time <= work.start_time
+        ):
+            task = task._replace(last_work_dict=work._asdict())
+
+        return task, work

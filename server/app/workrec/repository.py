@@ -142,6 +142,8 @@ class InMemoryRepo:
     def _compare(self, a, op, b):
         if op == "=":
             return a == b
+        elif op == "!=":
+            return a != b
         elif op == "<":
             return a < b
         elif op == ">":

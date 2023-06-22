@@ -84,6 +84,71 @@ class TestWorkrecClient(unittest.TestCase):
         self.assertEqual(task["last_work_dict"]["start_time"], start_time)
         self.assertEqual(task["last_work_dict"]["end_time"], stop_time)
 
+    def test_add_work_session(self):
+        uid = "some-user"
+        start_time = datetime(2021, 1, 1, 10, 0)
+        stop_time = datetime(2021, 1, 1, 12, 0)
+
+        id = self.client.create_task(user_id="some-user", title="some task 01")
+        self.client.add_work_session(
+            user_id=uid, task_id=id, start_time=start_time, end_time=stop_time
+        )
+
+        work_sessions, _ = self.repo.list(kind="WorkSession")
+
+        self.assertEqual(len(work_sessions), 1)
+        self.assertEqual(work_sessions[0]["start_time"], start_time)
+        self.assertEqual(work_sessions[0]["end_time"], stop_time)
+
+        task = self.repo.get(kind="Task", id=id)
+        self.assertEqual(task["last_work_dict"]["start_time"], start_time)
+        self.assertEqual(task["last_work_dict"]["end_time"], stop_time)
+        self.assertEqual(task["total_working_time"], (stop_time - start_time).seconds)
+
+    def test_add_work_session_multiple(self):
+        uid = "some-user"
+        start_time_1 = datetime(2021, 1, 1, 10, 0)
+        stop_time_1 = datetime(2021, 1, 1, 12, 0)
+        start_time_2 = datetime(2021, 1, 1, 13, 0)
+        stop_time_2 = datetime(2021, 1, 1, 15, 0)
+
+        id = self.client.create_task(user_id=uid, title="some task 01")
+        self.client.add_work_session(
+            user_id=uid, task_id=id, start_time=start_time_2, end_time=stop_time_2
+        )
+        self.client.add_work_session(
+            user_id=uid, task_id=id, start_time=start_time_1, end_time=stop_time_1
+        )
+
+        work_sessions, _ = self.repo.list(kind="WorkSession")
+
+        self.assertEqual(len(work_sessions), 2)
+
+        task = self.repo.get(kind="Task", id=id)
+        self.assertEqual(task["last_work_dict"]["start_time"], start_time_2)
+        self.assertEqual(task["last_work_dict"]["end_time"], stop_time_2)
+        self.assertEqual(
+            task["total_working_time"],
+            (stop_time_1 - start_time_1).seconds + (stop_time_2 - start_time_2).seconds,
+        )
+
+    def test_add_work_session_invalid(self):
+        uid = "some-user"
+        start_time_1 = datetime(2021, 1, 1, 10, 0)
+        stop_time_1 = datetime(2021, 1, 1, 12, 0)
+        start_time_2 = datetime(2021, 1, 1, 11, 0)
+        stop_time_2 = datetime(2021, 1, 1, 13, 0)
+
+        id = self.client.create_task(user_id=uid, title="some task 01")
+        self.client.add_work_session(
+            user_id=uid, task_id=id, start_time=start_time_1, end_time=stop_time_1
+        )
+
+        with self.assertRaises(InvalidParameterException):
+            self.client.add_work_session(
+                user_id=uid, task_id=id, start_time=start_time_2, end_time=stop_time_2
+            )
+
     def test_edit_work_session(self):
         uid = "some-user"
         start_time_1 = datetime(2021, 1, 1, 10, 0)
