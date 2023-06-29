@@ -152,6 +152,13 @@ class WorkrecClient:
 
         return [WorkSession(**e) for e in entities], cursor or ""
 
+    def find_work_session(self, *, user_id: str, work_session_id: str) -> "WorkSession":
+        """指定されたWorkSessionを返します
+
+        :param work_session_id: WorkSessionのID
+        """
+        return self._get_work_session(user_id, work_session_id)
+
     def add_work_session(
         self, *, user_id: str, task_id: str, start_time: datetime, end_time: datetime
     ) -> None:
@@ -168,10 +175,13 @@ class WorkrecClient:
 
             self._validate_work_session(work_session)
 
+            task = task.update_last_work(work_session)
             self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
             self._repo.add(
                 WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
             )
+
+            return work_session.id
 
     def edit_work_session(
         self,
@@ -193,42 +203,36 @@ class WorkrecClient:
                 start_time=start_time, end_time=end_time
             )
 
+            task = self._get_task(user_id, work_session.task_id)
+            if (
+                task.last_work.end_time == datetime.min
+                and task.last_work.start_time < work_session.end_time
+            ):
+                raise InvalidParameterException()
+
             self._validate_work_session(work_session)
+
+            task = task.update_last_work(work_session)
+            if task.last_work == work_session:
+                self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
 
             self._repo.put(
                 WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
             )
 
     def _validate_work_session(self, work_session: "WorkSession") -> None:
-        prev_work_session, _ = self._repo.list(
-            WorkSession.__name__,
-            filters=[
-                ("task_id", "=", work_session.task_id),
-                ("id", "!=", work_session.id),
-                ("end_time", "<=", work_session.start_time),
-            ],
-            limit=1,
-        )
+        prev_work_session = self._get_prev_work_session(work_session)
+
         if prev_work_session:
-            prev_work_session = WorkSession(**prev_work_session[0])
-            if prev_work_session.end_time > work_session.start_time:
+            if prev_work_session.is_overlapped(work_session):
                 raise InvalidParameterException(
                     f"start_time is invalid: {work_session.start_time}"
                 )
 
-        next_work_session, _ = self._repo.list(
-            WorkSession.__name__,
-            filters=[
-                ("task_id", "=", work_session.task_id),
-                ("id", "!=", work_session.id),
-                ("end_time", ">=", work_session.start_time),
-            ],
-            limit=1,
-        )
+        next_work_session = self._get_next_work_session(work_session)
 
         if next_work_session:
-            next_work_session = WorkSession(**next_work_session[0])
-            if next_work_session.start_time < work_session.end_time:
+            if next_work_session.is_overlapped(work_session):
                 raise InvalidParameterException(
                     f"end_time is invalid: {work_session.end_time}"
                 )
@@ -245,6 +249,34 @@ class WorkrecClient:
             raise NotFoundException()
 
         return work_session
+
+    def _get_prev_work_session(self, work_session) -> Optional["WorkSession"]:
+        prev_work_sessions, _ = self._repo.list(
+            WorkSession.__name__,
+            filters=[
+                ("task_id", "=", work_session.task_id),
+                ("end_time", "<=", work_session.start_time),
+            ],
+            order=["task_id", "-end_time"],
+            limit=2,
+        )
+        prev_work_sessions = [WorkSession(**w) for w in prev_work_sessions]
+        prev_work_sessions = [w for w in prev_work_sessions if w.id != work_session.id]
+        return prev_work_sessions[0] if prev_work_sessions else None
+
+    def _get_next_work_session(self, work_session) -> Optional["WorkSession"]:
+        next_work_sessions, _ = self._repo.list(
+            WorkSession.__name__,
+            filters=[
+                ("task_id", "=", work_session.task_id),
+                ("end_time", ">=", work_session.start_time),
+            ],
+            order=["task_id", "end_time"],
+            limit=2,
+        )
+        next_work_sessions = [WorkSession(**w) for w in next_work_sessions]
+        next_work_sessions = [w for w in next_work_sessions if w.id != work_session.id]
+        return next_work_sessions[0] if next_work_sessions else None
 
     def _get_task(self, user_id, id) -> "Task":
         entity = self._repo.get(Task.__name__, id=id)
@@ -309,6 +341,9 @@ class WorkSession(NamedTuple):
         end = self.end_time.replace(tzinfo=None)
         return (end - start).seconds if end != datetime.min else 0
 
+    def is_overlapped(self, other) -> bool:
+        return self.start_time <= other.end_time and self.end_time >= other.start_time
+
 
 class TaskState(StrEnum):
     """タスクの状態"""
@@ -351,11 +386,21 @@ class Task(NamedTuple):
         )
 
     @property
+    def is_started(self) -> bool:
+        return self.state != TaskState.NOT_STARTED
+
+    @property
     def last_work(self) -> "WorkSession":
-        if self.state == TaskState.NOT_STARTED:
+        if not self.is_started:
             return WorkSession(user_id=self.user_id, task_id=self.id, id="")
 
         return WorkSession(**self.last_work_dict)
+
+    def update_last_work(self, work_session) -> "Task":
+        if self.last_work.end_time <= work_session.start_time:
+            return self._replace(last_work_dict=work_session._asdict())
+
+        return self
 
     def start_work(self, /, timestamp: datetime) -> tuple["Task", "WorkSession"]:
         """作業中状態にした Task と 開始時間を設定した WorkSession を返します
@@ -418,14 +463,20 @@ class Task(NamedTuple):
             start_time=start_time, end_time=end_time
         )
 
+        if (
+            self.is_started
+            and self.last_work.end_time == datetime.min
+            and self.last_work.start_time < work.end_time
+        ):
+            raise InvalidParameterException()
+
         task = self._replace(
             total_working_time=self.total_working_time + work.working_time
         )
 
-        if (
-            not self.last_work_dict
-            or WorkSession(**self.last_work_dict).end_time <= work.start_time
-        ):
+        if not self.is_started:
+            task = task._replace(state=TaskState.PAUSED, last_work_dict=work._asdict())
+        elif self.last_work.end_time <= work.start_time:
             task = task._replace(last_work_dict=work._asdict())
 
         return task, work

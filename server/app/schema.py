@@ -168,5 +168,38 @@ class Mutation:
         t = client.find_task(user_id=user_id, task_id=task_id)
         return TaskNode.from_task(t)
 
+    @strawberry.mutation
+    def add_work_session(
+        self, task_id: str, start_time: datetime, end_time: datetime, info: Info
+    ) -> WorkSessionNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
+        client: WorkrecClient = info.context.client
+        work_session_id = client.add_work_session(
+            user_id=user_id, task_id=task_id, start_time=start_time, end_time=end_time
+        )
+        w = client.find_work_session(user_id=user_id, work_session_id=work_session_id)
+        return WorkSessionNode.from_work(w)
+
+    @strawberry.mutation
+    def edit_work_session(
+        self, work_session_id: str, start_time: datetime, end_time: datetime, info: Info
+    ) -> WorkSessionNode:
+        user_id = info.context.user_id
+        if user_id is None:
+            raise Exception("unauthorized")
+
+        client: WorkrecClient = info.context.client
+        client.edit_work_session(
+            user_id=user_id,
+            work_session_id=work_session_id,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        w = client.find_work_session(user_id=user_id, work_session_id=work_session_id)
+        return WorkSessionNode.from_work(w)
+
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
