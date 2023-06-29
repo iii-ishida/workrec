@@ -212,6 +212,46 @@ export async function stopWorkOnTask(
   await fetchGraphql({ query, variables, sessionCookie })
 }
 
+export async function addWorkSession(
+  sessionCookie: string,
+  taskId: string,
+  startTime: Date,
+  endTime: Date
+): Promise<void> {
+  const query = `
+  mutation AddWorkSession($taskId: String!, $startTime: DateTime!, $endTime: DateTime!) {
+  addWorkSession(taskId: $taskId, startTime: $startTime, endTime: $endTime) {
+      id
+      startTime
+      endTime
+    }
+  }
+`
+
+  const variables = { taskId, startTime, endTime }
+  await fetchGraphql({ query, variables, sessionCookie })
+}
+
+export async function updateWorkSession(
+  sessionCookie: string,
+  id: string,
+  startTime: Date,
+  endTime: Date
+): Promise<void> {
+  const query = `
+  mutation EditWorkSession($workSessionId: String!, $startTime: DateTime!, $endTime: DateTime!) {
+  editWorkSession(workSessionId: $workSessionId, startTime: $startTime, endTime: $endTime) {
+      id
+      startTime
+      endTime
+    }
+  }
+`
+
+  const variables = { workSessionId: id, startTime, endTime }
+  await fetchGraphql({ query, variables, sessionCookie })
+}
+
 async function fetchGraphql({
   sessionCookie,
   query,
