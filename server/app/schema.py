@@ -133,7 +133,7 @@ class Mutation:
 
     @strawberry.mutation
     def start_work_on_task(
-        self, task_id: str, timestamp: datetime, info: Info
+        self, task_id: strawberry.ID, timestamp: datetime, info: Info
     ) -> TaskNode:
         user_id = info.context.user_id
         if user_id is None:
@@ -158,7 +158,9 @@ class Mutation:
         return TaskNode.from_task(t)
 
     @strawberry.mutation
-    def complete_task(self, task_id: str, timestamp: datetime, info: Info) -> TaskNode:
+    def complete_task(
+        self, task_id: strawberry.ID, timestamp: datetime, info: Info
+    ) -> TaskNode:
         user_id = info.context.user_id
         if user_id is None:
             raise Exception("unauthorized")
@@ -170,7 +172,11 @@ class Mutation:
 
     @strawberry.mutation
     def add_work_session(
-        self, task_id: str, start_time: datetime, end_time: datetime, info: Info
+        self,
+        task_id: strawberry.ID,
+        start_time: datetime,
+        end_time: datetime,
+        info: Info,
     ) -> WorkSessionNode:
         user_id = info.context.user_id
         if user_id is None:
@@ -185,7 +191,11 @@ class Mutation:
 
     @strawberry.mutation
     def edit_work_session(
-        self, work_session_id: str, start_time: datetime, end_time: datetime, info: Info
+        self,
+        work_session_id: strawberry.ID,
+        start_time: datetime,
+        end_time: datetime,
+        info: Info,
     ) -> WorkSessionNode:
         user_id = info.context.user_id
         if user_id is None:

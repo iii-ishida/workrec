@@ -161,7 +161,7 @@ class WorkrecClient:
 
     def add_work_session(
         self, *, user_id: str, task_id: str, start_time: datetime, end_time: datetime
-    ) -> None:
+    ) -> str:
         """作業を追加します
 
         :param task_id: 作業を追加するタスクのID
