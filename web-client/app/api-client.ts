@@ -167,7 +167,7 @@ export async function startWorkOnTask(
   id: string
 ): Promise<void> {
   const query = `
-  mutation StartWorkOnTask($taskId: String!, $timestamp: DateTime!) {
+  mutation StartWorkOnTask($taskId: ID!, $timestamp: DateTime!) {
     startWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
       id
       state
@@ -192,7 +192,7 @@ export async function stopWorkOnTask(
   id: string
 ): Promise<void> {
   const query = `
-  mutation StopWorkOnTask($taskId: String!, $timestamp: DateTime!) {
+  mutation StopWorkOnTask($taskId: ID!, $timestamp: DateTime!) {
     stopWorkOnTask(taskId: $taskId, timestamp: $timestamp) {
       id
       state
@@ -219,7 +219,7 @@ export async function addWorkSession(
   endTime: Date
 ): Promise<void> {
   const query = `
-  mutation AddWorkSession($taskId: String!, $startTime: DateTime!, $endTime: DateTime!) {
+  mutation AddWorkSession($taskId: ID!, $startTime: DateTime!, $endTime: DateTime!) {
   addWorkSession(taskId: $taskId, startTime: $startTime, endTime: $endTime) {
       id
       startTime
@@ -239,7 +239,7 @@ export async function updateWorkSession(
   endTime: Date
 ): Promise<void> {
   const query = `
-  mutation EditWorkSession($workSessionId: String!, $startTime: DateTime!, $endTime: DateTime!) {
+  mutation EditWorkSession($workSessionId: ID!, $startTime: DateTime!, $endTime: DateTime!) {
   editWorkSession(workSessionId: $workSessionId, startTime: $startTime, endTime: $endTime) {
       id
       startTime
