@@ -26,7 +26,7 @@ export const startTask = async (config, { idToken, taskId, timestamp }) => {
   const url = config.env.apiOrigin + '/graphql'
 
   const query = `
-          mutation Mutation($taskId: String!, $timestamp: DateTime!) {
+          mutation Mutation($taskId: ID!, $timestamp: DateTime!) {
             startWorkOnTask(
               taskId: $taskId,
               timestamp: $timestamp
@@ -61,7 +61,7 @@ export const stopTask = async (config, { idToken, taskId, timestamp }) => {
   const url = config.env.apiOrigin + '/graphql'
 
   const query = `
-          mutation Mutation($taskId: String!, $timestamp: DateTime!) {
+          mutation Mutation($taskId: ID!, $timestamp: DateTime!) {
             stopWorkOnTask(
               taskId: $taskId,
               timestamp: $timestamp

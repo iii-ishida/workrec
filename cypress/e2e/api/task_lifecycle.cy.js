@@ -55,7 +55,7 @@ describe('Task lifecycle Test', () => {
 
   it('Should start work on a task', async () => {
     const query = `
-      mutation Mutation($taskId: String!) {
+      mutation Mutation($taskId: ID!) {
         startWorkOnTask(
           taskId: $taskId,
           timestamp: "2022-03-02 20:00"
@@ -102,7 +102,7 @@ describe('Task lifecycle Test', () => {
 
   it('Should stop work on a task', async () => {
     const query = `
-      mutation Mutation($taskId: String!) {
+      mutation Mutation($taskId: ID!) {
         stopWorkOnTask(
           taskId: $taskId,
           timestamp: "2022-03-02 21:00"
@@ -150,7 +150,7 @@ describe('Task lifecycle Test', () => {
 
   it('Should resume work on a task', async () => {
     const query = `
-      mutation Mutation($taskId: String!) {
+      mutation Mutation($taskId: ID!) {
         startWorkOnTask(
           taskId: $taskId,
           timestamp: "2022-03-02 22:00"
@@ -195,7 +195,7 @@ describe('Task lifecycle Test', () => {
 
   it('Should complete a task', async () => {
     const query = `
-      mutation Mutation($taskId: String!) {
+      mutation Mutation($taskId: ID!) {
         completeTask(
           taskId: $taskId,
           timestamp: "2022-03-02 23:00"
@@ -240,7 +240,7 @@ describe('Task lifecycle Test', () => {
   })
   it('Should complete a task', async () => {
     const query = `
-      mutation Mutation($taskId: String!) {
+      mutation Mutation($taskId: ID!) {
         completeTask(
           taskId: $taskId,
           timestamp: "2022-03-02 23:00"

@@ -146,7 +146,7 @@ class Mutation:
 
     @strawberry.mutation
     def stop_work_on_task(
-        self, task_id: str, timestamp: datetime, info: Info
+        self, task_id: strawberry.ID, timestamp: datetime, info: Info
     ) -> TaskNode:
         user_id = info.context.user_id
         if user_id is None:
