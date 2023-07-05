@@ -20,7 +20,7 @@ google-crc32c==1.5.0
 google-resumable-media==2.5.0
 googleapis-common-protos==1.58.0
 graphql-core==3.2.3
-grpcio==1.51.1
+grpcio==1.53.0
 grpcio-status==1.51.1
 gunicorn==20.1.0
 h11==0.14.0
