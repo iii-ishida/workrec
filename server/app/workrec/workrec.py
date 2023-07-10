@@ -14,10 +14,6 @@ class NotFoundException(Exception):
     pass
 
 
-class InvalidStateException(Exception):
-    pass
-
-
 class WorkrecClient:
     def __init__(self, *, repo: "CloudDatastoreRepo"):
         self._repo = repo
@@ -409,7 +405,7 @@ class Task(NamedTuple):
         :raises InvalidStateException: state が NOT_STARTED でない
         """
         if self.state != TaskState.NOT_STARTED and self.state != TaskState.PAUSED:
-            raise InvalidStateException(f"state = {self.state}")
+            raise InvalidParameterException(f"state = {self.state}")
 
         work = WorkSession.new(user_id=self.user_id, task_id=self.id)._replace(
             start_time=timestamp
@@ -424,7 +420,7 @@ class Task(NamedTuple):
         :raises InvalidStateException: state が IN_PROGRESS でない
         """
         if self.state != TaskState.IN_PROGRESS:
-            raise InvalidStateException(f"state = {self.state}")
+            raise InvalidParameterException(f"state = {self.state}")
 
         work = self.last_work._replace(end_time=timestamp)
         total_working_time = self.total_working_time + work.working_time
