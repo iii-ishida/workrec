@@ -35,15 +35,6 @@ class CloudDatastoreRepo:
         entity = self._client.get(key)
         return entity
 
-    def add(self, kind: str, *, id: str, entity: dict):
-        key = self._client.key(kind, id)
-
-        e = datastore.Entity(key=key)
-        for k, v in entity.items():
-            e[k] = v
-
-        self._client.put(e)
-
     def put(self, kind: str, *, id: str, entity: dict):
         key = self._client.key(kind, id)
 
@@ -128,9 +119,6 @@ class InMemoryRepo:
 
     def get(self, kind: str, *, id: str):
         return self._data.get(kind, {}).get(id)
-
-    def add(self, kind: str, *, id: str, entity: dict):
-        self._data.setdefault(kind, {})[id] = entity
 
     def put(self, kind: str, *, id: str, entity: dict):
         self._data.setdefault(kind, {})[id] = entity

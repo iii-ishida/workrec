@@ -7,7 +7,7 @@ class TestInMemoryRepo(unittest.TestCase):
         self.repo = InMemoryRepo()
 
     def test_list(self):
-        self.repo.add(
+        self.repo.put(
             "Task",
             id="1",
             entity={
@@ -16,7 +16,7 @@ class TestInMemoryRepo(unittest.TestCase):
                 "completed": False,
             },
         )
-        self.repo.add(
+        self.repo.put(
             "Task",
             id="2",
             entity={
@@ -25,7 +25,7 @@ class TestInMemoryRepo(unittest.TestCase):
                 "completed": True,
             },
         )
-        self.repo.add(
+        self.repo.put(
             "Task",
             id="3",
             entity={
@@ -66,7 +66,7 @@ class TestInMemoryRepo(unittest.TestCase):
         self.assertEqual(cursor, "")
 
     def test_get(self):
-        self.repo.add(
+        self.repo.put(
             "Task",
             id="1",
             entity={
@@ -87,7 +87,7 @@ class TestInMemoryRepo(unittest.TestCase):
         self.assertIsNone(entity)
 
     def test_add(self):
-        self.repo.add(
+        self.repo.put(
             "Task",
             id="1",
             entity={
@@ -104,7 +104,7 @@ class TestInMemoryRepo(unittest.TestCase):
         self.assertEqual(entity["completed"], False)
 
     def test_put(self):
-        self.repo.add(
+        self.repo.put(
             "Task",
             id="1",
             entity={
