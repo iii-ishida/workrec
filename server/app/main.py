@@ -2,7 +2,8 @@ import os
 from functools import cached_property
 
 from app.schema import schema
-from app.workrec import CloudDatastoreRepo, WorkrecClient
+from app.repo import CloudDatastoreRepo
+from app.workrec import WorkrecClient
 from fastapi import FastAPI
 from firebase_admin import auth, initialize_app
 from strawberry.fastapi import BaseContext, GraphQLRouter

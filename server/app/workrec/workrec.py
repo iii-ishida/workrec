@@ -3,7 +3,7 @@ from enum import StrEnum, auto
 from typing import NamedTuple, Optional
 from uuid import uuid4
 
-from app.workrec.repository import CloudDatastoreRepo
+from app.repo import CloudDatastoreRepo
 
 
 class InvalidParameterException(Exception):
@@ -39,14 +39,14 @@ class WorkrecClient:
 
     def create_task(self, *, user_id, title) -> str:
         task = Task.new(user_id=user_id, title=title)
-        self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+        self._repo.put(Task.__name__, task._asdict())
         return task.id
 
     def update_task(self, *, user_id, task_id, title) -> None:
         with self._repo.transaction():
             task = self._get_task(user_id, task_id)
             task = task.update(title=title)
-            self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+            self._repo.put(Task.__name__, task._asdict())
 
     def start_work_on_task(
         self,
@@ -144,11 +144,9 @@ class WorkrecClient:
 
             task = task.update_last_work(work_session)
             if task.last_work == work_session:
-                self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+                self._repo.put(Task.__name__, task._asdict())
 
-            self._repo.put(
-                WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
-            )
+            self._repo.put(WorkSession.__name__, work_session._asdict())
 
     def _validate_work_session(self, work_session: "WorkSession") -> None:
         prev_work_session = self._get_prev_work_session(work_session)
@@ -224,19 +222,15 @@ class WorkrecClient:
     def _put_task_and_work_session(
         self, /, task: "Task", work_session: Optional["WorkSession"]
     ):
-        self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
+        self._repo.put(Task.__name__, task._asdict())
         if work_session:
-            self._repo.put(
-                WorkSession.__name__, id=work_session.id, entity=work_session._asdict()
-            )
+            self._repo.put(WorkSession.__name__, work_session._asdict())
 
     def _stop_work(self, task, timestamp: datetime) -> None:
         task = Task(**task)
         task, work_time = task.pause_work(timestamp)
-        self._repo.put(Task.__name__, id=task.id, entity=task._asdict())
-        self._repo.put(
-            WorkSession.__name__, id=work_time.id, entity=work_time._asdict()
-        )
+        self._repo.put(Task.__name__, task._asdict())
+        self._repo.put(WorkSession.__name__, work_time._asdict())
 
     def _stop_all_works(self, user_id: str, timestamp: datetime, exclude: str) -> None:
         entities, _ = self._repo.list(

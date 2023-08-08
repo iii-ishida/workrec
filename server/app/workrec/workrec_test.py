@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 from app.workrec.workrec import WorkrecClient, InvalidParameterException
-from app.workrec.repository import InMemoryRepo
+from app.repo import InMemoryRepo
 
 
 class TestWorkrecClient(unittest.TestCase):
