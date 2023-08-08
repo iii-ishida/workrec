@@ -4,6 +4,7 @@ from typing import NamedTuple, Optional
 from uuid import uuid4
 
 from app.repo import CloudDatastoreRepo
+from app.workrec.workrec_repo import WorkrecRepo
 
 
 class InvalidParameterException(Exception):
@@ -16,7 +17,7 @@ class NotFoundException(Exception):
 
 class WorkrecClient:
     def __init__(self, *, repo: "CloudDatastoreRepo"):
-        self._repo = repo
+        self._repo = WorkrecRepo(repo)
 
     def task_list(
         self,
@@ -25,28 +26,22 @@ class WorkrecClient:
         limit: Optional[int] = None,
         cursor: Optional[str] = None,
     ) -> tuple[list["Task"], str]:
-        entities, cursor = self._repo.list(
-            Task.__name__,
-            filters=[("user_id", "=", user_id)],
-            order=["-created_at"],
-            limit=limit,
-            cursor=cursor,
-        )
-        return [Task(**e) for e in entities], cursor or ""
+        entities, cursor = self._repo.task_list(user_id, limit, cursor)
+        return [Task(**e) for e in entities], cursor
 
     def find_task(self, *, user_id: str, task_id: str) -> "Task":
-        return self._get_task(user_id, task_id)
+        return self._find_task(user_id, task_id)
 
     def create_task(self, *, user_id, title) -> str:
         task = Task.new(user_id=user_id, title=title)
-        self._repo.put(Task.__name__, task._asdict())
+        self._repo.put_task(task._asdict())
         return task.id
 
     def update_task(self, *, user_id, task_id, title) -> None:
         with self._repo.transaction():
-            task = self._get_task(user_id, task_id)
+            task = self._find_task(user_id, task_id)
             task = task.update(title=title)
-            self._repo.put(Task.__name__, task._asdict())
+            self._repo.put_task(task._asdict())
 
     def start_work_on_task(
         self,
@@ -56,9 +51,10 @@ class WorkrecClient:
         timestamp: datetime,
     ) -> None:
         with self._repo.transaction():
-            task = self._get_task(user_id, task_id)
+            task = self._find_task(user_id, task_id)
             task, work_session = task.start_work(timestamp)
-            self._put_task_and_work_session(task, work_session)
+            self._repo.put_task(task._asdict())
+            self._repo.put_work_session(work_session._asdict())
 
             self._stop_all_works(
                 user_id=task.user_id, timestamp=timestamp, exclude=task_id
@@ -72,15 +68,18 @@ class WorkrecClient:
         timestamp: datetime,
     ) -> None:
         with self._repo.transaction():
-            task = self._get_task(user_id, task_id)
+            task = self._find_task(user_id, task_id)
             task, work_session = task.pause_work(timestamp)
-            self._put_task_and_work_session(task, work_session)
+            self._repo.put_task(task._asdict())
+            self._repo.put_work_session(work_session._asdict())
 
     def complete_task(self, *, user_id, task_id: str, timestamp: datetime) -> None:
         with self._repo.transaction():
-            task = self._get_task(user_id, task_id)
+            task = self._find_task(user_id, task_id)
             task, work_session = task.complete(timestamp)
-            self._put_task_and_work_session(task, work_session)
+            self._repo.put_task(task._asdict())
+            if work_session is not None:
+                self._repo.put_work_session(work_session._asdict())
 
     def work_session_list(
         self,
@@ -89,14 +88,8 @@ class WorkrecClient:
         limit: Optional[int] = None,
         cursor: Optional[str] = None,
     ) -> tuple[list["WorkSession"], str]:
-        entities, cursor = self._repo.list(
-            WorkSession.__name__,
-            filters=[("task_id", "=", task_id)],
-            order=["start_time"],
-            limit=limit,
-            cursor=cursor,
-        )
-        return [WorkSession(**e) for e in entities], cursor or ""
+        entities, cursor = self._repo.work_session_list(task_id, limit, cursor)
+        return [WorkSession(**e) for e in entities], cursor
 
     def find_work_session(self, *, user_id: str, work_session_id: str) -> "WorkSession":
         return self._get_work_session(user_id, work_session_id)
@@ -110,13 +103,14 @@ class WorkrecClient:
         end_time: datetime,
     ) -> str:
         with self._repo.transaction():
-            task = self._get_task(user_id, task_id)
+            task = self._find_task(user_id, task_id)
             task, work_session = task.add_work_session(start_time, end_time)
 
             self._validate_work_session(work_session)
 
             task = task.update_last_work(work_session)
-            self._put_task_and_work_session(task, work_session)
+            self._repo.put_task(task._asdict())
+            self._repo.put_work_session(work_session._asdict())
             return work_session.id
 
     def edit_work_session(
@@ -133,7 +127,7 @@ class WorkrecClient:
                 start_time=start_time, end_time=end_time
             )
 
-            task = self._get_task(user_id, work_session.task_id)
+            task = self._find_task(user_id, work_session.task_id)
             if (
                 task.last_work.end_time == datetime.min
                 and task.last_work.start_time < work_session.end_time
@@ -144,29 +138,39 @@ class WorkrecClient:
 
             task = task.update_last_work(work_session)
             if task.last_work == work_session:
-                self._repo.put(Task.__name__, task._asdict())
+                self._repo.put_task(task._asdict())
 
-            self._repo.put(WorkSession.__name__, work_session._asdict())
+            self._repo.put_work_session(work_session._asdict())
 
     def _validate_work_session(self, work_session: "WorkSession") -> None:
-        prev_work_session = self._get_prev_work_session(work_session)
+        prev_work_session = self._repo.find_prev_work_session(
+            work_session.task_id,
+            work_session.id,
+            work_session.start_time,
+        )
 
         if prev_work_session:
+            prev_work_session = WorkSession(**prev_work_session)
             if prev_work_session.is_overlapped(work_session):
                 raise InvalidParameterException(
                     f"start_time is invalid: {work_session.start_time}"
                 )
 
-        next_work_session = self._get_next_work_session(work_session)
+        next_work_session = self._repo.find_next_work_session(
+            work_session.task_id,
+            work_session.id,
+            work_session.start_time,
+        )
 
         if next_work_session:
+            next_work_session = WorkSession(**next_work_session)
             if next_work_session.is_overlapped(work_session):
                 raise InvalidParameterException(
                     f"end_time is invalid: {work_session.end_time}"
                 )
 
     def _get_work_session(self, user_id, id) -> "WorkSession":
-        entity = self._repo.get(WorkSession.__name__, id=id)
+        entity = self._repo.find_work_session(id)
 
         if entity is None:
             raise NotFoundException()
@@ -178,36 +182,8 @@ class WorkrecClient:
 
         return work_session
 
-    def _get_prev_work_session(self, work_session) -> Optional["WorkSession"]:
-        prev_work_sessions, _ = self._repo.list(
-            WorkSession.__name__,
-            filters=[
-                ("task_id", "=", work_session.task_id),
-                ("end_time", "<=", work_session.start_time),
-            ],
-            order=["task_id", "-end_time"],
-            limit=2,
-        )
-        prev_work_sessions = [WorkSession(**w) for w in prev_work_sessions]
-        prev_work_sessions = [w for w in prev_work_sessions if w.id != work_session.id]
-        return prev_work_sessions[0] if prev_work_sessions else None
-
-    def _get_next_work_session(self, work_session) -> Optional["WorkSession"]:
-        next_work_sessions, _ = self._repo.list(
-            WorkSession.__name__,
-            filters=[
-                ("task_id", "=", work_session.task_id),
-                ("end_time", ">=", work_session.start_time),
-            ],
-            order=["task_id", "end_time"],
-            limit=2,
-        )
-        next_work_sessions = [WorkSession(**w) for w in next_work_sessions]
-        next_work_sessions = [w for w in next_work_sessions if w.id != work_session.id]
-        return next_work_sessions[0] if next_work_sessions else None
-
-    def _get_task(self, user_id, id) -> "Task":
-        entity = self._repo.get(Task.__name__, id=id)
+    def _find_task(self, user_id, id) -> "Task":
+        entity = self._repo.find_task(id)
 
         if entity is None:
             raise NotFoundException()
@@ -219,24 +195,14 @@ class WorkrecClient:
 
         return task
 
-    def _put_task_and_work_session(
-        self, /, task: "Task", work_session: Optional["WorkSession"]
-    ):
-        self._repo.put(Task.__name__, task._asdict())
-        if work_session:
-            self._repo.put(WorkSession.__name__, work_session._asdict())
-
     def _stop_work(self, task, timestamp: datetime) -> None:
         task = Task(**task)
         task, work_time = task.pause_work(timestamp)
-        self._repo.put(Task.__name__, task._asdict())
-        self._repo.put(WorkSession.__name__, work_time._asdict())
+        self._repo.put_task(task._asdict())
+        self._repo.put_work_session(work_time._asdict())
 
     def _stop_all_works(self, user_id: str, timestamp: datetime, exclude: str) -> None:
-        entities, _ = self._repo.list(
-            Task.__name__,
-            filters=[("user_id", "=", user_id), ("state", "=", TaskState.IN_PROGRESS)],
-        )
+        entities = self._repo.working_task_list(user_id)
 
         for e in entities:
             task = Task(**e)
