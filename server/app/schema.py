@@ -57,7 +57,7 @@ class TaskNode:
     id: strawberry.ID
     title: str
     total_working_time: int
-    last_work: WorkSessionNode
+    current_work_session: WorkSessionNode
     state: str
     work_sessions: WorkSessionsConnection = strawberry.field(resolver=work_session_list)
 
@@ -68,7 +68,7 @@ class TaskNode:
             title=task.title,
             total_working_time=task.total_working_time,
             state=task.state,
-            last_work=WorkSessionNode.from_work(task.last_work),
+            current_work_session=WorkSessionNode.from_work(task.current_work_session),
         )
 
 

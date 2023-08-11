@@ -1,4 +1,10 @@
 .DS_Store
 
 cypress/videos/
+cypress/screenshots/
 /node_modules/
+settings.json
+env.yaml
+index.yaml
+local_db.bin
+

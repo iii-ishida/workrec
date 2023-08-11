@@ -35,7 +35,7 @@ export const startTask = async (config, { idToken, taskId, timestamp }) => {
               state
               title
               totalWorkingTime
-              lastWork {
+              currentWorkSession {
                 id
                 startTime
                 endTime
@@ -70,7 +70,7 @@ export const stopTask = async (config, { idToken, taskId, timestamp }) => {
               state
               title
               totalWorkingTime
-              lastWork {
+              currentWorkSession {
                 id
                 startTime
                 endTime

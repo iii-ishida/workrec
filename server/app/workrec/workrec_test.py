@@ -49,9 +49,9 @@ class TestWorkrecClient(unittest.TestCase):
         task = self.repo.get(kind="Task", id=task_id)
 
         self.assertEqual(task["state"], "in_progress")
-        self.assertEqual(task["last_work_dict"]["user_id"], user_id)
-        self.assertEqual(task["last_work_dict"]["task_id"], task_id)
-        self.assertEqual(task["last_work_dict"]["start_time"], start_time)
+        self.assertEqual(task["current_work_session_dict"]["user_id"], user_id)
+        self.assertEqual(task["current_work_session_dict"]["task_id"], task_id)
+        self.assertEqual(task["current_work_session_dict"]["start_time"], start_time)
 
     def test_stop_work_on_task(self):
         uid = "some-user"
@@ -65,8 +65,8 @@ class TestWorkrecClient(unittest.TestCase):
         task = self.repo.get(kind="Task", id=id)
 
         self.assertEqual(task["state"], "paused")
-        self.assertEqual(task["last_work_dict"]["start_time"], start_time)
-        self.assertEqual(task["last_work_dict"]["end_time"], stop_time)
+        self.assertEqual(task["current_work_session_dict"]["start_time"], start_time)
+        self.assertEqual(task["current_work_session_dict"]["end_time"], stop_time)
 
     def test_complete_task(self):
         uid = "some-user"
@@ -81,8 +81,8 @@ class TestWorkrecClient(unittest.TestCase):
         task = self.repo.get(kind="Task", id=id)
 
         self.assertEqual(task["state"], "completed")
-        self.assertEqual(task["last_work_dict"]["start_time"], start_time)
-        self.assertEqual(task["last_work_dict"]["end_time"], stop_time)
+        self.assertEqual(task["current_work_session_dict"]["start_time"], start_time)
+        self.assertEqual(task["current_work_session_dict"]["end_time"], stop_time)
 
     def test_add_work_session(self):
         uid = "some-user"
@@ -101,8 +101,8 @@ class TestWorkrecClient(unittest.TestCase):
         self.assertEqual(work_sessions[0]["end_time"], stop_time)
 
         task = self.repo.get(kind="Task", id=id)
-        self.assertEqual(task["last_work_dict"]["start_time"], start_time)
-        self.assertEqual(task["last_work_dict"]["end_time"], stop_time)
+        self.assertEqual(task["current_work_session_dict"]["start_time"], start_time)
+        self.assertEqual(task["current_work_session_dict"]["end_time"], stop_time)
         self.assertEqual(task["total_working_time"], (stop_time - start_time).seconds)
 
     def test_add_work_session_multiple(self):
@@ -125,8 +125,8 @@ class TestWorkrecClient(unittest.TestCase):
         self.assertEqual(len(work_sessions), 2)
 
         task = self.repo.get(kind="Task", id=id)
-        self.assertEqual(task["last_work_dict"]["start_time"], start_time_2)
-        self.assertEqual(task["last_work_dict"]["end_time"], stop_time_2)
+        self.assertEqual(task["current_work_session_dict"]["start_time"], start_time_2)
+        self.assertEqual(task["current_work_session_dict"]["end_time"], stop_time_2)
         self.assertEqual(
             task["total_working_time"],
             (stop_time_1 - start_time_1).seconds + (stop_time_2 - start_time_2).seconds,

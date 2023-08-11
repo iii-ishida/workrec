@@ -66,7 +66,7 @@ export async function fetchTaskList(
           state
           title
           totalWorkingTime
-          lastWork {
+          currentWorkSession {
             startTime
           }
         }
@@ -86,7 +86,7 @@ export async function fetchTaskList(
       return result.data.tasks.edges.map((edge: any) => {
         return taskListItemFromJson({
           ...edge.node,
-          lastStartTime: edge.node.lastWork?.startTime,
+          lastStartTime: edge.node.currentWorkSession?.startTime,
         })
       })
     }
@@ -148,7 +148,7 @@ export async function createTask(
       state
       title
       totalWorkingTime
-      lastWork {
+      currentWorkSession {
         id
         startTime
         endTime
@@ -173,7 +173,7 @@ export async function startWorkOnTask(
       state
       title
       totalWorkingTime
-      lastWork {
+      currentWorkSession {
         id
         startTime
         endTime
@@ -198,7 +198,7 @@ export async function stopWorkOnTask(
       state
       title
       totalWorkingTime
-      lastWork {
+      currentWorkSession {
         id
         startTime
         endTime
