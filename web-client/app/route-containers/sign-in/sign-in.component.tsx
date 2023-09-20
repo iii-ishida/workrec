@@ -77,10 +77,10 @@ export default function Component() {
   )
 
   return (
-    <div className="container m-10 mx-auto rounded-md border-2 border-gray-200 bg-gray-100 p-10">
+    <div className="container mx-auto rounded-2 m-5 p-5 border border-gray-300 bg-gray-100">
       <h1 className="text-center text-subhead font-semibold">Sign In</h1>
       <form
-        className="flex flex-col gap-8 p-10"
+        className="flex flex-col gap-5 p-4"
         method="post"
         onSubmit={handleSubmit}
       >

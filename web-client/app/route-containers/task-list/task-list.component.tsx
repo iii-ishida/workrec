@@ -8,11 +8,11 @@ export default function Component() {
   const models = useLoaderData<typeof loader>()
 
   return (
-    <div>
+    <div className='container m-md mx-auto'>
       <TaskList models={models.map(taskListItemFromJson)} />
-      <Form method="post" className="my-10 flex">
+      <Form method="post" className="my-3xl flex gap-xl">
         <input type="text" name="title" className="grow" />
-        <SubmitButton className="flex-none" intent="create">
+        <SubmitButton className="flex-none btn-primary btn-rounded" intent="create">
           Create Task
         </SubmitButton>
       </Form>
@@ -32,7 +32,7 @@ function TaskList({ models }: { models: TaskListItem[] }) {
   return (
     <ul>
       {models.map((model) => (
-        <li key={model.id}>
+        <li key={model.id} className='mb-lg'>
           <TaskListRow model={model} now={now} />
         </li>
       ))}
@@ -42,17 +42,17 @@ function TaskList({ models }: { models: TaskListItem[] }) {
 
 function TaskListRow({ model, now }: { model: TaskListItem; now: Date }) {
   return (
-    <div className="flex gap-2">
-      <Link className="flex grow" to={`/tasks/${model.id}`}>
+    <div className="flex  p-sm rounded-sm gap-xl drop-shadow-md bg-gray-100">
+      <Link className="flex grow items-center" to={`/tasks/${model.id}`}>
         <p className="grow">{model.title}</p>
-        <p className="w-30 flex-none text-right">
+        <p className="w-5xl flex-none text-right">
           {totalWorkingTimeText(model, now)}
         </p>
       </Link>
-      <Form method="post" className="w-14 flex-none text-center">
+      <Form method="post" className="flex-none w-4xl text-center">
         <input type="hidden" name="id" value={model.id} />
         <input type="hidden" name="state" value={model.state} />
-        <SubmitButton intent="toggle">{toggleButtonText(model)}</SubmitButton>
+        <SubmitButton intent="toggle" className='w-full btn-primary rounded-xs py-sm'>{toggleButtonText(model)}</SubmitButton>
       </Form>
     </div>
   )
