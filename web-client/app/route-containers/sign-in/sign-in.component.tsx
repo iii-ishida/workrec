@@ -2,7 +2,11 @@ import { useLoaderData, useSubmit } from '@remix-run/react'
 import { ActionArgs, LoaderArgs, json, redirect } from '@remix-run/node'
 import { useCallback } from 'react'
 import { commitSession, getSession } from '~/services/session.server'
-import { checkSessionCookie, createSessionCookie, getRestConfig } from '~/services/auth.server'
+import {
+  checkSessionCookie,
+  createSessionCookie,
+  getRestConfig,
+} from '~/services/auth.server'
 import { signInWithEmailAndPassword } from '~/services/auth-client'
 
 export async function loader({ request }: LoaderArgs) {
@@ -77,8 +81,8 @@ export default function Component() {
   )
 
   return (
-    <div className="container mx-auto rounded-2 m-5 p-5 border border-gray-300 bg-gray-100">
-      <h1 className="text-center text-subhead font-semibold">Sign In</h1>
+    <div className="container m-5 mx-auto rounded-2 border border-gray-300 bg-gray-100 p-5">
+      <h1 className="text-subhead text-center font-semibold">Sign In</h1>
       <form
         className="flex flex-col gap-5 p-4"
         method="post"

@@ -8,11 +8,14 @@ export default function Component() {
   const models = useLoaderData<typeof loader>()
 
   return (
-    <div className='container m-md mx-auto'>
+    <div className="m-md container mx-auto">
       <TaskList models={models.map(taskListItemFromJson)} />
-      <Form method="post" className="my-3xl flex gap-xl">
+      <Form method="post" className="my-3xl gap-xl flex">
         <input type="text" name="title" className="grow" />
-        <SubmitButton className="flex-none btn-primary btn-rounded" intent="create">
+        <SubmitButton
+          className="btn-primary btn-rounded flex-none"
+          intent="create"
+        >
           Create Task
         </SubmitButton>
       </Form>
@@ -32,7 +35,7 @@ function TaskList({ models }: { models: TaskListItem[] }) {
   return (
     <ul>
       {models.map((model) => (
-        <li key={model.id} className='mb-lg'>
+        <li key={model.id} className="mb-lg">
           <TaskListRow model={model} now={now} />
         </li>
       ))}
@@ -42,17 +45,22 @@ function TaskList({ models }: { models: TaskListItem[] }) {
 
 function TaskListRow({ model, now }: { model: TaskListItem; now: Date }) {
   return (
-    <div className="flex  p-sm rounded-sm gap-xl drop-shadow-md bg-gray-100">
+    <div className="p-sm  rounded-sm gap-xl flex bg-gray-100 drop-shadow-md">
       <Link className="flex grow items-center" to={`/tasks/${model.id}`}>
         <p className="grow">{model.title}</p>
         <p className="w-5xl flex-none text-right">
           {totalWorkingTimeText(model, now)}
         </p>
       </Link>
-      <Form method="post" className="flex-none w-4xl text-center">
+      <Form method="post" className="w-4xl flex-none text-center">
         <input type="hidden" name="id" value={model.id} />
         <input type="hidden" name="state" value={model.state} />
-        <SubmitButton intent="toggle" className='w-full btn-primary rounded-xs py-sm'>{toggleButtonText(model)}</SubmitButton>
+        <SubmitButton
+          intent="toggle"
+          className="btn-primary rounded-xs py-sm w-full"
+        >
+          {toggleButtonText(model)}
+        </SubmitButton>
       </Form>
     </div>
   )

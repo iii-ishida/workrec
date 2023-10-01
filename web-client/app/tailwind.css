@@ -4,7 +4,7 @@
 
 @layer components {
   .btn-rounded {
-    @apply py-2 px-4 rounded-1;
+    @apply rounded-1 px-4 py-2;
   }
 
   .btn-primary {
@@ -14,14 +14,14 @@
 
 @layer base {
   * {
-    @apply text-gray-700 text-base;
+    @apply text-base text-gray-700;
   }
 
   input {
-    @apply border border-gray-300 rounded-1 p-2 w-full text-gray-900;
+    @apply w-full rounded-1 border border-gray-300 p-2 text-gray-900;
   }
 
   input:focus {
-    @apply outline-primary-300
+    @apply outline-primary-300;
   }
 }
