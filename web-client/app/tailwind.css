@@ -10,6 +10,10 @@
   .btn-primary {
     @apply bg-primary text-primary-100;
   }
+
+  .clip-circle {
+    clip-path: circle();
+  }
 }
 
 @layer base {
@@ -22,6 +26,6 @@
   }
 
   input:focus {
-    @apply outline-primary-300;
+    @apply border-primary-300 outline-none;
   }
 }

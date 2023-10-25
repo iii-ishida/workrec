@@ -57,6 +57,7 @@ export default {
         100: '#F7F7F9',
         DEFAULT: '#8E8E91'
       },
+      transparent: 'transparent',
     },
   },
   plugins: [],
