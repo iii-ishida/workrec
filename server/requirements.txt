@@ -48,7 +48,7 @@ starlette==0.27.0
 strawberry-graphql==0.189.0
 typing_extensions==4.6.3
 uritemplate==4.1.1
-urllib3==1.26.14
+urllib3==1.26.17
 uvicorn==0.22.0
 uvloop==0.17.0
 watchfiles==0.18.1
